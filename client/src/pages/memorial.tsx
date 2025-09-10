@@ -187,7 +187,7 @@ export default function MemorialPage() {
                       <div className="md:w-48 md:flex-shrink-0">
                         <div className="w-full md:w-48 h-64 bg-muted rounded-xl flex items-center justify-center shadow-lg">
                           <span className="text-4xl text-muted-foreground font-serif">
-                            {memorial.firstName[0]}{memorial.lastName[0]}
+                            {(memorial.firstName?.[0] || '').toUpperCase()}{(memorial.lastName?.[0] || '').toUpperCase()}
                           </span>
                         </div>
                       </div>
@@ -249,7 +249,7 @@ export default function MemorialPage() {
                         <div key={tribute.id} className="flex items-center space-x-3 py-2">
                           <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
                             <span className="text-primary font-semibold text-xs">
-                              {tribute.authorName.split(' ').map(n => n[0]).join('').slice(0, 1)}
+                              {tribute.authorName?.split(' ').map(n => n?.[0] || '').join('').slice(0, 1).toUpperCase() || 'A'}
                             </span>
                           </div>
                           <span className="text-sm">
@@ -290,7 +290,7 @@ export default function MemorialPage() {
                         <div className="flex items-start space-x-4">
                           <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                             <span className="text-primary font-semibold text-sm">
-                              {tribute.authorName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                              {tribute.authorName?.split(' ').map(n => n?.[0] || '').join('').slice(0, 2).toUpperCase() || 'AN'}
                             </span>
                           </div>
                           <div className="flex-1">
@@ -304,7 +304,7 @@ export default function MemorialPage() {
                                 </Badge>
                               )}
                               <span className="text-muted-foreground text-sm">
-                                • {format(new Date(tribute.createdAt!), "MMM dd, yyyy")}
+                                • {tribute.createdAt ? format(new Date(tribute.createdAt), "MMM dd, yyyy") : "Recent"}
                               </span>
                             </div>
                             <p className="text-muted-foreground text-sm leading-relaxed" data-testid={`text-tribute-message-${tribute.id}`}>
@@ -432,12 +432,12 @@ export default function MemorialPage() {
                             <div className="flex items-center space-x-2 mb-2">
                               <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                                 <span className="text-primary font-semibold text-xs">
-                                  {tribute.authorName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                  {tribute.authorName?.split(' ').map(n => n?.[0] || '').join('').slice(0, 2).toUpperCase() || 'AN'}
                                 </span>
                               </div>
                               <span className="font-medium text-sm">{tribute.authorName}</span>
                               <span className="text-muted-foreground text-xs">
-                                • {format(new Date(tribute.createdAt!), "MMM dd")}
+                                • {tribute.createdAt ? format(new Date(tribute.createdAt), "MMM dd") : "Recent"}
                               </span>
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{tribute.message}</p>

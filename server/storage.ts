@@ -242,4 +242,295 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// In-memory storage implementation (preferred for development)
+export class MemStorage implements IStorage {
+  private users = new Map<string, User>();
+  private memorials = new Map<string, Memorial>();
+  private tributes = new Map<string, Tribute>();
+  private partners = new Map<string, Partner>();
+  private memorialPhotos = new Map<string, MemorialPhoto>();
+  private funeralPrograms = new Map<string, FuneralProgram>();
+  private memorialEvents = new Map<string, MemorialEvent>();
+
+  constructor() {
+    // Initialize with sample data for testing
+    this.initializeSampleData();
+  }
+
+  private initializeSampleData() {
+    // Sample memorial for testing
+    const testMemorial: Memorial = {
+      id: "test-id",
+      firstName: "John",
+      lastName: "Mthembu",
+      dateOfBirth: "1955-03-15",
+      dateOfPassing: "2023-08-20",
+      province: "KwaZulu-Natal",
+      status: "published",
+      memorialMessage: "A loving father and devoted husband who touched many lives with his kindness and wisdom. His legacy lives on in the hearts of all who knew him.",
+      profilePhotoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=300&h=400&fit=crop&crop=face",
+      backgroundPhotoUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&w=1200&h=600&fit=crop",
+      viewCount: 245,
+      createdAt: new Date("2023-08-25T10:00:00Z"),
+      updatedAt: new Date("2023-08-25T10:00:00Z"),
+      submittedBy: "test-user-id"
+    };
+    this.memorials.set(testMemorial.id, testMemorial);
+
+    // Sample tributes for testing  
+    const testTributes: Tribute[] = [
+      {
+        id: "tribute-1",
+        memorialId: "test-id",
+        authorName: "Sarah Johnson",
+        authorEmail: "sarah@example.com",
+        relationship: "Friend",
+        message: "John was such a wonderful person. His warm smile and generous heart made everyone feel welcome. He will be deeply missed.",
+        status: "published",
+        createdAt: new Date("2023-08-26T14:30:00Z"),
+        updatedAt: new Date("2023-08-26T14:30:00Z"),
+        submittedBy: undefined
+      },
+      {
+        id: "tribute-2", 
+        memorialId: "test-id",
+        authorName: "Michael Williams",
+        authorEmail: "mike@example.com",
+        relationship: "Colleague",
+        message: "Working with John was a privilege. His dedication and mentorship helped shape many careers. A true professional and friend.",
+        status: "published",
+        createdAt: new Date("2023-08-27T09:15:00Z"),
+        updatedAt: new Date("2023-08-27T09:15:00Z"),
+        submittedBy: undefined
+      }
+    ];
+    testTributes.forEach(tribute => this.tributes.set(tribute.id, tribute));
+
+    // Sample photos for testing
+    const testPhotos: MemorialPhoto[] = [
+      {
+        id: "photo-1",
+        memorialId: "test-id",
+        photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=300&h=300&fit=crop",
+        caption: "Family gathering 2020",
+        createdAt: new Date("2023-08-25T12:00:00Z"),
+        submittedBy: "test-user-id"
+      },
+      {
+        id: "photo-2",
+        memorialId: "test-id", 
+        photoUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&w=300&h=300&fit=crop",
+        caption: "Happy times",
+        createdAt: new Date("2023-08-25T12:30:00Z"),
+        submittedBy: "test-user-id"
+      }
+    ];
+    testPhotos.forEach(photo => this.memorialPhotos.set(photo.id, photo));
+  }
+
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const user: User = {
+      id: userData.id,
+      email: userData.email,
+      firstName: userData.firstName || "",
+      lastName: userData.lastName || "",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  // Memorial operations
+  async getMemorials(filters?: { province?: string; status?: string }): Promise<Memorial[]> {
+    let result = Array.from(this.memorials.values());
+    
+    if (filters?.province) {
+      result = result.filter(m => m.province === filters.province);
+    }
+    if (filters?.status) {
+      result = result.filter(m => m.status === filters.status);
+    } else {
+      result = result.filter(m => m.status === "published");
+    }
+    
+    return result.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getMemorial(id: string): Promise<Memorial | undefined> {
+    return this.memorials.get(id);
+  }
+
+  async createMemorial(memorial: InsertMemorial): Promise<Memorial> {
+    const id = `memorial-${Date.now()}`;
+    const newMemorial: Memorial = {
+      ...memorial,
+      id,
+      viewCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.memorials.set(id, newMemorial);
+    return newMemorial;
+  }
+
+  async updateMemorial(id: string, memorial: Partial<Memorial>): Promise<Memorial | undefined> {
+    const existing = this.memorials.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...memorial, updatedAt: new Date() };
+    this.memorials.set(id, updated);
+    return updated;
+  }
+
+  async incrementMemorialViews(id: string): Promise<void> {
+    const memorial = this.memorials.get(id);
+    if (memorial) {
+      memorial.viewCount = (memorial.viewCount || 0) + 1;
+      this.memorials.set(id, memorial);
+    }
+  }
+
+  // Tribute operations
+  async getTributesByMemorial(memorialId: string): Promise<Tribute[]> {
+    return Array.from(this.tributes.values())
+      .filter(t => t.memorialId === memorialId && t.status === "published")
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async createTribute(tribute: InsertTribute): Promise<Tribute> {
+    const id = `tribute-${Date.now()}`;
+    const newTribute: Tribute = {
+      ...tribute,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.tributes.set(id, newTribute);
+    return newTribute;
+  }
+
+  async updateTribute(id: string, tribute: Partial<Tribute>): Promise<Tribute | undefined> {
+    const existing = this.tributes.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...tribute, updatedAt: new Date() };
+    this.tributes.set(id, updated);
+    return updated;
+  }
+
+  // Partner operations
+  async getPartners(filters?: { province?: string; type?: string; status?: string }): Promise<Partner[]> {
+    let result = Array.from(this.partners.values());
+    
+    if (filters?.province) {
+      result = result.filter(p => p.province === filters.province);
+    }
+    if (filters?.type) {
+      result = result.filter(p => p.type === filters.type);
+    }
+    if (filters?.status) {
+      result = result.filter(p => p.status === filters.status);
+    } else {
+      result = result.filter(p => p.status === "published");
+    }
+    
+    return result.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  async getPartner(id: string): Promise<Partner | undefined> {
+    return this.partners.get(id);
+  }
+
+  async createPartner(partner: InsertPartner): Promise<Partner> {
+    const id = `partner-${Date.now()}`;
+    const newPartner: Partner = {
+      ...partner,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.partners.set(id, newPartner);
+    return newPartner;
+  }
+
+  async updatePartner(id: string, partner: Partial<Partner>): Promise<Partner | undefined> {
+    const existing = this.partners.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...partner, updatedAt: new Date() };
+    this.partners.set(id, updated);
+    return updated;
+  }
+
+  // Memorial photo operations
+  async getMemorialPhotos(memorialId: string): Promise<MemorialPhoto[]> {
+    return Array.from(this.memorialPhotos.values())
+      .filter(p => p.memorialId === memorialId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async createMemorialPhoto(photo: InsertMemorialPhoto): Promise<MemorialPhoto> {
+    const id = `photo-${Date.now()}`;
+    const newPhoto: MemorialPhoto = {
+      ...photo,
+      id,
+      createdAt: new Date()
+    };
+    this.memorialPhotos.set(id, newPhoto);
+    return newPhoto;
+  }
+
+  // Funeral program operations  
+  async getFuneralPrograms(memorialId: string): Promise<FuneralProgram[]> {
+    return Array.from(this.funeralPrograms.values())
+      .filter(p => p.memorialId === memorialId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async createFuneralProgram(program: InsertFuneralProgram): Promise<FuneralProgram> {
+    const id = `program-${Date.now()}`;
+    const newProgram: FuneralProgram = {
+      ...program,
+      id,
+      downloadCount: 0,
+      createdAt: new Date()
+    };
+    this.funeralPrograms.set(id, newProgram);
+    return newProgram;
+  }
+
+  async incrementProgramDownloads(id: string): Promise<void> {
+    const program = this.funeralPrograms.get(id);
+    if (program) {
+      program.downloadCount = (program.downloadCount || 0) + 1;
+      this.funeralPrograms.set(id, program);
+    }
+  }
+
+  // Memorial event operations
+  async getMemorialEvents(memorialId: string): Promise<MemorialEvent[]> {
+    return Array.from(this.memorialEvents.values())
+      .filter(e => e.memorialId === memorialId && e.status === "published")
+      .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+  }
+
+  async createMemorialEvent(event: InsertMemorialEvent): Promise<MemorialEvent> {
+    const id = `event-${Date.now()}`;
+    const newEvent: MemorialEvent = {
+      ...event,
+      id,
+      createdAt: new Date()
+    };
+    this.memorialEvents.set(id, newEvent);
+    return newEvent;
+  }
+}
+
+// Use MemStorage for development (preferred over database)
+export const storage = new MemStorage();
