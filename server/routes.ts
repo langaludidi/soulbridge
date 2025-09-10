@@ -125,13 +125,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Memorial not found" });
       }
       
-      // Increment view count
-      await storage.incrementMemorialViews(req.params.id);
-      
       res.json(memorial);
     } catch (error) {
       console.error("Error fetching memorial:", error);
       res.status(500).json({ message: "Failed to fetch memorial" });
+    }
+  });
+
+  // Memorial view tracking endpoint (called only when localStorage check passes)
+  app.patch('/api/memorials/:id/view', async (req, res) => {
+    try {
+      const memorial = await storage.getMemorial(req.params.id);
+      if (!memorial) {
+        return res.status(404).json({ message: "Memorial not found" });
+      }
+      
+      await storage.incrementMemorialViews(req.params.id);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Error incrementing memorial views:", error);
+      res.status(500).json({ message: "Failed to update view count" });
     }
   });
 

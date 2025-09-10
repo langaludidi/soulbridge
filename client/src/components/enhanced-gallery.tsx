@@ -75,17 +75,13 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     uploaderName: "",
   });
   const [dragActive, setDragActive] = useState(false);
+  // Track viewed photos in current session to prevent double-counting
+  const [viewedPhotosInSession, setViewedPhotosInSession] = useState<Set<string>>(new Set());
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Get filtered photos based on active media type
-  const { data: filteredPhotos = [], isLoading: mediaLoading } = useQuery<MemorialPhoto[]>({
-    queryKey: ['/api/memorials', memorialId, 'photos', activeMediaType],
-    enabled: !!memorialId,
-  });
-
-  // Use filtered photos for display (filter from allPhotos for now)
+  // Filter photos locally based on active media type (no redundant API calls)
   const photos = allPhotos?.filter(p => p.mediaType === activeMediaType || (!p.mediaType && activeMediaType === 'photo')) || [];
 
   // Calculate media type counts
@@ -113,7 +109,6 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       }
       
       queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos", activeMediaType] });
       setUploadModalOpen(false);
       setUploadForm({ 
         photoUrl: "", 
@@ -149,17 +144,69 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     },
   });
 
+  const incrementPhotoViewMutation = useMutation({
+    mutationFn: async (photoId: string) => {
+      return apiRequest('PATCH', `/api/photos/${photoId}/view`, {});
+    },
+    retry: false, // Don't retry view increments to prevent accidental double counting
+    onSuccess: (data, photoId) => {
+      // Optimistic update: increment view count locally instead of full refetch
+      queryClient.setQueryData<MemorialPhoto[]>(['/api/memorials', memorialId, 'photos'], (oldData) => {
+        if (!oldData) return oldData;
+        return oldData.map(photo => 
+          photo.id === photoId 
+            ? { ...photo, viewCount: (photo.viewCount || 0) + 1 }
+            : photo
+        );
+      });
+    },
+    onError: (error) => {
+      console.warn('Failed to increment photo view:', error);
+      // Don't show error toast as this shouldn't interrupt user experience
+    },
+  });
+
+  // Helper function to track photo view with session-based deduplication
+  const trackPhotoView = (photoId: string) => {
+    if (!photoId || viewedPhotosInSession.has(photoId)) {
+      return; // Already viewed in this session, don't increment again
+    }
+    
+    // Mark as viewed in current session
+    setViewedPhotosInSession(prev => new Set(prev).add(photoId));
+    
+    // Increment view count on server
+    incrementPhotoViewMutation.mutate(photoId);
+  };
+
   const openLightbox = (index: number) => {
     setCurrentPhotoIndex(index);
     setLightboxOpen(true);
+    
+    // Track photo view when lightbox opens (with session deduplication)
+    if (photos[index]?.id) {
+      trackPhotoView(photos[index].id);
+    }
   };
 
   const nextPhoto = () => {
-    setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
+    const newIndex = (currentPhotoIndex + 1) % photos.length;
+    setCurrentPhotoIndex(newIndex);
+    
+    // Track photo view when navigating to new photo (with session deduplication)
+    if (photos[newIndex]?.id) {
+      trackPhotoView(photos[newIndex].id);
+    }
   };
 
   const prevPhoto = () => {
-    setCurrentPhotoIndex((prev) => (prev - 1 + photos.length) % photos.length);
+    const newIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+    setCurrentPhotoIndex(newIndex);
+    
+    // Track photo view when navigating to new photo (with session deduplication)
+    if (photos[newIndex]?.id) {
+      trackPhotoView(photos[newIndex].id);
+    }
   };
 
   const startSlideshow = () => {
@@ -258,7 +305,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     });
   };
 
-  if (isLoading || mediaLoading) {
+  if (isLoading) {
     return (
       <div className="bg-card rounded-xl p-6 shadow-sm">
         <div className="animate-pulse space-y-4">
@@ -607,6 +654,24 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         
         {/* Gallery Sidebar */}
         <div className="lg:col-span-1 bg-muted/30 p-6 space-y-6">
+          {/* Memorial Views Section - Prominent display inspired by ForeverMissed */}
+          <div className="bg-background/80 rounded-lg p-4 border border-border/50">
+            <div className="text-center space-y-2">
+              <div className="flex items-center justify-center space-x-2 text-2xl font-bold text-foreground">
+                <Eye className="w-6 h-6 text-primary" />
+                <span data-testid="text-memorial-views">
+                  {(memorial.viewCount || 0).toLocaleString()} Views
+                </span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span data-testid="text-memorial-access">
+                  {memorial.privacy === 'private' ? 'Private access' : 'Open access'}
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* Gallery Statistics */}
           <div>
             <h4 className="font-semibold mb-4 flex items-center space-x-2">

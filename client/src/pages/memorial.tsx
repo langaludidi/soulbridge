@@ -6,8 +6,9 @@ import { TributeModal } from "@/components/tribute-modal";
 import { EnhancedGallery } from "@/components/enhanced-gallery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { apiRequest } from "@/lib/queryClient";
 import type { Memorial, Tribute, MemorialPhoto } from "@shared/schema";
 
 export default function MemorialPage() {
@@ -17,19 +18,58 @@ export default function MemorialPage() {
 
   const memorialId = params?.id;
 
+  // Memorial view tracking mutation (only called when localStorage check passes)
+  const incrementMemorialViewMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest('PATCH', `/api/memorials/${id}/view`, {});
+    },
+    retry: false, // Don't retry view increments to prevent accidental double counting
+    onError: (error) => {
+      console.warn('Failed to increment memorial view:', error);
+      // Don't show error toast as this shouldn't interrupt user experience
+    },
+  });
+
+  // Track memorial views with localStorage to prevent inflation from same user
+  React.useEffect(() => {
+    if (memorialId) {
+      const viewKey = `sb_viewed_memorial_${memorialId}`;
+      const lastViewed = localStorage.getItem(viewKey);
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      
+      // Only increment view if not viewed in last 24 hours
+      if (!lastViewed || (now - parseInt(lastViewed)) > twentyFourHours) {
+        localStorage.setItem(viewKey, now.toString());
+        incrementMemorialViewMutation.mutate(memorialId);
+      }
+    }
+  }, [memorialId, incrementMemorialViewMutation]);
+
   const { data: memorial, isLoading: memorialLoading } = useQuery<Memorial>({
     queryKey: ["/api/memorials", memorialId],
     enabled: !!memorialId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchInterval: false,
+    refetchOnReconnect: false, // Prevent refetch on reconnect for view-related data
   });
 
   const { data: tributes = [] } = useQuery<Tribute[]>({
     queryKey: ["/api/memorials", memorialId, "tributes"],
     enabled: !!memorialId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false, // Prevent unwanted refetches
   });
 
   const { data: photos = [] } = useQuery<MemorialPhoto[]>({
     queryKey: ["/api/memorials", memorialId, "photos"],
     enabled: !!memorialId,
+    staleTime: 1 * 60 * 1000, // 1 minute
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false, // Prevent unwanted refetches that could affect view counts
   });
 
   // Set OpenGraph meta tags for social sharing
