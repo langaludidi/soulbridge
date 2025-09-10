@@ -51,13 +51,11 @@ export default function OrderOfServicePage() {
     }
   });
 
-  // Increment download count
+  // Increment download count (without triggering print)
   const downloadMutation = useMutation({
     mutationFn: () => apiRequest(`/api/order-of-service/${id}/download`, 'PATCH'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/order-of-service', id] });
-      // Trigger browser print dialog
-      window.print();
     }
   });
 
@@ -112,16 +110,24 @@ export default function OrderOfServicePage() {
     }
 
     try {
-      // Update download count first
-      downloadMutation.mutate();
-      
-      // Then generate the enhanced printable version
+      // 1. First, generate the enhanced printable version and wait for DOM preparation
       await generatePrintableOrderOfService(orderOfService, memorial);
       
-      toast({
-        title: "Download ready!",
-        description: "The Order of Service is ready to print or save as PDF",
-      });
+      // 2. Update download count after layout is ready
+      downloadMutation.mutate();
+      
+      // 3. Small delay to ensure print layout is fully applied
+      setTimeout(() => {
+        // 4. NOW trigger browser print dialog with prepared layout
+        window.print();
+        
+        // 5. Show success toast after print dialog opens
+        toast({
+          title: "Print ready!",
+          description: "Order of Service prepared for printing or saving as PDF",
+        });
+      }, 100);
+      
     } catch (error) {
       console.error('Print error:', error);
       toast({
