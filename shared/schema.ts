@@ -151,6 +151,60 @@ export const memorialSubscriptions = pgTable("memorial_subscriptions", {
   index("IDX_memorial_subscriptions_email").on(table.email),
 ]);
 
+// Digital Order of Service table - Main program details
+export const digitalOrderOfService = pgTable("digital_order_of_service", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  memorialId: varchar("memorial_id").references(() => memorials.id).notNull(),
+  
+  // Cover page details
+  title: varchar("title").default("Celebration of Life"), // "Celebration of Life", "Funeral Service", etc.
+  coverPhotoUrl: varchar("cover_photo_url"),
+  tributeQuote: text("tribute_quote"), // Short tribute/quote for cover page
+  
+  // Service details
+  serviceDate: timestamp("service_date"),
+  serviceTime: varchar("service_time"), // e.g., "10:00 AM"
+  venue: text("venue"), // Service location
+  officiant: varchar("officiant"), // Person conducting the service
+  
+  // Customization
+  theme: varchar("theme").default("classic"), // classic, modern, floral, etc.
+  fontFamily: varchar("font_family").default("serif"), // serif, sans-serif, script
+  
+  // Metadata
+  status: varchar("status").default("draft"), // draft, published, archived
+  privacy: varchar("privacy").default("public"), // public, private, family_only
+  downloadCount: integer("download_count").default(0),
+  viewCount: integer("view_count").default(0),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Order of Service Events table - Individual service events
+export const orderOfServiceEvents = pgTable("order_of_service_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderOfServiceId: varchar("order_of_service_id").references(() => digitalOrderOfService.id).notNull(),
+  
+  // Event details
+  title: varchar("title").notNull(), // "Opening Prayer", "Reading", "Eulogy", etc.
+  description: text("description"), // Additional details about the event
+  speaker: varchar("speaker"), // Person conducting this part
+  duration: varchar("duration"), // e.g., "5 minutes"
+  
+  // Order and display
+  orderIndex: integer("order_index").notNull(), // Order in the service
+  eventType: varchar("event_type").notNull(), // prayer, reading, music, eulogy, reflection, closing
+  
+  // Optional content
+  content: text("content"), // Specific prayer text, reading passage, etc.
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_order_service_events_order_id").on(table.orderOfServiceId),
+  index("IDX_order_service_events_order_index").on(table.orderIndex),
+]);
+
 // Relations
 export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   submitter: one(users, {
@@ -162,6 +216,7 @@ export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   programs: many(funeralPrograms),
   events: many(memorialEvents),
   subscriptions: many(memorialSubscriptions),
+  orderOfService: many(digitalOrderOfService),
 }));
 
 export const tributesRelations = relations(tributes, ({ one }) => ({
@@ -237,6 +292,25 @@ export const memorialSubscriptionsRelations = relations(memorialSubscriptions, (
   }),
 }));
 
+export const digitalOrderOfServiceRelations = relations(digitalOrderOfService, ({ one, many }) => ({
+  memorial: one(memorials, {
+    fields: [digitalOrderOfService.memorialId],
+    references: [memorials.id],
+  }),
+  creator: one(users, {
+    fields: [digitalOrderOfService.createdBy],
+    references: [users.id],
+  }),
+  events: many(orderOfServiceEvents),
+}));
+
+export const orderOfServiceEventsRelations = relations(orderOfServiceEvents, ({ one }) => ({
+  orderOfService: one(digitalOrderOfService, {
+    fields: [orderOfServiceEvents.orderOfServiceId],
+    references: [digitalOrderOfService.id],
+  }),
+}));
+
 // Insert schemas
 export const insertMemorialSchema = createInsertSchema(memorials).omit({
   id: true,
@@ -284,6 +358,19 @@ export const insertMemorialSubscriptionSchema = createInsertSchema(memorialSubsc
   updatedAt: true,
 });
 
+export const insertDigitalOrderOfServiceSchema = createInsertSchema(digitalOrderOfService).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  downloadCount: true,
+  viewCount: true,
+});
+
+export const insertOrderOfServiceEventSchema = createInsertSchema(orderOfServiceEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -311,3 +398,9 @@ export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 
 export type InsertMemorialSubscription = z.infer<typeof insertMemorialSubscriptionSchema>;
 export type MemorialSubscription = typeof memorialSubscriptions.$inferSelect;
+
+export type InsertDigitalOrderOfService = z.infer<typeof insertDigitalOrderOfServiceSchema>;
+export type DigitalOrderOfService = typeof digitalOrderOfService.$inferSelect;
+
+export type InsertOrderOfServiceEvent = z.infer<typeof insertOrderOfServiceEventSchema>;
+export type OrderOfServiceEvent = typeof orderOfServiceEvents.$inferSelect;
