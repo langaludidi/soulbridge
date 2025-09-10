@@ -32,6 +32,7 @@ export interface IStorage {
   // Memorial operations
   getMemorials(filters?: { province?: string; status?: string }): Promise<Memorial[]>;
   getMemorial(id: string): Promise<Memorial | undefined>;
+  getMemorialWithAdmin(id: string): Promise<(Memorial & { administratorName?: string }) | undefined>;
   createMemorial(memorial: InsertMemorial): Promise<Memorial>;
   updateMemorial(id: string, memorial: Partial<Memorial>): Promise<Memorial | undefined>;
   incrementMemorialViews(id: string): Promise<void>;
@@ -107,6 +108,36 @@ export class DatabaseStorage implements IStorage {
   async getMemorial(id: string): Promise<Memorial | undefined> {
     const [memorial] = await db.select().from(memorials).where(eq(memorials.id, id));
     return memorial;
+  }
+
+  // Enhanced memorial data with administrator information
+  async getMemorialWithAdmin(id: string): Promise<(Memorial & { administratorName?: string }) | undefined> {
+    const result = await db
+      .select({
+        // All memorial fields
+        id: memorials.id,
+        firstName: memorials.firstName,
+        lastName: memorials.lastName,
+        dateOfBirth: memorials.dateOfBirth,
+        dateOfPassing: memorials.dateOfPassing,
+        province: memorials.province,
+        profilePhotoUrl: memorials.profilePhotoUrl,
+        memorialMessage: memorials.memorialMessage,
+        status: memorials.status,
+        privacy: memorials.privacy,
+        submittedBy: memorials.submittedBy,
+        viewCount: memorials.viewCount,
+        createdAt: memorials.createdAt,
+        updatedAt: memorials.updatedAt,
+        // Administrator name from joined user data
+        administratorName: sql<string>`${users.firstName} || ' ' || ${users.lastName}`.as('administrator_name'),
+      })
+      .from(memorials)
+      .leftJoin(users, eq(memorials.submittedBy, users.id))
+      .where(eq(memorials.id, id))
+      .limit(1);
+
+    return result[0] || undefined;
   }
 
   async createMemorial(memorial: InsertMemorial): Promise<Memorial> {
@@ -422,6 +453,27 @@ export class MemStorage implements IStorage {
 
   async getMemorial(id: string): Promise<Memorial | undefined> {
     return this.memorials.get(id);
+  }
+
+  // Enhanced memorial data with administrator information
+  async getMemorialWithAdmin(id: string): Promise<(Memorial & { administratorName?: string }) | undefined> {
+    const memorial = this.memorials.get(id);
+    if (!memorial) return undefined;
+
+    let administratorName: string | undefined;
+    
+    // If memorial has submitter ID, try to get user name
+    if (memorial.submittedBy) {
+      const user = this.users.get(memorial.submittedBy);
+      if (user && user.firstName && user.lastName) {
+        administratorName = `${user.firstName} ${user.lastName}`.trim();
+      }
+    }
+    
+    return {
+      ...memorial,
+      administratorName
+    };
   }
 
   async createMemorial(memorial: InsertMemorial): Promise<Memorial> {

@@ -120,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/memorials/:id', async (req, res) => {
     try {
-      const memorial = await storage.getMemorial(req.params.id);
+      const memorial = await storage.getMemorialWithAdmin(req.params.id);
       if (!memorial) {
         return res.status(404).json({ message: "Memorial not found" });
       }

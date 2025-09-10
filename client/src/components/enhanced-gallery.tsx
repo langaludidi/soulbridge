@@ -47,6 +47,7 @@ import {
   Mail,
   SkipForward,
   SkipBack,
+  Shield,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -821,6 +822,88 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span data-testid="text-memorial-access">
                   {memorial.privacy === 'private' ? 'Private access' : 'Open access'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Memorial Administrator Section */}
+          <div className="bg-background/80 rounded-lg p-4 border border-border/50">
+            <h4 className="font-semibold mb-3 flex items-center space-x-2">
+              <Shield className="w-4 h-4 text-primary" />
+              <span>Memorial Administrator</span>
+            </h4>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                This memorial is administered by:
+              </p>
+              <div className="flex items-center space-x-2">
+                <User className="w-4 h-4 text-primary" />
+                <span 
+                  className="font-medium text-foreground"
+                  data-testid="text-administrator-name"
+                >
+                  {(() => {
+                    // Administrator Resolution Priority (in order):
+                    // 1. memorial.administratorName (from joined user data)
+                    // 2. memorial.submittedBy if it's a display name (not UUID)
+                    // 3. Most active contributor (person with most uploads)
+                    // 4. Default to "Family Administrator" as last resort
+                    
+                    // Priority 1: Use proper administrator name from backend join
+                    const memorialWithAdmin = memorial as any;
+                    if (memorialWithAdmin.administratorName?.trim()) {
+                      return memorialWithAdmin.administratorName.trim();
+                    }
+                    
+                    // Priority 2: Check if submittedBy contains actual display name (not just UUID)
+                    if (memorial.submittedBy) {
+                      // If submittedBy looks like a display name (contains spaces/chars), use it
+                      // Otherwise it's likely just a UUID, so continue to fallback logic
+                      if (memorial.submittedBy.includes(' ') || memorial.submittedBy.length < 20) {
+                        return memorial.submittedBy;
+                      }
+                    }
+                    
+                    // Priority 3: Find most active contributor (person with most uploads)
+                    if (allPhotos?.length > 0) {
+                      const uploaderCounts = new Map<string, number>();
+                      
+                      // Count uploads per person
+                      allPhotos
+                        .filter(photo => photo.uploaderName?.trim())
+                        .forEach(photo => {
+                          const name = photo.uploaderName!.trim();
+                          uploaderCounts.set(name, (uploaderCounts.get(name) || 0) + 1);
+                        });
+                      
+                      // Find the person with most uploads (most active contributor)
+                      if (uploaderCounts.size > 0) {
+                        let mostActiveContributor = '';
+                        let maxUploads = 0;
+                        
+                        uploaderCounts.forEach((count, name) => {
+                          if (count > maxUploads) {
+                            maxUploads = count;
+                            mostActiveContributor = name;
+                          }
+                        });
+                        
+                        if (mostActiveContributor) {
+                          return mostActiveContributor;
+                        }
+                      }
+                    }
+                    
+                    // Priority 4: Final fallback - use a default administrator name
+                    return "Family Administrator";
+                  })()}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span data-testid="text-administrator-status">
+                  Active memorial steward
                 </span>
               </div>
             </div>
