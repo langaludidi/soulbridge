@@ -11,17 +11,33 @@ export default function Browse() {
   const [selectedProvince, setSelectedProvince] = useState("all");
 
   const { data: memorials = [], isLoading } = useQuery<Memorial[]>({
-    queryKey: ["/api/memorials", { province: selectedProvince === "all" ? undefined : selectedProvince || undefined }],
+    queryKey: ["/api/memorials"],
   });
 
+  // Filter memorials by province and search query
   const filteredMemorials = memorials.filter(memorial => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      memorial.firstName.toLowerCase().includes(query) ||
-      memorial.lastName.toLowerCase().includes(query) ||
-      memorial.province.toLowerCase().includes(query)
-    );
+    // Province filter
+    if (selectedProvince && selectedProvince !== "all") {
+      if (!memorial.province || memorial.province !== selectedProvince) {
+        return false;
+      }
+    }
+    
+    // Search query filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const firstName = memorial.firstName?.toLowerCase() || '';
+      const lastName = memorial.lastName?.toLowerCase() || '';
+      const province = memorial.province?.toLowerCase() || '';
+      
+      return (
+        firstName.includes(query) ||
+        lastName.includes(query) ||
+        province.includes(query)
+      );
+    }
+    
+    return true;
   });
 
   return (

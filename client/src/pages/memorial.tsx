@@ -1,6 +1,6 @@
 import { useState } from "react";
 import React from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { Navigation } from "@/components/navigation";
 import { TributeModal } from "@/components/tribute-modal";
 import { EnhancedGallery } from "@/components/enhanced-gallery";
@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
-import type { Memorial, Tribute, MemorialPhoto } from "@shared/schema";
+import type { Memorial, Tribute, MemorialPhoto, DigitalOrderOfService } from "@shared/schema";
+import { FileText } from "lucide-react";
 
 export default function MemorialPage() {
   const [, params] = useRoute("/memorial/:id");
+  const [, setLocation] = useLocation();
   const [showTributeModal, setShowTributeModal] = useState(false);
   const [activeTab, setActiveTab] = useState("about");
 
@@ -70,6 +72,16 @@ export default function MemorialPage() {
     staleTime: 1 * 60 * 1000, // 1 minute
     refetchOnWindowFocus: false,
     refetchOnReconnect: false, // Prevent unwanted refetches that could affect view counts
+  });
+
+  // Check for available Order of Service
+  const { data: orderOfService } = useQuery<DigitalOrderOfService>({
+    queryKey: ["/api/memorials", memorialId, "order-of-service"],
+    enabled: !!memorialId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false, // Don't retry if not found - may not exist for this memorial
   });
 
   // Set OpenGraph meta tags for social sharing
@@ -560,6 +572,18 @@ export default function MemorialPage() {
                   </svg>
                   <span className="font-medium">Leave Tribute</span>
                 </button>
+
+                {/* Order of Service Button */}
+                {orderOfService && (
+                  <button 
+                    onClick={() => setLocation(`/order-of-service/${orderOfService.id}`)}
+                    className="flex items-center justify-center space-x-3 p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-purple-700"
+                    data-testid="button-order-of-service"
+                  >
+                    <FileText className="w-5 h-5" />
+                    <span className="font-medium">Order of Service</span>
+                  </button>
+                )}
               </div>
               
               <hr className="border-border" />
