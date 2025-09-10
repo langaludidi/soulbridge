@@ -317,6 +317,17 @@ export const insertMemorialSchema = createInsertSchema(memorials).omit({
   createdAt: true,
   updatedAt: true,
   viewCount: true,
+}).extend({
+  // Robust date validation with coercion and validation checks
+  dateOfBirth: z.coerce.date().refine(date => !isNaN(date.getTime()), {
+    message: "Please enter a valid birth date"
+  }),
+  dateOfPassing: z.coerce.date().refine(date => !isNaN(date.getTime()), {
+    message: "Please enter a valid passing date"
+  }),
+}).refine(data => data.dateOfBirth <= data.dateOfPassing, {
+  message: "Birth date must be before passing date",
+  path: ["dateOfPassing"]
 });
 
 export const insertTributeSchema = createInsertSchema(tributes).omit({

@@ -31,7 +31,7 @@ import {
   type InsertOrderOfServiceEvent,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, like, and, sql } from "drizzle-orm";
+import { eq, desc, like, and, or, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -123,9 +123,15 @@ export class DatabaseStorage implements IStorage {
     if (filters?.province) {
       conditions.push(eq(memorials.province, filters.province));
     }
-    if (filters?.status) {
-      conditions.push(eq(memorials.status, filters.status));
+    if (filters?.status !== undefined) {
+      if (filters.status === null) {
+        // Special case: null means authenticated user wants both published and draft
+        conditions.push(or(eq(memorials.status, "published"), eq(memorials.status, "draft")));
+      } else {
+        conditions.push(eq(memorials.status, filters.status));
+      }
     } else {
+      // Default safe behavior: published only for public access
       conditions.push(eq(memorials.status, "published"));
     }
     
@@ -1040,5 +1046,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use MemStorage for development (preferred over database)
-export const storage = new MemStorage();
+// Use DatabaseStorage for persistent data storage
+export const storage = new DatabaseStorage();

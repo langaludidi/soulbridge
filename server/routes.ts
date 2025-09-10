@@ -106,11 +106,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Memorial routes
   app.get('/api/memorials', async (req, res) => {
     try {
-      const { province, status = "published" } = req.query;
+      const { province, status, includeDrafts } = req.query;
+      
+      // Only allow draft access for authenticated users
+      const defaultStatus = status as string || "published";
+      const canAccessDrafts = req.user && includeDrafts === "true";
+      
       const memorials = await storage.getMemorials({
         province: province as string,
-        status: status as string,
+        status: canAccessDrafts ? null : defaultStatus, // null shows all when authenticated
       });
+      
       res.json(memorials);
     } catch (error) {
       console.error("Error fetching memorials:", error);
