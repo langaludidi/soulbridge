@@ -8,10 +8,10 @@ import type { Memorial } from "@shared/schema";
 
 export default function Browse() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("all");
 
   const { data: memorials = [], isLoading } = useQuery<Memorial[]>({
-    queryKey: ["/api/memorials", { province: selectedProvince || undefined }],
+    queryKey: ["/api/memorials", { province: selectedProvince === "all" ? undefined : selectedProvince || undefined }],
   });
 
   const filteredMemorials = memorials.filter(memorial => {
@@ -57,7 +57,7 @@ export default function Browse() {
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Provinces</SelectItem>
+                  <SelectItem value="all">All Provinces</SelectItem>
                   <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
                   <SelectItem value="Free State">Free State</SelectItem>
                   <SelectItem value="Gauteng">Gauteng</SelectItem>
@@ -109,15 +109,15 @@ export default function Browse() {
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">No memorials found</h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery || selectedProvince 
+              {searchQuery || (selectedProvince && selectedProvince !== "all")
                 ? "Try adjusting your search criteria or browse all memorials." 
                 : "There are no memorials available at the moment."}
             </p>
-            {(searchQuery || selectedProvince) && (
+            {(searchQuery || (selectedProvince && selectedProvince !== "all")) && (
               <button 
                 onClick={() => {
                   setSearchQuery("");
-                  setSelectedProvince("");
+                  setSelectedProvince("all");
                 }}
                 className="text-primary hover:underline text-sm"
                 data-testid="button-clear-filters"

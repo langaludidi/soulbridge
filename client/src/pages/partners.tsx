@@ -9,13 +9,13 @@ import type { Partner } from "@shared/schema";
 
 export default function Partners() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
 
   const { data: partners = [], isLoading } = useQuery<Partner[]>({
     queryKey: ["/api/partners", { 
-      province: selectedProvince || undefined,
-      type: selectedType || undefined 
+      province: selectedProvince === "all" ? undefined : selectedProvince,
+      type: selectedType === "all" ? undefined : selectedType 
     }],
   });
 
@@ -73,7 +73,7 @@ export default function Partners() {
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Provinces</SelectItem>
+                  <SelectItem value="all">All Provinces</SelectItem>
                   <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
                   <SelectItem value="Free State">Free State</SelectItem>
                   <SelectItem value="Gauteng">Gauteng</SelectItem>
@@ -92,7 +92,7 @@ export default function Partners() {
                   <SelectValue placeholder="All Services" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Services</SelectItem>
+                  <SelectItem value="all">All Services</SelectItem>
                   <SelectItem value="funeral_home">Funeral Homes</SelectItem>
                   <SelectItem value="florist">Florists</SelectItem>
                   <SelectItem value="caterer">Caterers</SelectItem>
@@ -205,16 +205,16 @@ export default function Partners() {
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">No partners found</h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery || selectedProvince || selectedType
+              {searchQuery || (selectedProvince !== "all") || (selectedType !== "all")
                 ? "Try adjusting your search criteria." 
                 : "No partners are available at the moment."}
             </p>
-            {(searchQuery || selectedProvince || selectedType) && (
+            {(searchQuery || (selectedProvince !== "all") || (selectedType !== "all")) && (
               <button 
                 onClick={() => {
                   setSearchQuery("");
-                  setSelectedProvince("");
-                  setSelectedType("");
+                  setSelectedProvince("all");
+                  setSelectedType("all");
                 }}
                 className="text-primary hover:underline text-sm"
                 data-testid="button-clear-partner-filters"
