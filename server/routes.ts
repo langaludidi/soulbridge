@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema } from "@shared/schema";
+import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema } from "@shared/schema";
 import fs from "fs";
 import path from "path";
 
@@ -417,6 +417,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error submitting contact form:", error);
       res.status(500).json({ message: "Failed to submit contact form. Please try again." });
+    }
+  });
+
+  // Memorial subscription routes
+  app.get('/api/memorials/:id/subscription', async (req: any, res) => {
+    try {
+      const memorialId = req.params.id;
+      const userId = req.user?.claims?.sub;
+      const email = req.query.email as string;
+      
+      // Check if memorial exists
+      const memorial = await storage.getMemorial(memorialId);
+      if (!memorial) {
+        return res.status(404).json({ message: "Memorial not found" });
+      }
+      
+      // Find subscription by userId or email
+      const subscription = await storage.getMemorialSubscription(memorialId, userId, email);
+      
+      res.json({
+        isSubscribed: !!subscription && subscription.isActive,
+        subscription: subscription || null,
+        requiresAuth: !userId && !email, // Guest users need to provide email or authenticate
+      });
+    } catch (error) {
+      console.error("Error checking subscription status:", error);
+      res.status(500).json({ message: "Failed to check subscription status" });
+    }
+  });
+
+  app.post('/api/memorials/:id/subscription', async (req: any, res) => {
+    try {
+      const memorialId = req.params.id;
+      const userId = req.user?.claims?.sub;
+      const subscriptionData = insertMemorialSubscriptionSchema.parse({
+        ...req.body,
+        memorialId,
+        userId: userId || undefined,
+      });
+      
+      // Check if memorial exists
+      const memorial = await storage.getMemorial(memorialId);
+      if (!memorial) {
+        return res.status(404).json({ message: "Memorial not found" });
+      }
+      
+      // Validate email if provided for guest subscription
+      if (subscriptionData.email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(subscriptionData.email)) {
+          return res.status(400).json({ message: "Please provide a valid email address" });
+        }
+      }
+      
+      // Must have either userId or email
+      if (!userId && !subscriptionData.email) {
+        return res.status(400).json({ message: "Email address is required for subscription" });
+      }
+      
+      // Check if subscription already exists
+      const existingSubscription = await storage.getMemorialSubscription(
+        memorialId,
+        userId,
+        subscriptionData.email
+      );
+      
+      if (existingSubscription && existingSubscription.isActive) {
+        return res.status(409).json({ 
+          message: "Already subscribed to this memorial",
+          subscription: existingSubscription
+        });
+      }
+      
+      // Create or reactivate subscription
+      let subscription;
+      if (existingSubscription && !existingSubscription.isActive) {
+        // Reactivate existing subscription
+        subscription = await storage.updateMemorialSubscription(existingSubscription.id, { 
+          isActive: true,
+          subscriptionType: subscriptionData.subscriptionType || "all_updates"
+        });
+      } else {
+        // Create new subscription
+        subscription = await storage.createMemorialSubscription(subscriptionData);
+      }
+      
+      res.status(201).json({
+        success: true,
+        message: "Successfully subscribed to memorial updates",
+        subscription
+      });
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      res.status(500).json({ message: "Failed to create subscription" });
+    }
+  });
+
+  app.delete('/api/memorials/:id/subscription', async (req: any, res) => {
+    try {
+      const memorialId = req.params.id;
+      const userId = req.user?.claims?.sub;
+      const email = req.query.email as string;
+      
+      // Check if memorial exists
+      const memorial = await storage.getMemorial(memorialId);
+      if (!memorial) {
+        return res.status(404).json({ message: "Memorial not found" });
+      }
+      
+      // Find subscription
+      const subscription = await storage.getMemorialSubscription(memorialId, userId, email);
+      if (!subscription || !subscription.isActive) {
+        return res.status(404).json({ message: "No active subscription found" });
+      }
+      
+      // Deactivate subscription
+      await storage.deleteMemorialSubscription(subscription.id);
+      
+      res.json({
+        success: true,
+        message: "Successfully unsubscribed from memorial updates"
+      });
+    } catch (error) {
+      console.error("Error deleting subscription:", error);
+      res.status(500).json({ message: "Failed to unsubscribe" });
     }
   });
 

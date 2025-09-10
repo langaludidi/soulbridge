@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,8 @@ import {
   Shield,
   MessageCircle,
   HelpCircle,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -83,6 +86,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     message: "",
     email: "",
   });
+  const [subscriptionEmail, setSubscriptionEmail] = useState("");
+  const [showEmailInput, setShowEmailInput] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     photoUrl: "",
     caption: "",
@@ -96,6 +101,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
   // Filter photos locally based on active media type (no redundant API calls)
   const photos = allPhotos?.filter(p => p.mediaType === activeMediaType || (!p.mediaType && activeMediaType === 'photo')) || [];
@@ -208,6 +214,137 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     },
   });
 
+  // Subscription status query
+  const { data: subscriptionStatus, isLoading: subscriptionLoading, error: subscriptionError } = useQuery({
+    queryKey: ["/api/memorials", memorialId, "subscription", isAuthenticated ? "user" : (subscriptionEmail || "none")],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (!isAuthenticated && subscriptionEmail) {
+        params.append('email', subscriptionEmail.trim());
+      }
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+      
+      try {
+        const response = await fetch(`/api/memorials/${memorialId}/subscription?${params}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Server error: ${response.status}`);
+        }
+        return response.json();
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error('Request timed out. Please check your connection.');
+        }
+        throw error;
+      }
+    },
+    enabled: !!memorialId && (!authLoading) && (isAuthenticated || !!subscriptionEmail.trim()), // Only fetch when auth state is resolved and we have user or email
+    retry: 2, // Allow 2 retries for network issues
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+  });
+
+  // Subscribe mutation
+  const subscribeMutation = useMutation({
+    mutationFn: async (data: { email?: string; subscriptionType?: string }) => {
+      return apiRequest("POST", `/api/memorials/${memorialId}/subscription`, data);
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "subscription"] });
+      // For guests, keep email and input visible for subscription management
+      if (isAuthenticated) {
+        setShowEmailInput(false);
+        setSubscriptionEmail("");
+      }
+      // For guests, email stays visible for unsubscribe capability
+      toast({
+        title: "Successfully subscribed!",
+        description: `You'll receive updates about ${memorial.firstName}'s memorial.`,
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = "Failed to subscribe. Please try again.";
+      let errorTitle = "Subscription failed";
+      
+      if (error?.response?.status === 409) {
+        errorMessage = "You're already subscribed to this memorial with this email address.";
+        errorTitle = "Already subscribed";
+      } else if (error?.response?.status === 400) {
+        errorMessage = error?.response?.data?.message || "Please check your email address and try again.";
+        errorTitle = "Invalid request";
+      } else if (error?.response?.status >= 500) {
+        errorMessage = "Server error occurred. Please try again in a few minutes.";
+        errorTitle = "Server error";
+      } else if (error?.message?.includes('timeout') || error?.message?.includes('network')) {
+        errorMessage = "Connection timeout. Please check your internet and try again.";
+        errorTitle = "Connection error";
+      } else {
+        errorMessage = error?.response?.data?.message || error?.message || errorMessage;
+      }
+      
+      toast({
+        title: errorTitle,
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Unsubscribe mutation
+  const unsubscribeMutation = useMutation({
+    mutationFn: async () => {
+      const params = new URLSearchParams();
+      if (!isAuthenticated && subscriptionEmail) {
+        params.append('email', subscriptionEmail);
+      }
+      return apiRequest("DELETE", `/api/memorials/${memorialId}/subscription?${params}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "subscription"] });
+      // For guests, clear email after successful unsubscribe
+      if (!isAuthenticated) {
+        setSubscriptionEmail("");
+        setShowEmailInput(false);
+      }
+      toast({
+        title: "Successfully unsubscribed",
+        description: "You will no longer receive memorial updates.",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = "Failed to unsubscribe. Please try again.";
+      let errorTitle = "Unsubscribe failed";
+      
+      if (error?.response?.status === 404) {
+        errorMessage = "No active subscription found with this email address.";
+        errorTitle = "Not subscribed";
+      } else if (error?.response?.status === 400) {
+        errorMessage = error?.response?.data?.message || "Please check your email address and try again.";
+        errorTitle = "Invalid request";
+      } else if (error?.response?.status >= 500) {
+        errorMessage = "Server error occurred. Please try again in a few minutes.";
+        errorTitle = "Server error";
+      } else if (error?.message?.includes('timeout') || error?.message?.includes('network')) {
+        errorMessage = "Connection timeout. Please check your internet and try again.";
+        errorTitle = "Connection error";
+      } else {
+        errorMessage = error?.response?.data?.message || error?.message || errorMessage;
+      }
+      
+      toast({
+        title: errorTitle,
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Helper function to track photo view with session-based deduplication
   const trackPhotoView = (photoId: string) => {
     if (!photoId || viewedPhotosInSession.has(photoId)) {
@@ -245,6 +382,71 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       }, slideshowInterval);
     }
   }, [slideshowActive, slideshowPlaying, photos.length, slideshowInterval, clearSlideshowTimer, trackPhotoView]);
+
+  // Subscription handlers
+  const handleSubscribe = () => {
+    if (isAuthenticated) {
+      // Authenticated user - subscribe directly
+      subscribeMutation.mutate({ subscriptionType: "all_updates" });
+    } else {
+      // Guest user - show email input
+      setShowEmailInput(true);
+    }
+  };
+
+  const handleEmailSubscribe = () => {
+    const email = subscriptionEmail.trim();
+    
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address to subscribe.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Enhanced email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: "Invalid email format",
+        description: "Please enter a valid email address (e.g., name@example.com).",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check for common email typos
+    const commonTypos = /@(gmai\.com|gmial\.com|yahooo\.com|hotmial\.com)$/i;
+    if (commonTypos.test(email)) {
+      toast({
+        title: "Please check your email",
+        description: "Did you mean gmail.com or yahoo.com? Please double-check your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    subscribeMutation.mutate({ 
+      email: email, 
+      subscriptionType: "all_updates" 
+    });
+  };
+
+  const handleUnsubscribe = () => {
+    // For guests, validate email is present before unsubscribing
+    if (!isAuthenticated && !subscriptionEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address to unsubscribe.",
+        variant: "destructive",
+      });
+      setShowEmailInput(true);
+      return;
+    }
+    unsubscribeMutation.mutate();
+  };
 
   // Slideshow navigation with auto-advance reset
   const nextPhotoSlideshow = () => {
@@ -1114,6 +1316,174 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <li>• Upload photos and videos</li>
                   <li>• Leave heartfelt tributes</li>
                   <li>• Support the family</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Preferences Section */}
+          <div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2">
+              <Bell className="w-4 h-4 text-primary" />
+              <span>Notification Preferences</span>
+            </h4>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-4">
+                Stay updated when new photos, videos, or tributes are added to {memorial.firstName}'s memorial
+              </p>
+              
+              {/* Subscription status */}
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-sm">
+                  {subscriptionLoading ? (
+                    <>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                      <span className="text-muted-foreground">Checking subscription status...</span>
+                    </>
+                  ) : subscriptionStatus?.isSubscribed ? (
+                    <>
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-foreground font-medium">
+                        You are subscribed to memorial updates
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      <span className="text-muted-foreground">
+                        You are not subscribed to memorial updates
+                      </span>
+                    </>
+                  )}
+                </div>
+                {subscriptionStatus?.subscription && (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Subscription type: {subscriptionStatus.subscription.subscriptionType?.replace('_', ' ') || 'All updates'}
+                  </div>
+                )}
+              </div>
+              
+              {/* Email input for guest users */}
+              {!isAuthenticated && showEmailInput && (
+                <div className="space-y-2">
+                  <Input
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={subscriptionEmail}
+                    onChange={(e) => setSubscriptionEmail(e.target.value)}
+                    className="w-full"
+                    data-testid="input-subscription-email"
+                  />
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={handleEmailSubscribe}
+                      disabled={subscribeMutation.isPending}
+                      size="sm"
+                      className="flex-1"
+                      data-testid="button-confirm-email-subscribe"
+                    >
+                      {subscribeMutation.isPending ? "Subscribing..." : "Subscribe"}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowEmailInput(false);
+                        // Clear email only if not subscribed
+                        if (!subscriptionStatus?.isSubscribed) {
+                          setSubscriptionEmail("");
+                        }
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      data-testid="button-cancel-email-subscribe"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Show current subscription email for guests */}
+              {!isAuthenticated && !showEmailInput && subscriptionStatus?.isSubscribed && subscriptionEmail && (
+                <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-sm text-green-700 dark:text-green-300">
+                      <Mail className="w-4 h-4" />
+                      <span>Subscribed as: <span className="font-medium">{subscriptionEmail}</span></span>
+                    </div>
+                    <Button
+                      onClick={() => setShowEmailInput(true)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30"
+                      data-testid="button-edit-subscription-email"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Subscribe/Unsubscribe button */}
+              {!showEmailInput && (
+                <Button
+                  variant={subscriptionStatus?.isSubscribed ? "destructive" : "outline"}
+                  className="w-full justify-start"
+                  onClick={subscriptionStatus?.isSubscribed ? handleUnsubscribe : handleSubscribe}
+                  disabled={subscriptionLoading || subscribeMutation.isPending || unsubscribeMutation.isPending || (!isAuthenticated && subscriptionStatus?.isSubscribed && !subscriptionEmail.trim())}
+                  data-testid="button-toggle-subscription"
+                >
+                  {subscriptionStatus?.isSubscribed ? (
+                    <>
+                      <BellOff className="w-4 h-4 mr-2" />
+                      {unsubscribeMutation.isPending ? "Unsubscribing..." : "Unsubscribe"}
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="w-4 h-4 mr-2" />
+                      {subscribeMutation.isPending ? "Subscribing..." : 
+                        (!isAuthenticated ? "Subscribe with Email" : "Subscribe to Updates")}
+                    </>
+                  )}
+                </Button>
+              )}
+              
+              {/* Guest user notices */}
+              {!isAuthenticated && !showEmailInput && !subscriptionStatus?.isSubscribed && (
+                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-300">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Note: You can subscribe as a guest using your email address</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Guest unsubscribe notice */}
+              {!isAuthenticated && !showEmailInput && subscriptionStatus?.isSubscribed && !subscriptionEmail.trim() && (
+                <div className="bg-orange-50 dark:bg-orange-950/20 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
+                  <div className="flex items-center space-x-2 text-sm text-orange-700 dark:text-orange-300">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.898-.833-2.664 0L3.732 19c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <span>Enter your email address to manage your subscription</span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                  <span>You'll be notified about:</span>
+                </div>
+                <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-6">
+                  <li>• New photos and videos</li>
+                  <li>• Heartfelt tributes</li>
+                  <li>• Memorial updates</li>
+                  <li>• Anniversary reminders</li>
                 </ul>
               </div>
             </div>

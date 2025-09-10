@@ -135,6 +135,22 @@ export const contactSubmissions = pgTable("contact_submissions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Memorial subscriptions table for notification preferences
+export const memorialSubscriptions = pgTable("memorial_subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  memorialId: varchar("memorial_id").references(() => memorials.id).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  email: varchar("email"), // For guest subscriptions
+  subscriptionType: varchar("subscription_type").default("all_updates").notNull(), // all_updates, photos_only, tributes_only
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_memorial_subscriptions_memorial_id").on(table.memorialId),
+  index("IDX_memorial_subscriptions_user_id").on(table.userId),
+  index("IDX_memorial_subscriptions_email").on(table.email),
+]);
+
 // Relations
 export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   submitter: one(users, {
@@ -145,6 +161,7 @@ export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   photos: many(memorialPhotos),
   programs: many(funeralPrograms),
   events: many(memorialEvents),
+  subscriptions: many(memorialSubscriptions),
 }));
 
 export const tributesRelations = relations(tributes, ({ one }) => ({
@@ -209,6 +226,17 @@ export const contactSubmissionsRelations = relations(contactSubmissions, ({ one 
   }),
 }));
 
+export const memorialSubscriptionsRelations = relations(memorialSubscriptions, ({ one }) => ({
+  memorial: one(memorials, {
+    fields: [memorialSubscriptions.memorialId],
+    references: [memorials.id],
+  }),
+  user: one(users, {
+    fields: [memorialSubscriptions.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertMemorialSchema = createInsertSchema(memorials).omit({
   id: true,
@@ -250,6 +278,12 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
   createdAt: true,
 });
 
+export const insertMemorialSubscriptionSchema = createInsertSchema(memorialSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -274,3 +308,6 @@ export type MemorialEvent = typeof memorialEvents.$inferSelect;
 
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+
+export type InsertMemorialSubscription = z.infer<typeof insertMemorialSubscriptionSchema>;
+export type MemorialSubscription = typeof memorialSubscriptions.$inferSelect;

@@ -6,6 +6,7 @@ import {
   memorialPhotos,
   funeralPrograms,
   memorialEvents,
+  memorialSubscriptions,
   type User,
   type UpsertUser,
   type Memorial,
@@ -20,6 +21,8 @@ import {
   type InsertFuneralProgram,
   type MemorialEvent,
   type InsertMemorialEvent,
+  type MemorialSubscription,
+  type InsertMemorialSubscription,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, like, and, sql } from "drizzle-orm";
@@ -62,6 +65,12 @@ export interface IStorage {
   // Memorial event operations
   getMemorialEvents(memorialId: string): Promise<MemorialEvent[]>;
   createMemorialEvent(event: InsertMemorialEvent): Promise<MemorialEvent>;
+  
+  // Memorial subscription operations
+  getMemorialSubscription(memorialId: string, userId?: string, email?: string): Promise<MemorialSubscription | undefined>;
+  createMemorialSubscription(subscription: InsertMemorialSubscription): Promise<MemorialSubscription>;
+  updateMemorialSubscription(id: string, subscription: Partial<MemorialSubscription>): Promise<MemorialSubscription | undefined>;
+  deleteMemorialSubscription(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -299,6 +308,48 @@ export class DatabaseStorage implements IStorage {
     const [created] = await db.insert(memorialEvents).values(event).returning();
     return created;
   }
+
+  // Memorial subscription operations
+  async getMemorialSubscription(memorialId: string, userId?: string, email?: string): Promise<MemorialSubscription | undefined> {
+    const conditions = [eq(memorialSubscriptions.memorialId, memorialId), eq(memorialSubscriptions.isActive, true)];
+    
+    if (userId) {
+      conditions.push(eq(memorialSubscriptions.userId, userId));
+    } else if (email) {
+      conditions.push(eq(memorialSubscriptions.email, email));
+    } else {
+      return undefined; // Must have either userId or email
+    }
+
+    const [subscription] = await db
+      .select()
+      .from(memorialSubscriptions)
+      .where(and(...conditions))
+      .limit(1);
+    
+    return subscription;
+  }
+
+  async createMemorialSubscription(subscription: InsertMemorialSubscription): Promise<MemorialSubscription> {
+    const [created] = await db.insert(memorialSubscriptions).values(subscription).returning();
+    return created;
+  }
+
+  async updateMemorialSubscription(id: string, subscription: Partial<MemorialSubscription>): Promise<MemorialSubscription | undefined> {
+    const [updated] = await db
+      .update(memorialSubscriptions)
+      .set({ ...subscription, updatedAt: new Date() })
+      .where(eq(memorialSubscriptions.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteMemorialSubscription(id: string): Promise<void> {
+    await db
+      .update(memorialSubscriptions)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(memorialSubscriptions.id, id));
+  }
 }
 
 // In-memory storage implementation (preferred for development)
@@ -310,6 +361,7 @@ export class MemStorage implements IStorage {
   private memorialPhotos = new Map<string, MemorialPhoto>();
   private funeralPrograms = new Map<string, FuneralProgram>();
   private memorialEvents = new Map<string, MemorialEvent>();
+  private memorialSubscriptions = new Map<string, MemorialSubscription>();
 
   constructor() {
     // Initialize with sample data for testing
@@ -702,6 +754,50 @@ export class MemStorage implements IStorage {
     };
     this.memorialEvents.set(id, newEvent);
     return newEvent;
+  }
+
+  // Memorial subscription operations
+  async getMemorialSubscription(memorialId: string, userId?: string, email?: string): Promise<MemorialSubscription | undefined> {
+    return Array.from(this.memorialSubscriptions.values())
+      .find(sub => 
+        sub.memorialId === memorialId && 
+        sub.isActive &&
+        ((userId && sub.userId === userId) || (email && sub.email === email))
+      );
+  }
+
+  async createMemorialSubscription(subscription: InsertMemorialSubscription): Promise<MemorialSubscription> {
+    const id = `subscription-${Date.now()}`;
+    const newSubscription: MemorialSubscription = {
+      ...subscription,
+      id,
+      userId: subscription.userId || null,
+      email: subscription.email || null,
+      subscriptionType: subscription.subscriptionType || "all_updates",
+      isActive: subscription.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.memorialSubscriptions.set(id, newSubscription);
+    return newSubscription;
+  }
+
+  async updateMemorialSubscription(id: string, subscription: Partial<MemorialSubscription>): Promise<MemorialSubscription | undefined> {
+    const existing = this.memorialSubscriptions.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...subscription, updatedAt: new Date() };
+    this.memorialSubscriptions.set(id, updated);
+    return updated;
+  }
+
+  async deleteMemorialSubscription(id: string): Promise<void> {
+    const existing = this.memorialSubscriptions.get(id);
+    if (existing) {
+      existing.isActive = false;
+      existing.updatedAt = new Date();
+      this.memorialSubscriptions.set(id, existing);
+    }
   }
 }
 
