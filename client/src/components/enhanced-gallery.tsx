@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -24,6 +24,8 @@ import type { MemorialPhoto, Memorial } from "@shared/schema";
 import {
   Upload,
   Play,
+  Pause,
+  Square,
   X,
   ChevronLeft,
   ChevronRight,
@@ -43,6 +45,8 @@ import {
   Copy,
   Facebook,
   Mail,
+  SkipForward,
+  SkipBack,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -65,6 +69,9 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [slideshowActive, setSlideshowActive] = useState(false);
+  const [slideshowPlaying, setSlideshowPlaying] = useState(false);
+  const [slideshowInterval, setSlideshowInterval] = useState(3000); // 3 seconds
+  const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [invitationModalOpen, setInvitationModalOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [uploadForm, setUploadForm] = useState({
@@ -179,6 +186,116 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     incrementPhotoViewMutation.mutate(photoId);
   };
 
+  // Slideshow timer cleanup
+  const clearSlideshowTimer = useCallback(() => {
+    if (slideshowTimerRef.current) {
+      clearInterval(slideshowTimerRef.current);
+      slideshowTimerRef.current = null;
+    }
+  }, []);
+
+  // Auto-advance slideshow
+  const startSlideshowTimer = useCallback(() => {
+    clearSlideshowTimer();
+    if (slideshowActive && slideshowPlaying && photos.length > 1) {
+      slideshowTimerRef.current = setInterval(() => {
+        setCurrentPhotoIndex(prev => {
+          const newIndex = (prev + 1) % photos.length;
+          // Track photo view when auto-advancing
+          if (photos[newIndex]?.id) {
+            trackPhotoView(photos[newIndex].id);
+          }
+          return newIndex;
+        });
+      }, slideshowInterval);
+    }
+  }, [slideshowActive, slideshowPlaying, photos.length, slideshowInterval, clearSlideshowTimer, trackPhotoView]);
+
+  // Slideshow navigation with auto-advance reset
+  const nextPhotoSlideshow = () => {
+    const newIndex = (currentPhotoIndex + 1) % photos.length;
+    setCurrentPhotoIndex(newIndex);
+    
+    // Track photo view when navigating
+    if (photos[newIndex]?.id) {
+      trackPhotoView(photos[newIndex].id);
+    }
+    
+    // Reset timer if playing
+    if (slideshowPlaying) {
+      startSlideshowTimer();
+    }
+  };
+
+  const prevPhotoSlideshow = () => {
+    const newIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+    setCurrentPhotoIndex(newIndex);
+    
+    // Track photo view when navigating
+    if (photos[newIndex]?.id) {
+      trackPhotoView(photos[newIndex].id);
+    }
+    
+    // Reset timer if playing
+    if (slideshowPlaying) {
+      startSlideshowTimer();
+    }
+  };
+
+  const nextPhoto = () => {
+    if (slideshowActive) {
+      nextPhotoSlideshow();
+    } else {
+      const newIndex = (currentPhotoIndex + 1) % photos.length;
+      setCurrentPhotoIndex(newIndex);
+      
+      // Track photo view when navigating to new photo (with session deduplication)
+      if (photos[newIndex]?.id) {
+        trackPhotoView(photos[newIndex].id);
+      }
+    }
+  };
+
+  const prevPhoto = () => {
+    if (slideshowActive) {
+      prevPhotoSlideshow();
+    } else {
+      const newIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+      setCurrentPhotoIndex(newIndex);
+      
+      // Track photo view when navigating to new photo (with session deduplication)
+      if (photos[newIndex]?.id) {
+        trackPhotoView(photos[newIndex].id);
+      }
+    }
+  };
+
+  // Slideshow controls
+  const startSlideshow = () => {
+    if (photos.length > 0) {
+      setCurrentPhotoIndex(0);
+      setSlideshowActive(true);
+      setSlideshowPlaying(true);
+      setLightboxOpen(true);
+    }
+  };
+
+  const pauseSlideshow = () => {
+    setSlideshowPlaying(false);
+    clearSlideshowTimer();
+  };
+
+  const resumeSlideshow = () => {
+    setSlideshowPlaying(true);
+  };
+
+  const stopSlideshow = () => {
+    setSlideshowActive(false);
+    setSlideshowPlaying(false);
+    clearSlideshowTimer();
+    setLightboxOpen(false);
+  };
+
   const openLightbox = (index: number) => {
     setCurrentPhotoIndex(index);
     setLightboxOpen(true);
@@ -186,34 +303,6 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     // Track photo view when lightbox opens (with session deduplication)
     if (photos[index]?.id) {
       trackPhotoView(photos[index].id);
-    }
-  };
-
-  const nextPhoto = () => {
-    const newIndex = (currentPhotoIndex + 1) % photos.length;
-    setCurrentPhotoIndex(newIndex);
-    
-    // Track photo view when navigating to new photo (with session deduplication)
-    if (photos[newIndex]?.id) {
-      trackPhotoView(photos[newIndex].id);
-    }
-  };
-
-  const prevPhoto = () => {
-    const newIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
-    setCurrentPhotoIndex(newIndex);
-    
-    // Track photo view when navigating to new photo (with session deduplication)
-    if (photos[newIndex]?.id) {
-      trackPhotoView(photos[newIndex].id);
-    }
-  };
-
-  const startSlideshow = () => {
-    if (photos.length > 0) {
-      setCurrentPhotoIndex(0);
-      setSlideshowActive(true);
-      setLightboxOpen(true);
     }
   };
 
@@ -304,6 +393,71 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       description: `For this demo, please paste the ${uploadForm.mediaType} URL in the upload form.`,
     });
   };
+
+  // Effect to manage slideshow timer
+  useEffect(() => {
+    if (slideshowActive && slideshowPlaying) {
+      startSlideshowTimer();
+    } else {
+      clearSlideshowTimer();
+    }
+    
+    return () => {
+      clearSlideshowTimer();
+    };
+  }, [slideshowActive, slideshowPlaying, startSlideshowTimer, clearSlideshowTimer]);
+
+  // Keyboard event handlers for slideshow
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!lightboxOpen) return;
+      
+      switch (event.code) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          event.preventDefault();
+          nextPhoto();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          event.preventDefault();
+          prevPhoto();
+          break;
+        case 'Space':
+          event.preventDefault();
+          if (slideshowActive) {
+            if (slideshowPlaying) {
+              pauseSlideshow();
+            } else {
+              resumeSlideshow();
+            }
+          }
+          break;
+        case 'Escape':
+          event.preventDefault();
+          if (slideshowActive) {
+            stopSlideshow();
+          } else {
+            setLightboxOpen(false);
+          }
+          break;
+      }
+    };
+
+    if (lightboxOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [lightboxOpen, slideshowActive, slideshowPlaying, nextPhoto, prevPhoto, pauseSlideshow, resumeSlideshow, stopSlideshow]);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      clearSlideshowTimer();
+    };
+  }, [clearSlideshowTimer]);
 
   if (isLoading) {
     return (
@@ -901,12 +1055,94 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
             <div className="relative">
               {/* Close Button */}
               <button
-                onClick={() => setLightboxOpen(false)}
+                onClick={() => {
+                  if (slideshowActive) {
+                    stopSlideshow();
+                  } else {
+                    setLightboxOpen(false);
+                  }
+                }}
                 className="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                 data-testid="button-close-lightbox"
               >
                 <X className="w-6 h-6" />
               </button>
+
+              {/* Slideshow Controls */}
+              {slideshowActive && (
+                <div className="absolute top-4 left-4 z-50 flex items-center space-x-2">
+                  {/* Play/Pause Button */}
+                  <button
+                    onClick={() => {
+                      if (slideshowPlaying) {
+                        pauseSlideshow();
+                      } else {
+                        resumeSlideshow();
+                      }
+                    }}
+                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    data-testid="button-slideshow-toggle"
+                  >
+                    {slideshowPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5" />
+                    )}
+                  </button>
+                  
+                  {/* Stop Slideshow Button */}
+                  <button
+                    onClick={stopSlideshow}
+                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    data-testid="button-slideshow-stop"
+                  >
+                    <Square className="w-5 h-5" />
+                  </button>
+                  
+                  {/* Skip Controls */}
+                  <button
+                    onClick={prevPhotoSlideshow}
+                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    data-testid="button-slideshow-prev"
+                  >
+                    <SkipBack className="w-5 h-5" />
+                  </button>
+                  
+                  <button
+                    onClick={nextPhotoSlideshow}
+                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    data-testid="button-slideshow-next"
+                  >
+                    <SkipForward className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Slideshow Progress Indicator */}
+              {slideshowActive && (
+                <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-50">
+                  <div className="bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm flex items-center space-x-2">
+                    <Play className="w-4 h-4" />
+                    <span>Slideshow</span>
+                    <span className="opacity-75">({currentPhotoIndex + 1}/{photos.length})</span>
+                    {slideshowPlaying && (
+                      <div className="flex items-center space-x-1">
+                        <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+                        <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                        <div className="w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="mt-2 w-64 bg-white/20 rounded-full h-1 overflow-hidden">
+                    <div 
+                      className="h-full bg-white transition-all duration-300 ease-out"
+                      style={{ width: `${((currentPhotoIndex + 1) / photos.length) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
               
               {/* Navigation Buttons */}
               {photos.length > 1 && (
