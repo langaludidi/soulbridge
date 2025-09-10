@@ -7,6 +7,8 @@ import {
   funeralPrograms,
   memorialEvents,
   memorialSubscriptions,
+  digitalOrderOfService,
+  orderOfServiceEvents,
   type User,
   type UpsertUser,
   type Memorial,
@@ -23,6 +25,10 @@ import {
   type InsertMemorialEvent,
   type MemorialSubscription,
   type InsertMemorialSubscription,
+  type DigitalOrderOfService,
+  type InsertDigitalOrderOfService,
+  type OrderOfServiceEvent,
+  type InsertOrderOfServiceEvent,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, like, and, sql } from "drizzle-orm";
@@ -71,6 +77,22 @@ export interface IStorage {
   createMemorialSubscription(subscription: InsertMemorialSubscription): Promise<MemorialSubscription>;
   updateMemorialSubscription(id: string, subscription: Partial<MemorialSubscription>): Promise<MemorialSubscription | undefined>;
   deleteMemorialSubscription(id: string): Promise<void>;
+
+  // Digital Order of Service operations
+  getOrderOfServiceByMemorial(memorialId: string): Promise<DigitalOrderOfService | undefined>;
+  getOrderOfService(id: string): Promise<DigitalOrderOfService | undefined>;
+  createOrderOfService(orderOfService: InsertDigitalOrderOfService): Promise<DigitalOrderOfService>;
+  updateOrderOfService(id: string, orderOfService: Partial<DigitalOrderOfService>): Promise<DigitalOrderOfService | undefined>;
+  deleteOrderOfService(id: string): Promise<void>;
+  incrementOrderOfServiceViews(id: string): Promise<void>;
+  incrementOrderOfServiceDownloads(id: string): Promise<void>;
+
+  // Order of Service Events operations
+  getOrderOfServiceEvents(orderOfServiceId: string): Promise<OrderOfServiceEvent[]>;
+  createOrderOfServiceEvent(event: InsertOrderOfServiceEvent): Promise<OrderOfServiceEvent>;
+  updateOrderOfServiceEvent(id: string, event: Partial<OrderOfServiceEvent>): Promise<OrderOfServiceEvent | undefined>;
+  deleteOrderOfServiceEvent(id: string): Promise<void>;
+  reorderServiceEvents(orderOfServiceId: string, eventIds: string[]): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -350,6 +372,103 @@ export class DatabaseStorage implements IStorage {
       .set({ isActive: false, updatedAt: new Date() })
       .where(eq(memorialSubscriptions.id, id));
   }
+
+  // Digital Order of Service operations
+  async getOrderOfServiceByMemorial(memorialId: string): Promise<DigitalOrderOfService | undefined> {
+    const [orderOfService] = await db
+      .select()
+      .from(digitalOrderOfService)
+      .where(eq(digitalOrderOfService.memorialId, memorialId))
+      .limit(1);
+    return orderOfService;
+  }
+
+  async getOrderOfService(id: string): Promise<DigitalOrderOfService | undefined> {
+    const [orderOfService] = await db
+      .select()
+      .from(digitalOrderOfService)
+      .where(eq(digitalOrderOfService.id, id));
+    return orderOfService;
+  }
+
+  async createOrderOfService(orderOfServiceData: InsertDigitalOrderOfService): Promise<DigitalOrderOfService> {
+    const [created] = await db.insert(digitalOrderOfService).values(orderOfServiceData).returning();
+    return created;
+  }
+
+  async updateOrderOfService(id: string, orderOfServiceData: Partial<DigitalOrderOfService>): Promise<DigitalOrderOfService | undefined> {
+    const [updated] = await db
+      .update(digitalOrderOfService)
+      .set({ ...orderOfServiceData, updatedAt: new Date() })
+      .where(eq(digitalOrderOfService.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteOrderOfService(id: string): Promise<void> {
+    // First delete all associated events
+    await db.delete(orderOfServiceEvents).where(eq(orderOfServiceEvents.orderOfServiceId, id));
+    // Then delete the order of service
+    await db.delete(digitalOrderOfService).where(eq(digitalOrderOfService.id, id));
+  }
+
+  async incrementOrderOfServiceViews(id: string): Promise<void> {
+    await db
+      .update(digitalOrderOfService)
+      .set({
+        viewCount: sql`${digitalOrderOfService.viewCount} + 1`,
+      })
+      .where(eq(digitalOrderOfService.id, id));
+  }
+
+  async incrementOrderOfServiceDownloads(id: string): Promise<void> {
+    await db
+      .update(digitalOrderOfService)
+      .set({
+        downloadCount: sql`${digitalOrderOfService.downloadCount} + 1`,
+      })
+      .where(eq(digitalOrderOfService.id, id));
+  }
+
+  // Order of Service Events operations
+  async getOrderOfServiceEvents(orderOfServiceId: string): Promise<OrderOfServiceEvent[]> {
+    return await db
+      .select()
+      .from(orderOfServiceEvents)
+      .where(eq(orderOfServiceEvents.orderOfServiceId, orderOfServiceId))
+      .orderBy(orderOfServiceEvents.orderIndex);
+  }
+
+  async createOrderOfServiceEvent(event: InsertOrderOfServiceEvent): Promise<OrderOfServiceEvent> {
+    const [created] = await db.insert(orderOfServiceEvents).values(event).returning();
+    return created;
+  }
+
+  async updateOrderOfServiceEvent(id: string, event: Partial<OrderOfServiceEvent>): Promise<OrderOfServiceEvent | undefined> {
+    const [updated] = await db
+      .update(orderOfServiceEvents)
+      .set(event)
+      .where(eq(orderOfServiceEvents.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteOrderOfServiceEvent(id: string): Promise<void> {
+    await db.delete(orderOfServiceEvents).where(eq(orderOfServiceEvents.id, id));
+  }
+
+  async reorderServiceEvents(orderOfServiceId: string, eventIds: string[]): Promise<void> {
+    // Update the orderIndex for each event based on its position in the array
+    for (let i = 0; i < eventIds.length; i++) {
+      await db
+        .update(orderOfServiceEvents)
+        .set({ orderIndex: i })
+        .where(and(
+          eq(orderOfServiceEvents.id, eventIds[i]),
+          eq(orderOfServiceEvents.orderOfServiceId, orderOfServiceId)
+        ));
+    }
+  }
 }
 
 // In-memory storage implementation (preferred for development)
@@ -362,6 +481,8 @@ export class MemStorage implements IStorage {
   private funeralPrograms = new Map<string, FuneralProgram>();
   private memorialEvents = new Map<string, MemorialEvent>();
   private memorialSubscriptions = new Map<string, MemorialSubscription>();
+  private digitalOrderOfService = new Map<string, DigitalOrderOfService>();
+  private orderOfServiceEvents = new Map<string, OrderOfServiceEvent>();
 
   constructor() {
     // Initialize with sample data for testing
@@ -798,6 +919,124 @@ export class MemStorage implements IStorage {
       existing.updatedAt = new Date();
       this.memorialSubscriptions.set(id, existing);
     }
+  }
+
+  // Digital Order of Service operations
+  async getOrderOfServiceByMemorial(memorialId: string): Promise<DigitalOrderOfService | undefined> {
+    return Array.from(this.digitalOrderOfService.values())
+      .find(order => order.memorialId === memorialId);
+  }
+
+  async getOrderOfService(id: string): Promise<DigitalOrderOfService | undefined> {
+    return this.digitalOrderOfService.get(id);
+  }
+
+  async createOrderOfService(orderOfServiceData: InsertDigitalOrderOfService): Promise<DigitalOrderOfService> {
+    const id = `order-${Date.now()}`;
+    const newOrderOfService: DigitalOrderOfService = {
+      ...orderOfServiceData,
+      id,
+      title: orderOfServiceData.title || "Celebration of Life",
+      theme: orderOfServiceData.theme || "classic",
+      fontFamily: orderOfServiceData.fontFamily || "serif",
+      status: orderOfServiceData.status || "draft",
+      privacy: orderOfServiceData.privacy || "public",
+      downloadCount: 0,
+      viewCount: 0,
+      createdBy: orderOfServiceData.createdBy || null,
+      coverPhotoUrl: orderOfServiceData.coverPhotoUrl || null,
+      tributeQuote: orderOfServiceData.tributeQuote || null,
+      serviceDate: orderOfServiceData.serviceDate || null,
+      serviceTime: orderOfServiceData.serviceTime || null,
+      venue: orderOfServiceData.venue || null,
+      officiant: orderOfServiceData.officiant || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.digitalOrderOfService.set(id, newOrderOfService);
+    return newOrderOfService;
+  }
+
+  async updateOrderOfService(id: string, orderOfServiceData: Partial<DigitalOrderOfService>): Promise<DigitalOrderOfService | undefined> {
+    const existing = this.digitalOrderOfService.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...orderOfServiceData, updatedAt: new Date() };
+    this.digitalOrderOfService.set(id, updated);
+    return updated;
+  }
+
+  async deleteOrderOfService(id: string): Promise<void> {
+    // First delete all associated events
+    Array.from(this.orderOfServiceEvents.entries()).forEach(([eventId, event]) => {
+      if (event.orderOfServiceId === id) {
+        this.orderOfServiceEvents.delete(eventId);
+      }
+    });
+    // Then delete the order of service
+    this.digitalOrderOfService.delete(id);
+  }
+
+  async incrementOrderOfServiceViews(id: string): Promise<void> {
+    const orderOfService = this.digitalOrderOfService.get(id);
+    if (orderOfService) {
+      orderOfService.viewCount = (orderOfService.viewCount || 0) + 1;
+      this.digitalOrderOfService.set(id, orderOfService);
+    }
+  }
+
+  async incrementOrderOfServiceDownloads(id: string): Promise<void> {
+    const orderOfService = this.digitalOrderOfService.get(id);
+    if (orderOfService) {
+      orderOfService.downloadCount = (orderOfService.downloadCount || 0) + 1;
+      this.digitalOrderOfService.set(id, orderOfService);
+    }
+  }
+
+  // Order of Service Events operations
+  async getOrderOfServiceEvents(orderOfServiceId: string): Promise<OrderOfServiceEvent[]> {
+    return Array.from(this.orderOfServiceEvents.values())
+      .filter(event => event.orderOfServiceId === orderOfServiceId)
+      .sort((a, b) => a.orderIndex - b.orderIndex);
+  }
+
+  async createOrderOfServiceEvent(event: InsertOrderOfServiceEvent): Promise<OrderOfServiceEvent> {
+    const id = `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const newEvent: OrderOfServiceEvent = {
+      ...event,
+      id,
+      description: event.description || null,
+      speaker: event.speaker || null,
+      duration: event.duration || null,
+      content: event.content || null,
+      createdAt: new Date()
+    };
+    this.orderOfServiceEvents.set(id, newEvent);
+    return newEvent;
+  }
+
+  async updateOrderOfServiceEvent(id: string, event: Partial<OrderOfServiceEvent>): Promise<OrderOfServiceEvent | undefined> {
+    const existing = this.orderOfServiceEvents.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...event };
+    this.orderOfServiceEvents.set(id, updated);
+    return updated;
+  }
+
+  async deleteOrderOfServiceEvent(id: string): Promise<void> {
+    this.orderOfServiceEvents.delete(id);
+  }
+
+  async reorderServiceEvents(orderOfServiceId: string, eventIds: string[]): Promise<void> {
+    // Update the orderIndex for each event based on its position in the array
+    eventIds.forEach((eventId, index) => {
+      const event = this.orderOfServiceEvents.get(eventId);
+      if (event && event.orderOfServiceId === orderOfServiceId) {
+        event.orderIndex = index;
+        this.orderOfServiceEvents.set(eventId, event);
+      }
+    });
   }
 }
 
