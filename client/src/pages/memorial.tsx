@@ -11,12 +11,14 @@ import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Memorial, Tribute, MemorialPhoto, DigitalOrderOfService } from "@shared/schema";
 import { FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MemorialPage() {
   const [, params] = useRoute("/memorial/:id");
   const [, setLocation] = useLocation();
   const [showTributeModal, setShowTributeModal] = useState(false);
   const [activeTab, setActiveTab] = useState("about");
+  const { toast } = useToast();
 
   const memorialId = params?.id;
 
@@ -629,8 +631,34 @@ export default function MemorialPage() {
                 </div>
                 
                 <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "Link copied!",
+                        description: "Memorial link has been copied to your clipboard",
+                      });
+                    } catch (error) {
+                      // Fallback for older browsers
+                      try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = window.location.href;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        toast({
+                          title: "Link copied!",
+                          description: "Memorial link has been copied to your clipboard",
+                        });
+                      } catch (fallbackError) {
+                        toast({
+                          title: "Copy failed",
+                          description: "Unable to copy link. Please try selecting and copying the URL manually.",
+                          variant: "destructive"
+                        });
+                      }
+                    }
                   }}
                   className="w-full flex items-center justify-center space-x-2 p-3 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors"
                   data-testid="button-copy-link"

@@ -110,6 +110,18 @@ export default function Browse() {
               <p className="text-muted-foreground" data-testid="text-results-count">
                 {filteredMemorials.length} memorial{filteredMemorials.length !== 1 ? 's' : ''} found
               </p>
+              {(searchQuery || (selectedProvince && selectedProvince !== "all")) && (
+                <button 
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedProvince("all");
+                  }}
+                  className="text-primary hover:underline text-sm"
+                  data-testid="button-clear-filters-active"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMemorials.map((memorial) => (
@@ -139,7 +151,7 @@ export default function Browse() {
                 className="text-primary hover:underline text-sm"
                 data-testid="button-clear-filters"
               >
-                Clear filters
+                Clear Filters
               </button>
             )}
           </div>
