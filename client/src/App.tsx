@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import Memorial from "@/pages/memorial";
 import Browse from "@/pages/browse";
 import Partners from "@/pages/partners";
+import OrderOfService from "@/pages/order-of-service";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,6 +23,7 @@ function Router() {
           <Route path="/memorial/:id" component={Memorial} />
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
+          <Route path="/order-of-service/:id" component={OrderOfService} />
         </>
       ) : (
         <>
@@ -29,6 +31,7 @@ function Router() {
           <Route path="/memorial/:id" component={Memorial} />
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
+          <Route path="/order-of-service/:id" component={OrderOfService} />
         </>
       )}
       <Route component={NotFound} />
