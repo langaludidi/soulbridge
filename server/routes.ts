@@ -141,11 +141,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Memorial photo routes
   app.get('/api/memorials/:memorialId/photos', async (req, res) => {
     try {
-      const photos = await storage.getMemorialPhotos(req.params.memorialId);
+      const { mediaType } = req.query;
+      const photos = await storage.getMemorialPhotos(
+        req.params.memorialId,
+        mediaType as string
+      );
       res.json(photos);
     } catch (error) {
       console.error("Error fetching memorial photos:", error);
       res.status(500).json({ message: "Failed to fetch memorial photos" });
+    }
+  });
+
+  // Set cover photo route
+  app.patch('/api/memorials/:memorialId/photos/:photoId/cover', isAuthenticated, async (req: any, res) => {
+    try {
+      await storage.setCoverPhoto(req.params.memorialId, req.params.photoId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error setting cover photo:", error);
+      res.status(500).json({ message: "Failed to set cover photo" });
+    }
+  });
+
+  // Increment photo views
+  app.patch('/api/photos/:photoId/view', async (req, res) => {
+    try {
+      await storage.incrementPhotoViews(req.params.photoId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error incrementing photo views:", error);
+      res.status(500).json({ message: "Failed to increment photo views" });
     }
   });
 

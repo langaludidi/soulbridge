@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
   Dialog,
@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { MemorialPhoto } from "@shared/schema";
@@ -27,6 +30,12 @@ import {
   Image as ImageIcon,
   Heart,
   Eye,
+  Video,
+  Music,
+  Star,
+  Clock,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 
 interface EnhancedGalleryProps {
@@ -35,7 +44,10 @@ interface EnhancedGalleryProps {
   isLoading?: boolean;
 }
 
-export function EnhancedGallery({ memorialId, photos, isLoading }: EnhancedGalleryProps) {
+type MediaType = 'photo' | 'video' | 'audio';
+
+export function EnhancedGallery({ memorialId, photos: allPhotos, isLoading }: EnhancedGalleryProps) {
+  const [activeMediaType, setActiveMediaType] = useState<MediaType>('photo');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -43,30 +55,81 @@ export function EnhancedGallery({ memorialId, photos, isLoading }: EnhancedGalle
   const [uploadForm, setUploadForm] = useState({
     photoUrl: "",
     caption: "",
+    mediaType: 'photo' as MediaType,
+    isCoverPhoto: false,
+    uploaderName: "",
   });
   const [dragActive, setDragActive] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Get filtered photos based on active media type
+  const { data: filteredPhotos = [], isLoading: mediaLoading } = useQuery<MemorialPhoto[]>({
+    queryKey: ['/api/memorials', memorialId, 'photos', activeMediaType],
+    enabled: !!memorialId,
+  });
+
+  // Use filtered photos for display (filter from allPhotos for now)
+  const photos = allPhotos?.filter(p => p.mediaType === activeMediaType || (!p.mediaType && activeMediaType === 'photo')) || [];
+
+  // Calculate media type counts
+  const photosCount = allPhotos?.filter(p => p.mediaType === 'photo').length || 0;
+  const videosCount = allPhotos?.filter(p => p.mediaType === 'video').length || 0;
+  const audiosCount = allPhotos?.filter(p => p.mediaType === 'audio').length || 0;
+  const totalCount = photosCount + videosCount + audiosCount;
+
+  // Get recent activity (last 5 uploads)
+  const recentActivity = allPhotos?.slice(0, 5) || [];
+  const coverPhoto = allPhotos?.find(p => p.isCoverPhoto);
+
   const uploadPhotoMutation = useMutation({
-    mutationFn: async (data: { photoUrl: string; caption?: string }) => {
+    mutationFn: async (data: { photoUrl: string; caption?: string; mediaType: MediaType; uploaderName?: string }) => {
       return apiRequest("POST", `/api/memorials/${memorialId}/photos`, data);
     },
-    onSuccess: () => {
+    onSuccess: async (newPhoto: any) => {
+      // If this is a cover photo, set it as cover
+      if (uploadForm.isCoverPhoto && newPhoto?.id) {
+        try {
+          await apiRequest('PATCH', `/api/memorials/${memorialId}/photos/${newPhoto.id}/cover`, {});
+        } catch (error) {
+          console.warn('Could not set cover photo:', error);
+        }
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos", activeMediaType] });
       setUploadModalOpen(false);
-      setUploadForm({ photoUrl: "", caption: "" });
+      setUploadForm({ 
+        photoUrl: "", 
+        caption: "", 
+        mediaType: 'photo', 
+        isCoverPhoto: false, 
+        uploaderName: "" 
+      });
       toast({
-        title: "Photo uploaded successfully",
-        description: "Your photo has been added to the memorial gallery.",
+        title: `${uploadForm.mediaType.charAt(0).toUpperCase() + uploadForm.mediaType.slice(1)} uploaded successfully`,
+        description: `Your ${uploadForm.mediaType} has been added to the memorial gallery.`,
       });
     },
     onError: () => {
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your photo. Please try again.",
+        description: `There was an error uploading your ${uploadForm.mediaType}. Please try again.`,
         variant: "destructive",
+      });
+    },
+  });
+
+  const setCoverPhotoMutation = useMutation({
+    mutationFn: async (photoId: string) => {
+      return apiRequest('PATCH', `/api/memorials/${memorialId}/photos/${photoId}/cover`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos"] });
+      toast({
+        title: "Cover photo updated",
+        description: "The cover photo has been updated successfully.",
       });
     },
   });
@@ -99,7 +162,25 @@ export function EnhancedGallery({ memorialId, photos, isLoading }: EnhancedGalle
     uploadPhotoMutation.mutate({
       photoUrl: uploadForm.photoUrl.trim(),
       caption: uploadForm.caption.trim() || undefined,
+      mediaType: uploadForm.mediaType,
+      uploaderName: uploadForm.uploaderName.trim() || undefined,
     });
+  };
+
+  const handleSetCoverPhoto = (photoId: string) => {
+    setCoverPhotoMutation.mutate(photoId);
+  };
+
+  const getMediaTypeIcon = (type: MediaType) => {
+    switch (type) {
+      case 'video': return Video;
+      case 'audio': return Music;
+      default: return ImageIcon;
+    }
+  };
+
+  const getMediaTypeLabel = (type: MediaType) => {
+    return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -121,11 +202,11 @@ export function EnhancedGallery({ memorialId, photos, isLoading }: EnhancedGalle
     setUploadModalOpen(true);
     toast({
       title: "File upload",
-      description: "For this demo, please paste the image URL in the upload form.",
+      description: `For this demo, please paste the ${uploadForm.mediaType} URL in the upload form.`,
     });
   };
 
-  if (isLoading) {
+  if (isLoading || mediaLoading) {
     return (
       <div className="bg-card rounded-xl p-6 shadow-sm">
         <div className="animate-pulse space-y-4">
@@ -141,220 +222,459 @@ export function EnhancedGallery({ memorialId, photos, isLoading }: EnhancedGalle
   }
 
   return (
-    <div className="bg-card rounded-xl p-6 shadow-sm">
-      {/* Gallery Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <h3 className="text-xl font-semibold flex items-center space-x-2">
-            <ImageIcon className="w-5 h-5 text-primary" />
-            <span>Photo Gallery</span>
-          </h3>
-          <Badge variant="secondary" className="text-sm">
-            {photos.length} {photos.length === 1 ? 'Photo' : 'Photos'}
-          </Badge>
+    <div className="bg-card rounded-xl shadow-sm">
+      <div className="grid lg:grid-cols-4 gap-6">
+        {/* Gallery Content */}
+        <div className="lg:col-span-3 p-6">
+          {/* Media Type Tabs */}
+          <Tabs value={activeMediaType} onValueChange={(value) => setActiveMediaType(value as MediaType)} className="w-full">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <h3 className="text-xl font-semibold flex items-center space-x-2">
+                  {(() => {
+                    const IconComponent = getMediaTypeIcon(activeMediaType);
+                    return <IconComponent className="w-5 h-5 text-primary" />;
+                  })()}
+                  <span>{getMediaTypeLabel(activeMediaType)} Gallery</span>
+                </h3>
+                <Badge variant="secondary" className="text-sm">
+                  {photos.length} {photos.length === 1 ? getMediaTypeLabel(activeMediaType) : `${getMediaTypeLabel(activeMediaType)}s`}
+                </Badge>
+              </div>
+              
+              <TabsList className="grid w-auto grid-cols-3">
+                <TabsTrigger 
+                  value="photo" 
+                  className="flex items-center space-x-1" 
+                  data-testid="tab-photos"
+                  onClick={() => setActiveMediaType('photo')}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  <span>Photos</span>
+                  {photosCount > 0 && <Badge variant="secondary" className="ml-1 text-xs">{photosCount}</Badge>}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="video" 
+                  className="flex items-center space-x-1" 
+                  data-testid="tab-videos"
+                  onClick={() => setActiveMediaType('video')}
+                >
+                  <Video className="w-4 h-4" />
+                  <span>Videos</span>
+                  {videosCount > 0 && <Badge variant="secondary" className="ml-1 text-xs">{videosCount}</Badge>}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="audio" 
+                  className="flex items-center space-x-1" 
+                  data-testid="tab-audio"
+                  onClick={() => setActiveMediaType('audio')}
+                >
+                  <Music className="w-4 h-4" />
+                  <span>Audio</span>
+                  {audiosCount > 0 && <Badge variant="secondary" className="ml-1 text-xs">{audiosCount}</Badge>}
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-2">
+                {photos.length > 0 && activeMediaType === 'photo' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={startSlideshow}
+                    className="flex items-center space-x-2"
+                    data-testid="button-start-slideshow"
+                  >
+                    <Play className="w-4 h-4" />
+                    <span>Start Slideshow</span>
+                  </Button>
+                )}
+              </div>
+              
+              <Dialog open={uploadModalOpen} onOpenChange={setUploadModalOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                    data-testid={`button-add-${activeMediaType}`}
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Add {getMediaTypeLabel(activeMediaType)}</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Upload {getMediaTypeLabel(activeMediaType)}</DialogTitle>
+                    <DialogDescription>
+                      Add a meaningful {activeMediaType} to this memorial gallery. Share precious memories with family and friends.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <form onSubmit={handleUploadSubmit} className="space-y-4">
+                    {/* Media Type Selection */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Media Type</label>
+                      <div className="flex space-x-2">
+                        {(['photo', 'video', 'audio'] as const).map((type) => {
+                          const IconComponent = getMediaTypeIcon(type);
+                          return (
+                            <Button
+                              key={type}
+                              type="button"
+                              variant={uploadForm.mediaType === type ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setUploadForm(prev => ({ ...prev, mediaType: type as MediaType }))}
+                              className="flex items-center space-x-1"
+                              data-testid={`button-media-type-${type}`}
+                            >
+                              <IconComponent className="w-4 h-4" />
+                              <span>{getMediaTypeLabel(type)}</span>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Drag and Drop Area */}
+                    <div
+                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                        dragActive 
+                          ? "border-primary bg-primary/5" 
+                          : "border-muted-foreground/25 hover:border-muted-foreground/50"
+                      }`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      data-testid={`dropzone-${activeMediaType}`}
+                    >
+                      <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Drag and drop {uploadForm.mediaType}s here, or paste URL below
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {uploadForm.mediaType === 'photo' && 'Supports JPG, PNG, GIF up to 10MB'}
+                        {uploadForm.mediaType === 'video' && 'Supports MP4, AVI, MOV up to 100MB'}
+                        {uploadForm.mediaType === 'audio' && 'Supports MP3, WAV, M4A up to 25MB'}
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium">{getMediaTypeLabel(uploadForm.mediaType)} URL</label>
+                        <Input
+                          type="url"
+                          placeholder={`https://example.com/${uploadForm.mediaType === 'photo' ? 'photo.jpg' : uploadForm.mediaType === 'video' ? 'video.mp4' : 'audio.mp3'}`}
+                          value={uploadForm.photoUrl}
+                          onChange={(e) => setUploadForm(prev => ({ ...prev, photoUrl: e.target.value }))}
+                          required
+                          data-testid={`input-${uploadForm.mediaType}-url`}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium">Caption (optional)</label>
+                        <Textarea
+                          placeholder={`Add a caption for this ${uploadForm.mediaType}...`}
+                          value={uploadForm.caption}
+                          onChange={(e) => setUploadForm(prev => ({ ...prev, caption: e.target.value }))}
+                          rows={2}
+                          data-testid={`input-${uploadForm.mediaType}-caption`}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium">Your Name (optional)</label>
+                        <Input
+                          type="text"
+                          placeholder="Who is uploading this?"
+                          value={uploadForm.uploaderName}
+                          onChange={(e) => setUploadForm(prev => ({ ...prev, uploaderName: e.target.value }))}
+                          data-testid="input-uploader-name"
+                        />
+                      </div>
+
+                      {uploadForm.mediaType === 'photo' && (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="cover-photo"
+                            checked={uploadForm.isCoverPhoto}
+                            onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isCoverPhoto: !!checked }))}
+                            data-testid="checkbox-cover-photo"
+                          />
+                          <label htmlFor="cover-photo" className="text-sm font-medium cursor-pointer">
+                            Set as cover photo
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setUploadModalOpen(false)}
+                        data-testid="button-cancel-upload"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={uploadPhotoMutation.isPending || !uploadForm.photoUrl.trim()}
+                        data-testid="button-submit-upload"
+                      >
+                        {uploadPhotoMutation.isPending ? "Uploading..." : `Upload ${getMediaTypeLabel(uploadForm.mediaType)}`}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {/* Gallery Content Tabs */}
+            <TabsContent value={activeMediaType} className="mt-0">
+              {photos.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {photos.map((photo, index) => (
+                    <div
+                      key={photo.id}
+                      className="group relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-muted"
+                      onClick={() => openLightbox(index)}
+                      data-testid={`${activeMediaType}-thumbnail-${photo.id}`}
+                    >
+                      {activeMediaType === 'photo' && (
+                        <img
+                          src={photo.photoUrl}
+                          alt={photo.caption || "Memorial photo"}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      )}
+                      
+                      {activeMediaType === 'video' && (
+                        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                          <Video className="w-12 h-12 text-white/80" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Play className="w-8 h-8 text-white bg-black/50 rounded-full p-2" />
+                          </div>
+                        </div>
+                      )}
+                      
+                      {activeMediaType === 'audio' && (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                          <Music className="w-12 h-12 text-white" />
+                        </div>
+                      )}
+                      
+                      {/* Cover Photo Badge */}
+                      {photo.isCoverPhoto && activeMediaType === 'photo' && (
+                        <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                          <Star className="w-3 h-3" />
+                          <span>Cover</span>
+                        </div>
+                      )}
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="flex space-x-2">
+                            <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
+                              <Eye className="w-4 h-4 text-gray-900" />
+                            </div>
+                            {activeMediaType === 'photo' && !photo.isCoverPhoto && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSetCoverPhoto(photo.id);
+                                }}
+                                className="bg-white/90 backdrop-blur-sm rounded-full p-2 hover:bg-white"
+                                data-testid={`button-set-cover-${photo.id}`}
+                              >
+                                <Star className="w-4 h-4 text-gray-900" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Media Info Overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="text-white text-xs space-y-1">
+                          {photo.caption && (
+                            <p className="truncate font-medium">{photo.caption}</p>
+                          )}
+                          <div className="flex items-center justify-between text-white/80">
+                            <span className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{photo.createdAt ? format(new Date(photo.createdAt), "MMM dd") : "Recent"}</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <User className="w-3 h-3" />
+                              <span>{photo.uploaderName || photo.uploadedBy || "Family"}</span>
+                            </span>
+                          </div>
+                          {photo.viewCount && photo.viewCount > 0 && (
+                            <div className="flex items-center space-x-1 text-white/60">
+                              <Eye className="w-3 h-3" />
+                              <span>{photo.viewCount} views</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Empty State */
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    {(() => {
+                      const IconComponent = getMediaTypeIcon(activeMediaType);
+                      return <IconComponent className="w-8 h-8 text-muted-foreground" />;
+                    })()}
+                  </div>
+                  <h4 className="text-lg font-medium mb-2">No {activeMediaType}s yet</h4>
+                  <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
+                    Share precious memories by uploading {activeMediaType}s to this memorial gallery.
+                  </p>
+                  <Button
+                    onClick={() => setUploadModalOpen(true)}
+                    className="flex items-center space-x-2"
+                    data-testid={`button-upload-first-${activeMediaType}`}
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Upload First {getMediaTypeLabel(activeMediaType)}</span>
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
         
-        <div className="flex items-center space-x-2">
-          {photos.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={startSlideshow}
-              className="flex items-center space-x-2"
-              data-testid="button-start-slideshow"
-            >
-              <Play className="w-4 h-4" />
-              <span>Start Slideshow</span>
-            </Button>
+        {/* Gallery Sidebar */}
+        <div className="lg:col-span-1 bg-muted/30 p-6 space-y-6">
+          {/* Gallery Statistics */}
+          <div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <span>Gallery Statistics</span>
+            </h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center space-x-2">
+                  <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                  <span>Photos</span>
+                </span>
+                <span className="font-medium">{photosCount}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center space-x-2">
+                  <Video className="w-4 h-4 text-muted-foreground" />
+                  <span>Videos</span>
+                </span>
+                <span className="font-medium">{videosCount}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center space-x-2">
+                  <Music className="w-4 h-4 text-muted-foreground" />
+                  <span>Audio</span>
+                </span>
+                <span className="font-medium">{audiosCount}</span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex items-center justify-between text-sm font-medium">
+                <span className="flex items-center space-x-2">
+                  <Heart className="w-4 h-4 text-primary" />
+                  <span>Total Media</span>
+                </span>
+                <span className="text-primary">{totalCount}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Cover Photo Display */}
+          {coverPhoto && (
+            <div>
+              <h4 className="font-semibold mb-4 flex items-center space-x-2">
+                <Star className="w-4 h-4 text-primary" />
+                <span>Cover Photo</span>
+              </h4>
+              <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                <img
+                  src={coverPhoto.photoUrl}
+                  alt="Cover photo"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                  <p className="text-white text-xs font-medium truncate">
+                    {coverPhoto.caption || "Cover Photo"}
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
-          
-          <Dialog open={uploadModalOpen} onOpenChange={setUploadModalOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="default"
-                size="sm"
-                className="flex items-center space-x-2"
-                data-testid="button-add-photos"
-              >
-                <Upload className="w-4 h-4" />
-                <span>Add Photos</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Upload Photo</DialogTitle>
-                <DialogDescription>
-                  Add a meaningful photo to this memorial gallery. You can upload images by URL or drag and drop files.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <form onSubmit={handleUploadSubmit} className="space-y-4">
-                {/* Drag and Drop Area */}
-                <div
-                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                    dragActive 
-                      ? "border-primary bg-primary/5" 
-                      : "border-muted-foreground/25 hover:border-muted-foreground/50"
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  data-testid="dropzone-photos"
-                >
-                  <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Drag and drop photos here, or paste URL below
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Supports JPG, PNG, GIF up to 10MB
-                  </p>
-                </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium">Photo URL</label>
-                    <Input
-                      type="url"
-                      placeholder="https://example.com/photo.jpg"
-                      value={uploadForm.photoUrl}
-                      onChange={(e) => setUploadForm(prev => ({ ...prev, photoUrl: e.target.value }))}
-                      required
-                      data-testid="input-photo-url"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium">Caption (optional)</label>
-                    <Textarea
-                      placeholder="Add a caption for this photo..."
-                      value={uploadForm.caption}
-                      onChange={(e) => setUploadForm(prev => ({ ...prev, caption: e.target.value }))}
-                      rows={2}
-                      data-testid="input-photo-caption"
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setUploadModalOpen(false)}
-                    data-testid="button-cancel-upload"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={uploadPhotoMutation.isPending || !uploadForm.photoUrl.trim()}
-                    data-testid="button-submit-upload"
-                  >
-                    {uploadPhotoMutation.isPending ? "Uploading..." : "Upload Photo"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+
+          {/* Recent Activity */}
+          <div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2">
+              <Clock className="w-4 h-4 text-primary" />
+              <span>Recent Activity</span>
+            </h4>
+            {recentActivity.length > 0 ? (
+              <div className="space-y-3">
+                {recentActivity.map((item) => {
+                  const mediaType = (item.mediaType === 'video' || item.mediaType === 'audio') ? item.mediaType as MediaType : 'photo' as MediaType;
+                  const IconComponent = getMediaTypeIcon(mediaType);
+                  return (
+                    <div key={item.id} className="flex items-center space-x-3 text-sm">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <IconComponent className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate">
+                          <span className="font-medium">{item.uploaderName || "Someone"}</span>
+                          <span className="text-muted-foreground"> uploaded a {item.mediaType || 'photo'}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.createdAt ? format(new Date(item.createdAt), "MMM dd, h:mm a") : "Recently"}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No recent activity</p>
+            )}
+          </div>
+
+          {/* Gallery Summary */}
+          {totalCount > 0 && (
+            <div className="pt-4 border-t border-border">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Users className="w-4 h-4" />
+                <span>
+                  {totalCount} memories • Last updated{" "}
+                  {allPhotos?.[0]?.createdAt 
+                    ? format(new Date(allPhotos[0].createdAt), "MMM dd, yyyy")
+                    : "recently"
+                  }
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Gallery Grid */}
-      {photos.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {photos.map((photo, index) => (
-            <div
-              key={photo.id}
-              className="group relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-muted"
-              onClick={() => openLightbox(index)}
-              data-testid={`photo-thumbnail-${photo.id}`}
-            >
-              <img
-                src={photo.photoUrl}
-                alt={photo.caption || "Memorial photo"}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
-              />
-              
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
-                    <Eye className="w-4 h-4 text-gray-900" />
-                  </div>
-                </div>
-              </div>
-              
-              {/* Photo Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="text-white text-xs space-y-1">
-                  {photo.caption && (
-                    <p className="truncate font-medium">{photo.caption}</p>
-                  )}
-                  <div className="flex items-center justify-between text-white/80">
-                    <span className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>{photo.createdAt ? format(new Date(photo.createdAt), "MMM dd") : "Recent"}</span>
-                    </span>
-                    {/* Note: In a real app, you'd fetch uploader info */}
-                    <span className="flex items-center space-x-1">
-                      <User className="w-3 h-3" />
-                      <span>Family</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        /* Empty State */
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <ImageIcon className="w-8 h-8 text-muted-foreground" />
-          </div>
-          <h4 className="text-lg font-medium mb-2">No photos yet</h4>
-          <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
-            Share precious memories by uploading photos to this memorial gallery.
-          </p>
-          <Button
-            onClick={() => setUploadModalOpen(true)}
-            className="flex items-center space-x-2"
-            data-testid="button-upload-first-photo"
-          >
-            <Upload className="w-4 h-4" />
-            <span>Upload First Photo</span>
-          </Button>
-        </div>
-      )}
-
-      {/* Gallery Statistics */}
-      {photos.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-border">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center space-x-1">
-                <ImageIcon className="w-4 h-4" />
-                <span>{photos.length} photos shared</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <Heart className="w-4 h-4" />
-                <span>Cherished memories</span>
-              </span>
-            </div>
-            <span>
-              Last updated {photos[0]?.createdAt ? format(new Date(photos[0].createdAt), "MMM dd, yyyy") : "recently"}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Lightbox Modal */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent className="max-w-4xl w-full p-0 bg-black/95" aria-describedby="lightbox-description">
           <DialogHeader className="absolute -top-10 left-0 opacity-0 pointer-events-none">
-            <DialogTitle id="lightbox-title">Photo Gallery Lightbox</DialogTitle>
+            <DialogTitle id="lightbox-title">{getMediaTypeLabel(activeMediaType)} Gallery Lightbox</DialogTitle>
             <DialogDescription id="lightbox-description">
-              Viewing photo {currentPhotoIndex + 1} of {photos.length} in full-size view
+              Viewing {activeMediaType} {currentPhotoIndex + 1} of {photos.length} in full-size view
             </DialogDescription>
           </DialogHeader>
           {photos.length > 0 && photos[currentPhotoIndex] && (
@@ -362,69 +682,111 @@ export function EnhancedGallery({ memorialId, photos, isLoading }: EnhancedGalle
               {/* Close Button */}
               <button
                 onClick={() => setLightboxOpen(false)}
-                className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                className="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                 data-testid="button-close-lightbox"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
-
+              
               {/* Navigation Buttons */}
               {photos.length > 1 && (
                 <>
                   <button
                     onClick={prevPhoto}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-                    data-testid="button-prev-photo"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    data-testid={`button-prev-${activeMediaType}`}
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextPhoto}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-                    data-testid="button-next-photo"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    data-testid={`button-next-${activeMediaType}`}
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
                 </>
               )}
-
-              {/* Main Image */}
-              <div className="relative">
-                <img
-                  src={photos[currentPhotoIndex].photoUrl}
-                  alt={photos[currentPhotoIndex].caption || "Memorial photo"}
-                  className="w-full h-auto max-h-[80vh] object-contain"
-                  data-testid="lightbox-image"
-                />
-                
-                {/* Photo Info */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                  <div className="text-white">
-                    {photos[currentPhotoIndex].caption && (
-                      <h4 className="text-lg font-medium mb-2" data-testid="lightbox-caption">
-                        {photos[currentPhotoIndex].caption}
-                      </h4>
-                    )}
-                    <div className="flex items-center justify-between text-sm text-white/80">
-                      <div className="flex items-center space-x-4">
-                        <span className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {photos[currentPhotoIndex].createdAt 
-                              ? format(new Date(photos[currentPhotoIndex].createdAt), "MMMM dd, yyyy")
-                              : "Recently uploaded"
-                            }
-                          </span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <User className="w-4 h-4" />
-                          <span>Shared by family</span>
-                        </span>
-                      </div>
-                      {photos.length > 1 && (
-                        <span>{currentPhotoIndex + 1} of {photos.length}</span>
-                      )}
+              
+              {/* Main Media */}
+              <div className="flex items-center justify-center min-h-[60vh] p-4">
+                {activeMediaType === 'photo' && (
+                  <img
+                    src={photos[currentPhotoIndex].photoUrl}
+                    alt={photos[currentPhotoIndex].caption || "Memorial photo"}
+                    className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                    data-testid="lightbox-photo"
+                  />
+                )}
+                {activeMediaType === 'video' && (
+                  <video
+                    src={photos[currentPhotoIndex].photoUrl}
+                    controls
+                    className="max-w-full max-h-[80vh] rounded-lg shadow-2xl"
+                    data-testid="lightbox-video"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+                {activeMediaType === 'audio' && (
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-8 rounded-lg shadow-2xl">
+                    <div className="text-center mb-4">
+                      <Music className="w-16 h-16 text-white mx-auto mb-4" />
+                      <h3 className="text-white text-lg font-medium">
+                        {photos[currentPhotoIndex].caption || "Audio Memory"}
+                      </h3>
                     </div>
+                    <audio
+                      src={photos[currentPhotoIndex].photoUrl}
+                      controls
+                      className="w-full"
+                      data-testid="lightbox-audio"
+                    >
+                      Your browser does not support the audio tag.
+                    </audio>
+                  </div>
+                )}
+              </div>
+              
+              {/* Media Info */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                <div className="text-white space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium">
+                      {photos[currentPhotoIndex].caption || `Memorial ${getMediaTypeLabel(activeMediaType)}`}
+                    </h3>
+                    <div className="flex items-center space-x-2">
+                      {photos[currentPhotoIndex].isCoverPhoto && activeMediaType === 'photo' && (
+                        <Badge variant="secondary" className="bg-yellow-500/80 text-white">
+                          <Star className="w-3 h-3 mr-1" />
+                          Cover
+                        </Badge>
+                      )}
+                      <span className="text-sm opacity-75">
+                        {currentPhotoIndex + 1} of {photos.length}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4 text-sm opacity-75">
+                    <span className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {photos[currentPhotoIndex].createdAt 
+                          ? format(new Date(photos[currentPhotoIndex].createdAt), "MMMM dd, yyyy")
+                          : "Recently added"
+                        }
+                      </span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <User className="w-4 h-4" />
+                      <span>{photos[currentPhotoIndex].uploaderName || photos[currentPhotoIndex].uploadedBy || "Family"}</span>
+                    </span>
+                    {photos[currentPhotoIndex].viewCount && photos[currentPhotoIndex].viewCount > 0 && (
+                      <span className="flex items-center space-x-1">
+                        <Eye className="w-4 h-4" />
+                        <span>{photos[currentPhotoIndex].viewCount} views</span>
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

@@ -91,7 +91,11 @@ export const memorialPhotos = pgTable("memorial_photos", {
   memorialId: varchar("memorial_id").references(() => memorials.id).notNull(),
   photoUrl: varchar("photo_url").notNull(),
   caption: text("caption"),
+  mediaType: varchar("media_type").default("photo").notNull(), // photo, video, audio
+  isCoverPhoto: boolean("is_cover_photo").default(false),
+  viewCount: integer("view_count").default(0),
   uploadedBy: varchar("uploaded_by").references(() => users.id),
+  uploaderName: varchar("uploader_name"), // Store uploader name for display
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -204,6 +208,7 @@ export const insertPartnerSchema = createInsertSchema(partners).omit({
 export const insertMemorialPhotoSchema = createInsertSchema(memorialPhotos).omit({
   id: true,
   createdAt: true,
+  viewCount: true,
 });
 
 export const insertFuneralProgramSchema = createInsertSchema(funeralPrograms).omit({

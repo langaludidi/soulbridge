@@ -48,8 +48,10 @@ export interface IStorage {
   updatePartner(id: string, partner: Partial<Partner>): Promise<Partner | undefined>;
   
   // Memorial photo operations
-  getMemorialPhotos(memorialId: string): Promise<MemorialPhoto[]>;
+  getMemorialPhotos(memorialId: string, mediaType?: string): Promise<MemorialPhoto[]>;
   createMemorialPhoto(photo: InsertMemorialPhoto): Promise<MemorialPhoto>;
+  setCoverPhoto(memorialId: string, photoId: string): Promise<void>;
+  incrementPhotoViews(photoId: string): Promise<void>;
   
   // Funeral program operations
   getFuneralPrograms(memorialId: string): Promise<FuneralProgram[]>;
@@ -193,12 +195,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Memorial photo operations
-  async getMemorialPhotos(memorialId: string): Promise<MemorialPhoto[]> {
+  async getMemorialPhotos(memorialId: string, mediaType?: string): Promise<MemorialPhoto[]> {
+    const conditions = [eq(memorialPhotos.memorialId, memorialId)];
+    if (mediaType) {
+      conditions.push(eq(memorialPhotos.mediaType, mediaType));
+    }
+    
     return await db
       .select()
       .from(memorialPhotos)
-      .where(eq(memorialPhotos.memorialId, memorialId))
-      .orderBy(desc(memorialPhotos.createdAt));
+      .where(and(...conditions))
+      .orderBy(desc(memorialPhotos.isCoverPhoto), desc(memorialPhotos.createdAt));
+  }
+
+  async setCoverPhoto(memorialId: string, photoId: string): Promise<void> {
+    // First, remove cover photo status from all photos for this memorial
+    await db
+      .update(memorialPhotos)
+      .set({ isCoverPhoto: false })
+      .where(eq(memorialPhotos.memorialId, memorialId));
+    
+    // Then set the new cover photo
+    await db
+      .update(memorialPhotos)
+      .set({ isCoverPhoto: true })
+      .where(eq(memorialPhotos.id, photoId));
+  }
+
+  async incrementPhotoViews(photoId: string): Promise<void> {
+    await db
+      .update(memorialPhotos)
+      .set({ viewCount: sql`${memorialPhotos.viewCount} + 1` })
+      .where(eq(memorialPhotos.id, photoId));
   }
 
   async createMemorialPhoto(photo: InsertMemorialPhoto): Promise<MemorialPhoto> {
@@ -263,13 +291,13 @@ export class MemStorage implements IStorage {
       id: "test-id",
       firstName: "John",
       lastName: "Mthembu",
-      dateOfBirth: "1955-03-15",
-      dateOfPassing: "2023-08-20",
+      dateOfBirth: new Date("1955-03-15"),
+      dateOfPassing: new Date("2023-08-20"),
       province: "KwaZulu-Natal",
       status: "published",
+      privacy: "public",
       memorialMessage: "A loving father and devoted husband who touched many lives with his kindness and wisdom. His legacy lives on in the hearts of all who knew him.",
       profilePhotoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=300&h=400&fit=crop&crop=face",
-      backgroundPhotoUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&w=1200&h=600&fit=crop",
       viewCount: 245,
       createdAt: new Date("2023-08-25T10:00:00Z"),
       updatedAt: new Date("2023-08-25T10:00:00Z"),
@@ -283,25 +311,21 @@ export class MemStorage implements IStorage {
         id: "tribute-1",
         memorialId: "test-id",
         authorName: "Sarah Johnson",
-        authorEmail: "sarah@example.com",
         relationship: "Friend",
         message: "John was such a wonderful person. His warm smile and generous heart made everyone feel welcome. He will be deeply missed.",
         status: "published",
         createdAt: new Date("2023-08-26T14:30:00Z"),
-        updatedAt: new Date("2023-08-26T14:30:00Z"),
-        submittedBy: undefined
+        submittedBy: null
       },
       {
         id: "tribute-2", 
         memorialId: "test-id",
         authorName: "Michael Williams",
-        authorEmail: "mike@example.com",
         relationship: "Colleague",
         message: "Working with John was a privilege. His dedication and mentorship helped shape many careers. A true professional and friend.",
         status: "published",
         createdAt: new Date("2023-08-27T09:15:00Z"),
-        updatedAt: new Date("2023-08-27T09:15:00Z"),
-        submittedBy: undefined
+        submittedBy: null
       }
     ];
     testTributes.forEach(tribute => this.tributes.set(tribute.id, tribute));
@@ -313,16 +337,48 @@ export class MemStorage implements IStorage {
         memorialId: "test-id",
         photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=300&h=300&fit=crop",
         caption: "Family gathering 2020",
+        mediaType: "photo",
+        isCoverPhoto: true,
+        viewCount: 45,
+        uploaderName: "Sarah Johnson",
         createdAt: new Date("2023-08-25T12:00:00Z"),
-        submittedBy: "test-user-id"
+        uploadedBy: "test-user-id"
       },
       {
         id: "photo-2",
         memorialId: "test-id", 
         photoUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&w=300&h=300&fit=crop",
         caption: "Happy times",
+        mediaType: "photo",
+        isCoverPhoto: false,
+        viewCount: 23,
+        uploaderName: "Michael Williams",
         createdAt: new Date("2023-08-25T12:30:00Z"),
-        submittedBy: "test-user-id"
+        uploadedBy: "test-user-id"
+      },
+      {
+        id: "photo-3",
+        memorialId: "test-id", 
+        photoUrl: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&w=300&h=300&fit=crop",
+        caption: "Birthday celebration 2021",
+        mediaType: "photo",
+        isCoverPhoto: false,
+        viewCount: 18,
+        uploaderName: "Family Friend",
+        createdAt: new Date("2023-08-26T14:15:00Z"),
+        uploadedBy: "test-user-id"
+      },
+      {
+        id: "video-1",
+        memorialId: "test-id", 
+        photoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+        caption: "Birthday speech 2022",
+        mediaType: "video",
+        isCoverPhoto: false,
+        viewCount: 67,
+        uploaderName: "Family",
+        createdAt: new Date("2023-08-27T09:45:00Z"),
+        uploadedBy: "test-user-id"
       }
     ];
     testPhotos.forEach(photo => this.memorialPhotos.set(photo.id, photo));
@@ -335,10 +391,12 @@ export class MemStorage implements IStorage {
 
   async upsertUser(userData: UpsertUser): Promise<User> {
     const user: User = {
-      id: userData.id,
-      email: userData.email,
-      firstName: userData.firstName || "",
-      lastName: userData.lastName || "",
+      id: userData.id || `user-${Date.now()}`,
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      role: userData.role || "public",
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -371,6 +429,11 @@ export class MemStorage implements IStorage {
     const newMemorial: Memorial = {
       ...memorial,
       id,
+      profilePhotoUrl: memorial.profilePhotoUrl || null,
+      memorialMessage: memorial.memorialMessage || null,
+      status: memorial.status || "draft",
+      privacy: memorial.privacy || "public",
+      submittedBy: memorial.submittedBy || null,
       viewCount: 0,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -408,8 +471,10 @@ export class MemStorage implements IStorage {
     const newTribute: Tribute = {
       ...tribute,
       id,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      relationship: tribute.relationship || null,
+      status: tribute.status || "draft",
+      submittedBy: tribute.submittedBy || null,
+      createdAt: new Date()
     };
     this.tributes.set(id, newTribute);
     return newTribute;
@@ -452,6 +517,15 @@ export class MemStorage implements IStorage {
     const newPartner: Partner = {
       ...partner,
       id,
+      address: partner.address || null,
+      website: partner.website || null,
+      phone: partner.phone || null,
+      email: partner.email || null,
+      description: partner.description || null,
+      logoUrl: partner.logoUrl || null,
+      status: partner.status || "draft",
+      tier: partner.tier || "basic",
+      submittedBy: partner.submittedBy || null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -469,10 +543,46 @@ export class MemStorage implements IStorage {
   }
 
   // Memorial photo operations
-  async getMemorialPhotos(memorialId: string): Promise<MemorialPhoto[]> {
-    return Array.from(this.memorialPhotos.values())
+  async getMemorialPhotos(memorialId: string, mediaType?: string): Promise<MemorialPhoto[]> {
+    let result = Array.from(this.memorialPhotos.values())
+      .filter(p => p.memorialId === memorialId);
+    
+    if (mediaType) {
+      result = result.filter(p => p.mediaType === mediaType);
+    }
+    
+    return result.sort((a, b) => {
+      // Cover photos first
+      if (a.isCoverPhoto && !b.isCoverPhoto) return -1;
+      if (!a.isCoverPhoto && b.isCoverPhoto) return 1;
+      // Then by creation date
+      return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime();
+    });
+  }
+
+  async setCoverPhoto(memorialId: string, photoId: string): Promise<void> {
+    // Remove cover photo status from all photos for this memorial
+    Array.from(this.memorialPhotos.values())
       .filter(p => p.memorialId === memorialId)
-      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+      .forEach(p => {
+        p.isCoverPhoto = false;
+        this.memorialPhotos.set(p.id, p);
+      });
+    
+    // Set the new cover photo
+    const photo = this.memorialPhotos.get(photoId);
+    if (photo) {
+      photo.isCoverPhoto = true;
+      this.memorialPhotos.set(photoId, photo);
+    }
+  }
+
+  async incrementPhotoViews(photoId: string): Promise<void> {
+    const photo = this.memorialPhotos.get(photoId);
+    if (photo) {
+      photo.viewCount = (photo.viewCount || 0) + 1;
+      this.memorialPhotos.set(photoId, photo);
+    }
   }
 
   async createMemorialPhoto(photo: InsertMemorialPhoto): Promise<MemorialPhoto> {
@@ -480,6 +590,12 @@ export class MemStorage implements IStorage {
     const newPhoto: MemorialPhoto = {
       ...photo,
       id,
+      caption: photo.caption || null,
+      mediaType: photo.mediaType || 'photo',
+      isCoverPhoto: photo.isCoverPhoto || false,
+      viewCount: 0,
+      uploadedBy: photo.uploadedBy || null,
+      uploaderName: photo.uploaderName || null,
       createdAt: new Date()
     };
     this.memorialPhotos.set(id, newPhoto);
@@ -498,6 +614,7 @@ export class MemStorage implements IStorage {
     const newProgram: FuneralProgram = {
       ...program,
       id,
+      uploadedBy: program.uploadedBy || null,
       downloadCount: 0,
       createdAt: new Date()
     };
@@ -525,6 +642,10 @@ export class MemStorage implements IStorage {
     const newEvent: MemorialEvent = {
       ...event,
       id,
+      description: event.description || null,
+      location: event.location || null,
+      status: event.status || "draft",
+      organizedBy: event.organizedBy || null,
       createdAt: new Date()
     };
     this.memorialEvents.set(id, newEvent);
