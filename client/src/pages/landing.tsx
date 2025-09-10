@@ -47,16 +47,17 @@ export default function Landing() {
             </p>
             
             {/* Search and Create Section */}
-            <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-2xl p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
+            <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-2xl p-8 md:p-10">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-5">
                   <h3 className="text-xl font-semibold text-foreground">Search Memorials</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <Input
                       type="text"
                       placeholder="Enter name or location"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-12 px-4 py-3 text-base"
                       data-testid="input-search-memorials"
                     />
                     <Link href={`/browse${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`}>
@@ -67,11 +68,11 @@ export default function Landing() {
                   </div>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <h3 className="text-xl font-semibold text-foreground">Create Memorial</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <Select value={selectedProvince} onValueChange={setSelectedProvince}>
-                      <SelectTrigger data-testid="select-province">
+                      <SelectTrigger className="h-12 px-4 py-3" data-testid="select-province">
                         <SelectValue placeholder="Select Province" />
                       </SelectTrigger>
                       <SelectContent>

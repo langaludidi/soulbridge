@@ -40,20 +40,21 @@ export default function Browse() {
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-card rounded-xl shadow-sm p-6 mb-8">
-          <div className="grid md:grid-cols-3 gap-4">
+        <div className="bg-card rounded-xl shadow-sm p-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <Input
                 type="text"
                 placeholder="Search by name or location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-12 px-4 py-3 text-base"
                 data-testid="input-search-browse"
               />
             </div>
             <div>
               <Select value={selectedProvince} onValueChange={setSelectedProvince}>
-                <SelectTrigger data-testid="select-province-filter">
+                <SelectTrigger className="h-12 px-4 py-3" data-testid="select-province-filter">
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>

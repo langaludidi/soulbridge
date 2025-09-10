@@ -186,27 +186,29 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
           <DialogTitle className="text-2xl font-serif font-semibold">Create Memorial</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Name Fields */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="firstName">First Name *</Label>
+              <Label htmlFor="firstName" className="text-base font-medium">First Name *</Label>
               <Input
                 id="firstName"
                 type="text"
                 value={formData.firstName}
                 onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                className="h-12 px-4 py-3 text-base mt-2"
                 required
                 data-testid="input-first-name"
               />
             </div>
             <div>
-              <Label htmlFor="lastName">Last Name *</Label>
+              <Label htmlFor="lastName" className="text-base font-medium">Last Name *</Label>
               <Input
                 id="lastName"
                 type="text"
                 value={formData.lastName}
                 onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                className="h-12 px-4 py-3 text-base mt-2"
                 required
                 data-testid="input-last-name"
               />
@@ -214,25 +216,27 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
           </div>
           
           {/* Date Fields */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+              <Label htmlFor="dateOfBirth" className="text-base font-medium">Date of Birth *</Label>
               <Input
                 id="dateOfBirth"
                 type="date"
                 value={formData.dateOfBirth}
                 onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                className="h-12 px-4 py-3 text-base mt-2"
                 required
                 data-testid="input-date-of-birth"
               />
             </div>
             <div>
-              <Label htmlFor="dateOfPassing">Date of Passing *</Label>
+              <Label htmlFor="dateOfPassing" className="text-base font-medium">Date of Passing *</Label>
               <Input
                 id="dateOfPassing"
                 type="date"
                 value={formData.dateOfPassing}
                 onChange={(e) => setFormData(prev => ({ ...prev, dateOfPassing: e.target.value }))}
+                className="h-12 px-4 py-3 text-base mt-2"
                 required
                 data-testid="input-date-of-passing"
               />
@@ -241,12 +245,12 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
           
           {/* Province */}
           <div>
-            <Label>Province *</Label>
+            <Label className="text-base font-medium">Province *</Label>
             <Select 
               value={formData.province} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, province: value }))}
             >
-              <SelectTrigger data-testid="select-memorial-province">
+              <SelectTrigger className="h-12 px-4 py-3 mt-2" data-testid="select-memorial-province">
                 <SelectValue placeholder="Select Province" />
               </SelectTrigger>
               <SelectContent>
@@ -310,12 +314,13 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
           
           {/* Memorial Message */}
           <div>
-            <Label htmlFor="memorialMessage">Memorial Message</Label>
+            <Label htmlFor="memorialMessage" className="text-base font-medium">Memorial Message</Label>
             <Textarea
               id="memorialMessage"
               value={formData.memorialMessage}
               onChange={(e) => setFormData(prev => ({ ...prev, memorialMessage: e.target.value }))}
               placeholder="Share a brief message about their life and legacy..."
+              className="min-h-[120px] px-4 py-3 text-base mt-2"
               rows={4}
               data-testid="textarea-memorial-message"
             />

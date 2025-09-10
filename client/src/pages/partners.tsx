@@ -56,20 +56,21 @@ export default function Partners() {
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-card rounded-xl shadow-sm p-6 mb-8">
-          <div className="grid md:grid-cols-4 gap-4">
+        <div className="bg-card rounded-xl shadow-sm p-8 mb-8">
+          <div className="grid md:grid-cols-4 gap-6">
             <div className="md:col-span-2">
               <Input
                 type="text"
                 placeholder="Search partners..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-12 px-4 py-3 text-base"
                 data-testid="input-search-partners"
               />
             </div>
             <div>
               <Select value={selectedProvince} onValueChange={setSelectedProvince}>
-                <SelectTrigger data-testid="select-province-partners">
+                <SelectTrigger className="h-12 px-4 py-3" data-testid="select-province-partners">
                   <SelectValue placeholder="All Provinces" />
                 </SelectTrigger>
                 <SelectContent>
@@ -88,7 +89,7 @@ export default function Partners() {
             </div>
             <div>
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger data-testid="select-type-partners">
+                <SelectTrigger className="h-12 px-4 py-3" data-testid="select-type-partners">
                   <SelectValue placeholder="All Services" />
                 </SelectTrigger>
                 <SelectContent>

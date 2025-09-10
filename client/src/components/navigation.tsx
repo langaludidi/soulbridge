@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
+import soulbridgeLogo from "@assets/SoulBridge Logo Sep 25_1757519878176.png";
 
 export function Navigation() {
   const { user, isAuthenticated } = useAuth();
@@ -12,9 +13,13 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" data-testid="link-home">
-              <span className="text-2xl font-serif font-bold text-primary cursor-pointer">
-                Soulbridge
-              </span>
+              <div className="flex items-center space-x-3 cursor-pointer">
+                <img 
+                  src={soulbridgeLogo} 
+                  alt="SoulBridge - Honouring Every Life. Connecting Every Soul" 
+                  className="h-10 w-auto"
+                />
+              </div>
             </Link>
           </div>
           
