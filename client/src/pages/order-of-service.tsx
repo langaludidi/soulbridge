@@ -45,7 +45,7 @@ export default function OrderOfServicePage() {
 
   // Increment view count
   const viewMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/order-of-service/${id}/view`, 'PATCH'),
+    mutationFn: () => apiRequest('PATCH', `/api/order-of-service/${id}/view`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/order-of-service', id] });
     }
@@ -53,7 +53,7 @@ export default function OrderOfServicePage() {
 
   // Increment download count (without triggering print)
   const downloadMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/order-of-service/${id}/download`, 'PATCH'),
+    mutationFn: () => apiRequest('PATCH', `/api/order-of-service/${id}/download`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/order-of-service', id] });
     }

@@ -10,8 +10,9 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import type { Memorial, Tribute, MemorialPhoto, DigitalOrderOfService } from "@shared/schema";
-import { FileText } from "lucide-react";
+import { FileText, Edit, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function MemorialPage() {
   const [, params] = useRoute("/memorial/:id");
@@ -19,6 +20,7 @@ export default function MemorialPage() {
   const [showTributeModal, setShowTributeModal] = useState(false);
   const [activeTab, setActiveTab] = useState("about");
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
 
   const memorialId = params?.id;
 
@@ -575,16 +577,43 @@ export default function MemorialPage() {
                   <span className="font-medium">Leave Tribute</span>
                 </button>
 
-                {/* Order of Service Button */}
-                {orderOfService && (
-                  <button 
-                    onClick={() => setLocation(`/order-of-service/${orderOfService.id}`)}
-                    className="flex items-center justify-center space-x-3 p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-purple-700"
-                    data-testid="button-order-of-service"
-                  >
-                    <FileText className="w-5 h-5" />
-                    <span className="font-medium">Order of Service</span>
-                  </button>
+                {/* Order of Service Section */}
+                {orderOfService ? (
+                  /* Existing Order of Service - Show View and Edit controls */
+                  <div className="space-y-2">
+                    <button 
+                      onClick={() => setLocation(`/order-of-service/${orderOfService.id}`)}
+                      className="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-purple-700"
+                      data-testid="button-view-order-of-service"
+                    >
+                      <FileText className="w-5 h-5" />
+                      <span className="font-medium">View Order of Service</span>
+                    </button>
+                    
+                    {/* Edit button for memorial owners */}
+                    {isAuthenticated && user && memorial && (user.id === memorial.submittedBy || user.role === 'admin') && (
+                      <button 
+                        onClick={() => setLocation(`/order-of-service/${orderOfService.id}/edit`)}
+                        className="w-full flex items-center justify-center space-x-3 p-3 rounded-lg bg-purple-100 hover:bg-purple-200 transition-colors text-purple-800 text-sm"
+                        data-testid="button-edit-order-of-service"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span className="font-medium">Edit Order of Service</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  /* No Order of Service - Show Create option for memorial owners */
+                  isAuthenticated && user && memorial && (user.id === memorial.submittedBy || user.role === 'admin') && (
+                    <button 
+                      onClick={() => setLocation(`/create-memorial-order-of-service/${memorialId}`)}
+                      className="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-purple-700"
+                      data-testid="button-create-order-of-service"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span className="font-medium">Create Order of Service</span>
+                    </button>
+                  )
                 )}
               </div>
               

@@ -84,6 +84,24 @@ export function OrderOfServiceForm({
   const [events, setEvents] = useState<OrderOfServiceEvent[]>([]);
   const [previewData, setPreviewData] = useState<any>(null);
   
+  // Initialize form FIRST before using it
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: initialData?.title || "Celebration of Life",
+      theme: (initialData?.theme as "classic" | "modern" | "elegant") || "classic",
+      fontFamily: (initialData?.fontFamily as "serif" | "sans-serif" | "script") || "serif",
+      status: (initialData?.status as "draft" | "published") || "draft",
+      privacy: (initialData?.privacy as "public" | "private") || "public",
+      coverPhotoUrl: initialData?.coverPhotoUrl || "",
+      tributeQuote: initialData?.tributeQuote || "",
+      serviceDate: initialData?.serviceDate ? new Date(initialData.serviceDate).toISOString().split('T')[0] : "",
+      serviceTime: initialData?.serviceTime || "",
+      venue: initialData?.venue || "",
+      officiant: initialData?.officiant || ""
+    }
+  });
+  
   // Fetch events if editing existing Order of Service
   const { data: existingEvents } = useQuery({
     queryKey: ['/api/order-of-service', initialData?.id, 'events'],
@@ -108,23 +126,6 @@ export function OrderOfServiceForm({
     });
   }, [watchedValues, events]);
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: initialData?.title || "Celebration of Life",
-      theme: (initialData?.theme as "classic" | "modern" | "elegant") || "classic",
-      fontFamily: (initialData?.fontFamily as "serif" | "sans-serif" | "script") || "serif",
-      status: (initialData?.status as "draft" | "published") || "draft",
-      privacy: (initialData?.privacy as "public" | "private") || "public",
-      coverPhotoUrl: initialData?.coverPhotoUrl || "",
-      tributeQuote: initialData?.tributeQuote || "",
-      serviceDate: initialData?.serviceDate ? new Date(initialData.serviceDate).toISOString().split('T')[0] : "",
-      serviceTime: initialData?.serviceTime || "",
-      venue: initialData?.venue || "",
-      officiant: initialData?.officiant || ""
-    }
-  });
-
   const createMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const payload = {
@@ -138,7 +139,7 @@ export function OrderOfServiceForm({
         venue: data.venue || null,
         officiant: data.officiant || null
       };
-      return apiRequest(`/api/memorials/${memorial.id}/order-of-service`, 'POST', payload);
+      return apiRequest('POST', `/api/memorials/${memorial.id}/order-of-service`, payload);
     },
     onSuccess: (orderOfService: any) => {
       toast({
@@ -169,7 +170,7 @@ export function OrderOfServiceForm({
         venue: data.venue || null,
         officiant: data.officiant || null
       };
-      return apiRequest(`/api/order-of-service/${initialData?.id}`, 'PATCH', payload);
+      return apiRequest('PATCH', `/api/order-of-service/${initialData?.id}`, payload);
     },
     onSuccess: (orderOfService: any) => {
       toast({

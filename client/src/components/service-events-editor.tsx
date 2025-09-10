@@ -90,7 +90,7 @@ export function ServiceEventsEditor({
   const createEventMutation = useMutation({
     mutationFn: async (data: EventFormData) => {
       const orderIndex = events.length; // Add at the end
-      return apiRequest(`/api/order-of-service/${orderOfServiceId}/events`, 'POST', {
+      return apiRequest('POST', `/api/order-of-service/${orderOfServiceId}/events`, {
         ...data,
         orderIndex
       });
@@ -117,7 +117,7 @@ export function ServiceEventsEditor({
   // Update event mutation
   const updateEventMutation = useMutation({
     mutationFn: async (data: { id: string; updates: Partial<EventFormData> }) => {
-      return apiRequest(`/api/order-of-service-events/${data.id}`, 'PATCH', data.updates);
+      return apiRequest('PATCH', `/api/order-of-service-events/${data.id}`, data.updates);
     },
     onSuccess: (updatedEvent: any) => {
       toast({
@@ -144,7 +144,7 @@ export function ServiceEventsEditor({
   // Delete event mutation
   const deleteEventMutation = useMutation({
     mutationFn: async (eventId: string) => {
-      return apiRequest(`/api/order-of-service-events/${eventId}`, 'DELETE');
+      return apiRequest('DELETE', `/api/order-of-service-events/${eventId}`);
     },
     onSuccess: (_: any, deletedEventId: string) => {
       toast({
@@ -167,7 +167,7 @@ export function ServiceEventsEditor({
   // Reorder events mutation
   const reorderEventsMutation = useMutation({
     mutationFn: async (eventIds: string[]) => {
-      return apiRequest(`/api/order-of-service/${orderOfServiceId}/events/reorder`, 'PATCH', {
+      return apiRequest('PATCH', `/api/order-of-service/${orderOfServiceId}/events/reorder`, {
         eventIds
       });
     },

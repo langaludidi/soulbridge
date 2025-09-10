@@ -12,6 +12,7 @@ import Browse from "@/pages/browse";
 import Partners from "@/pages/partners";
 import OrderOfService from "@/pages/order-of-service";
 import OrderOfServiceEdit from "@/pages/order-of-service-edit";
+import CreateMemorialOrderOfService from "@/pages/create-memorial-order-of-service";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -26,6 +27,7 @@ function Router() {
           <Route path="/partners" component={Partners} />
           <Route path="/order-of-service/:id" component={OrderOfService} />
           <Route path="/order-of-service/:id/edit" component={OrderOfServiceEdit} />
+          <Route path="/create-memorial-order-of-service/:memorialId" component={CreateMemorialOrderOfService} />
         </>
       ) : (
         <>
@@ -35,6 +37,7 @@ function Router() {
           <Route path="/partners" component={Partners} />
           <Route path="/order-of-service/:id" component={OrderOfService} />
           <Route path="/order-of-service/:id/edit" component={OrderOfServiceEdit} />
+          <Route path="/create-memorial-order-of-service/:memorialId" component={CreateMemorialOrderOfService} />
         </>
       )}
       <Route component={NotFound} />
