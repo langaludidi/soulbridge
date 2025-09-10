@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema } from "@shared/schema";
+import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema } from "@shared/schema";
 import fs from "fs";
 import path from "path";
 
@@ -368,6 +368,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching memorial events:", error);
       res.status(500).json({ message: "Failed to fetch memorial events" });
+    }
+  });
+
+  // Contact submission route
+  app.post('/api/contact', async (req: any, res) => {
+    try {
+      const contactData = insertContactSubmissionSchema.parse(req.body);
+      
+      // Get authenticated user ID if available
+      const userId = req.user?.claims?.sub;
+      
+      // Validate email format if provided
+      if (contactData.email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactData.email)) {
+          return res.status(400).json({ 
+            message: "Please provide a valid email address" 
+          });
+        }
+      }
+      
+      // If memorial ID is provided, verify memorial exists
+      if (contactData.memorialId) {
+        const memorial = await storage.getMemorial(contactData.memorialId);
+        if (!memorial) {
+          return res.status(400).json({ message: "Invalid memorial reference" });
+        }
+      }
+      
+      // Log contact submission for demo (in production, you'd store in database)
+      console.log(`[CONTACT] New contact submission:`);
+      console.log(`[CONTACT] Subject: ${contactData.subject}`);
+      console.log(`[CONTACT] Message: ${contactData.message}`);
+      console.log(`[CONTACT] Email: ${contactData.email || 'Not provided'}`);
+      console.log(`[CONTACT] Memorial ID: ${contactData.memorialId || 'None'}`);
+      console.log(`[CONTACT] User ID: ${userId || 'Anonymous'}`);
+      console.log(`[CONTACT] Timestamp: ${new Date().toISOString()}`);
+      
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      res.json({ 
+        success: true, 
+        message: "Thank you for your feedback! We'll review your message and get back to you if needed.",
+        submissionId: `submission_${Date.now()}`
+      });
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      res.status(500).json({ message: "Failed to submit contact form. Please try again." });
     }
   });
 

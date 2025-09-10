@@ -123,6 +123,18 @@ export const memorialEvents = pgTable("memorial_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Contact submissions table
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subject: varchar("subject").notNull(), // general_inquiry, suggestion, technical_issue, content_concern
+  message: text("message").notNull(),
+  email: varchar("email"),
+  memorialId: varchar("memorial_id").references(() => memorials.id),
+  submittedBy: varchar("submitted_by").references(() => users.id),
+  status: varchar("status").default("new"), // new, in_progress, resolved
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   submitter: one(users, {
@@ -186,6 +198,17 @@ export const memorialEventsRelations = relations(memorialEvents, ({ one }) => ({
   }),
 }));
 
+export const contactSubmissionsRelations = relations(contactSubmissions, ({ one }) => ({
+  memorial: one(memorials, {
+    fields: [contactSubmissions.memorialId],
+    references: [memorials.id],
+  }),
+  submitter: one(users, {
+    fields: [contactSubmissions.submittedBy],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertMemorialSchema = createInsertSchema(memorials).omit({
   id: true,
@@ -222,6 +245,11 @@ export const insertMemorialEventSchema = createInsertSchema(memorialEvents).omit
   createdAt: true,
 });
 
+export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -243,3 +271,6 @@ export type FuneralProgram = typeof funeralPrograms.$inferSelect;
 
 export type InsertMemorialEvent = z.infer<typeof insertMemorialEventSchema>;
 export type MemorialEvent = typeof memorialEvents.$inferSelect;
+
+export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;

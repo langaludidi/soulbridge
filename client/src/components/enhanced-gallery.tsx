@@ -48,6 +48,8 @@ import {
   SkipForward,
   SkipBack,
   Shield,
+  MessageCircle,
+  HelpCircle,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -75,6 +77,12 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [invitationModalOpen, setInvitationModalOpen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    subject: "general_inquiry",
+    message: "",
+    email: "",
+  });
   const [uploadForm, setUploadForm] = useState({
     photoUrl: "",
     caption: "",
@@ -171,6 +179,32 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     onError: (error) => {
       console.warn('Failed to increment photo view:', error);
       // Don't show error toast as this shouldn't interrupt user experience
+    },
+  });
+
+  const submitContactMutation = useMutation({
+    mutationFn: async (data: { subject: string; message: string; email?: string; memorialId?: string }) => {
+      return apiRequest("POST", "/api/contact", data);
+    },
+    onSuccess: (response) => {
+      setContactModalOpen(false);
+      setContactForm({ 
+        subject: "general_inquiry", 
+        message: "", 
+        email: "" 
+      });
+      toast({
+        title: "Thank you for your feedback!",
+        description: response.message || "We'll review your message and get back to you if needed.",
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.message || "Failed to submit your message. Please try again.";
+      toast({
+        title: "Submission failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     },
   });
 
@@ -321,6 +355,18 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
   const handleSetCoverPhoto = (photoId: string) => {
     setCoverPhotoMutation.mutate(photoId);
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.message.trim() || !contactForm.subject) return;
+    
+    submitContactMutation.mutate({
+      subject: contactForm.subject,
+      message: contactForm.message.trim(),
+      email: contactForm.email.trim() || undefined,
+      memorialId: memorialId,
+    });
   };
 
   // Sharing utility functions
@@ -1073,6 +1119,42 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
             </div>
           </div>
 
+          {/* Contact Support Section */}
+          <div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2">
+              <MessageCircle className="w-4 h-4 text-primary" />
+              <span>Have a suggestion?</span>
+            </h4>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-4">
+                Help us improve by sharing your thoughts about this memorial page
+              </p>
+              
+              <Button
+                onClick={() => setContactModalOpen(true)}
+                variant="outline"
+                className="w-full justify-start"
+                data-testid="button-contact-support"
+              >
+                <HelpCircle className="w-4 h-4 mr-2" />
+                Contact Us
+              </Button>
+              
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <Shield className="w-4 h-4 text-primary" />
+                  <span>We value your feedback</span>
+                </div>
+                <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-6">
+                  <li>• General suggestions</li>
+                  <li>• Technical issues</li>
+                  <li>• Content concerns</li>
+                  <li>• Feature requests</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Recent Activity */}
           <div>
             <h4 className="font-semibold mb-4 flex items-center space-x-2">
@@ -1340,6 +1422,81 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         onOpenChange={setInvitationModalOpen}
         memorial={memorial}
       />
+
+      {/* Contact Support Modal */}
+      <Dialog open={contactModalOpen} onOpenChange={setContactModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact Support</DialogTitle>
+            <DialogDescription>
+              We value your feedback! Share your thoughts about {memorial.firstName}'s memorial page or suggest improvements.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleContactSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">What can we help you with?</label>
+              <select
+                value={contactForm.subject}
+                onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+                className="w-full p-2 border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
+                data-testid="select-contact-subject"
+              >
+                <option value="general_inquiry">General Inquiry</option>
+                <option value="suggestion">Suggestion for Improvement</option>
+                <option value="technical_issue">Technical Issue</option>
+                <option value="content_concern">Content Concern</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Your Message *</label>
+              <Textarea
+                placeholder="Please share your feedback, suggestion, or concern with us..."
+                value={contactForm.message}
+                onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                required
+                className="min-h-24"
+                data-testid="textarea-contact-message"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Your Email (optional)</label>
+              <Input
+                type="email"
+                placeholder="your.email@example.com"
+                value={contactForm.email}
+                onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                data-testid="input-contact-email"
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave your email if you'd like us to respond to your message
+              </p>
+            </div>
+            
+            <div className="flex space-x-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setContactModalOpen(false)}
+                className="flex-1"
+                data-testid="button-contact-cancel"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!contactForm.message.trim() || submitContactMutation.isPending}
+                className="flex-1"
+                data-testid="button-contact-submit"
+              >
+                {submitContactMutation.isPending ? "Sending..." : "Send Message"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
