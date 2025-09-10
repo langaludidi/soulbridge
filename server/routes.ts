@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema } from "@shared/schema";
+import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -146,6 +146,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching memorial photos:", error);
       res.status(500).json({ message: "Failed to fetch memorial photos" });
+    }
+  });
+
+  app.post('/api/memorials/:memorialId/photos', isAuthenticated, async (req: any, res) => {
+    try {
+      const photoData = insertMemorialPhotoSchema.parse({
+        ...req.body,
+        memorialId: req.params.memorialId,
+      });
+      
+      // Get authenticated user ID
+      const userId = req.user.claims.sub;
+      
+      const photo = await storage.createMemorialPhoto({
+        ...photoData,
+        uploadedBy: userId,
+      });
+      
+      res.status(201).json(photo);
+    } catch (error) {
+      console.error("Error uploading memorial photo:", error);
+      res.status(500).json({ message: "Failed to upload memorial photo" });
     }
   });
 

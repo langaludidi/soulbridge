@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRoute } from "wouter";
 import { Navigation } from "@/components/navigation";
 import { TributeModal } from "@/components/tribute-modal";
+import { EnhancedGallery } from "@/components/enhanced-gallery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
@@ -328,33 +329,11 @@ export default function MemorialPage() {
 
             {/* Gallery Section */}
             {activeTab === "gallery" && (
-              <div className="bg-card rounded-xl p-6 shadow-sm">
-                <h3 className="text-xl font-semibold mb-6">Photo Gallery</h3>
-                
-                {photos.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {photos.map((photo) => (
-                      <div key={photo.id} className="relative group">
-                        <img 
-                          src={photo.photoUrl} 
-                          alt={photo.caption || "Memorial photo"}
-                          className="w-full h-32 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow cursor-pointer"
-                          data-testid={`img-gallery-${photo.id}`}
-                        />
-                        {photo.caption && (
-                          <p className="text-xs text-muted-foreground mt-2 truncate">
-                            {photo.caption}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No photos uploaded yet.</p>
-                  </div>
-                )}
-              </div>
+              <EnhancedGallery 
+                memorialId={memorialId!} 
+                photos={photos} 
+                isLoading={false}
+              />
             )}
 
             {/* Life Story Section */}
