@@ -18,7 +18,9 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { MemorialPhoto } from "@shared/schema";
+import { InvitationModal } from "@/components/invitation-modal";
+import { sharingUtils } from "@/lib/sharingUtils";
+import type { MemorialPhoto, Memorial } from "@shared/schema";
 import {
   Upload,
   Play,
@@ -36,22 +38,35 @@ import {
   Clock,
   TrendingUp,
   Users,
+  Share2,
+  UserPlus,
+  Copy,
+  Facebook,
+  Mail,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 interface EnhancedGalleryProps {
   memorialId: string;
   photos: MemorialPhoto[];
+  memorial: Memorial;
   isLoading?: boolean;
 }
 
 type MediaType = 'photo' | 'video' | 'audio';
 
-export function EnhancedGallery({ memorialId, photos: allPhotos, isLoading }: EnhancedGalleryProps) {
+export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoading }: EnhancedGalleryProps) {
+  // Don't render if memorial is not loaded yet
+  if (!memorial) {
+    return null;
+  }
   const [activeMediaType, setActiveMediaType] = useState<MediaType>('photo');
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [slideshowActive, setSlideshowActive] = useState(false);
+  const [invitationModalOpen, setInvitationModalOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     photoUrl: "",
     caption: "",
@@ -169,6 +184,43 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, isLoading }: En
 
   const handleSetCoverPhoto = (photoId: string) => {
     setCoverPhotoMutation.mutate(photoId);
+  };
+
+  // Sharing utility functions
+  const memorialUrl = `${window.location.origin}/memorial/${memorial.id}`;
+  const shareData = {
+    memorial,
+    currentUrl: memorialUrl
+  };
+
+  const handleCopyLink = async () => {
+    const success = await sharingUtils.copyLink(shareData);
+    if (success) {
+      setLinkCopied(true);
+      toast({
+        title: "Link copied",
+        description: "Memorial link has been copied to your clipboard.",
+      });
+      setTimeout(() => setLinkCopied(false), 3000);
+    } else {
+      toast({
+        title: "Failed to copy link",
+        description: "Please copy the link manually.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShareFacebook = () => {
+    sharingUtils.shareOnFacebook(shareData);
+  };
+
+  const handleShareWhatsApp = () => {
+    sharingUtils.shareOnWhatsApp(shareData);
+  };
+
+  const handleShareEmail = () => {
+    sharingUtils.shareViaEmail(shareData);
   };
 
   const getMediaTypeIcon = (type: MediaType) => {
@@ -616,6 +668,109 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, isLoading }: En
             </div>
           )}
 
+          {/* Share Memorial Section */}
+          <div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2">
+              <Share2 className="w-4 h-4 text-primary" />
+              <span>Share Memorial</span>
+            </h4>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-4">
+                Share {memorial.firstName}'s memorial with family and friends
+              </p>
+              
+              <div className="grid gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShareWhatsApp}
+                  className="w-full justify-start text-[#25D366] border-[#25D366]/20 hover:bg-[#25D366]/10"
+                  data-testid="button-share-whatsapp-gallery"
+                >
+                  <FaWhatsapp className="w-4 h-4 mr-2" />
+                  Share on WhatsApp
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShareFacebook}
+                  className="w-full justify-start text-[#1877F2] border-[#1877F2]/20 hover:bg-[#1877F2]/10"
+                  data-testid="button-share-facebook-gallery"
+                >
+                  <Facebook className="w-4 h-4 mr-2" />
+                  Share on Facebook
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShareEmail}
+                  className="w-full justify-start text-[#EA4335] border-[#EA4335]/20 hover:bg-[#EA4335]/10"
+                  data-testid="button-share-email-gallery"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Share via Email
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyLink}
+                  className="w-full justify-start"
+                  data-testid="button-copy-link-gallery"
+                >
+                  {linkCopied ? (
+                    <>
+                      <div className="w-4 h-4 text-green-500 mr-2">✓</div>
+                      <span>Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-2" />
+                      <span>Copy Link</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Invite Family & Friends Section */}
+          <div>
+            <h4 className="font-semibold mb-4 flex items-center space-x-2">
+              <UserPlus className="w-4 h-4 text-primary" />
+              <span>Invite Family & Friends</span>
+            </h4>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-4">
+                Invite others to view and contribute to {memorial.firstName}'s memorial
+              </p>
+              
+              <Button
+                onClick={() => setInvitationModalOpen(true)}
+                className="w-full"
+                data-testid="button-open-invitation-modal"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Invite Now
+              </Button>
+              
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <Heart className="w-4 h-4 text-primary" />
+                  <span>Help family and friends:</span>
+                </div>
+                <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-6">
+                  <li>• Share precious memories</li>
+                  <li>• Upload photos and videos</li>
+                  <li>• Leave heartfelt tributes</li>
+                  <li>• Support the family</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {/* Recent Activity */}
           <div>
             <h4 className="font-semibold mb-4 flex items-center space-x-2">
@@ -794,6 +949,13 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, isLoading }: En
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Invitation Modal */}
+      <InvitationModal
+        open={invitationModalOpen}
+        onOpenChange={setInvitationModalOpen}
+        memorial={memorial}
+      />
     </div>
   );
 }

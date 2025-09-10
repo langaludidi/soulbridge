@@ -1,4 +1,5 @@
 import { useState } from "react";
+import React from "react";
 import { useRoute } from "wouter";
 import { Navigation } from "@/components/navigation";
 import { TributeModal } from "@/components/tribute-modal";
@@ -30,6 +31,55 @@ export default function MemorialPage() {
     queryKey: ["/api/memorials", memorialId, "photos"],
     enabled: !!memorialId,
   });
+
+  // Set OpenGraph meta tags for social sharing
+  React.useEffect(() => {
+    if (memorial) {
+      const title = `${memorial.firstName} ${memorial.lastName} Memorial - SoulBridge`;
+      const description = memorial.memorialMessage 
+        ? `${memorial.memorialMessage.slice(0, 160)}...`
+        : `Remember ${memorial.firstName} ${memorial.lastName} (${new Date(memorial.dateOfBirth).getFullYear()} - ${new Date(memorial.dateOfPassing).getFullYear()}) on SoulBridge. Honor their memory and share precious moments with family and friends.`;
+      const imageUrl = memorial.profilePhotoUrl || '';
+      const currentUrl = window.location.href;
+
+      // Update title
+      document.title = title;
+      
+      // Update or create meta tags
+      const updateMetaTag = (property: string, content: string, attribute = 'property') => {
+        let meta = document.querySelector(`meta[${attribute}="${property}"]`);
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute(attribute, property);
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
+      };
+
+      // Standard meta tags
+      updateMetaTag('description', description, 'name');
+      
+      // OpenGraph tags
+      updateMetaTag('og:title', title);
+      updateMetaTag('og:description', description);
+      updateMetaTag('og:type', 'profile');
+      updateMetaTag('og:url', currentUrl);
+      updateMetaTag('og:site_name', 'SoulBridge');
+      
+      if (imageUrl) {
+        updateMetaTag('og:image', imageUrl);
+        updateMetaTag('og:image:alt', `${memorial.firstName} ${memorial.lastName}`);
+      }
+      
+      // Twitter Card tags
+      updateMetaTag('twitter:card', 'summary_large_image', 'name');
+      updateMetaTag('twitter:title', title, 'name');
+      updateMetaTag('twitter:description', description, 'name');
+      if (imageUrl) {
+        updateMetaTag('twitter:image', imageUrl, 'name');
+      }
+    }
+  }, [memorial]);
 
   if (memorialLoading) {
     return (
@@ -328,10 +378,11 @@ export default function MemorialPage() {
             )}
 
             {/* Gallery Section */}
-            {activeTab === "gallery" && (
+            {activeTab === "gallery" && memorial && (
               <EnhancedGallery 
                 memorialId={memorialId!} 
                 photos={photos} 
+                memorial={memorial}
                 isLoading={false}
               />
             )}
