@@ -22,6 +22,7 @@ import {
   Printer
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { generatePrintableOrderOfService } from "@/lib/pdfUtils";
 
 export default function OrderOfServicePage() {
   const { id } = useParams<{ id: string }>();
@@ -100,8 +101,35 @@ export default function OrderOfServicePage() {
     }
   };
 
-  const handlePrintDownload = () => {
-    downloadMutation.mutate();
+  const handlePrintDownload = async () => {
+    if (!orderOfService || !memorial) {
+      toast({
+        title: "Error",
+        description: "Order of Service data is not available",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Update download count first
+      downloadMutation.mutate();
+      
+      // Then generate the enhanced printable version
+      await generatePrintableOrderOfService(orderOfService, memorial);
+      
+      toast({
+        title: "Download ready!",
+        description: "The Order of Service is ready to print or save as PDF",
+      });
+    } catch (error) {
+      console.error('Print error:', error);
+      toast({
+        title: "Print failed",
+        description: "Unable to prepare the Order of Service for printing",
+        variant: "destructive"
+      });
+    }
   };
 
   const canEdit = user && orderOfService && (
