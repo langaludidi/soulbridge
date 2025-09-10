@@ -1,0 +1,118 @@
+👥 Parties Involved in Soulbridge
+1. 🧍‍♂️🧍‍♀️ Public Users (Families, Friends, Communities)
+
+Who they are:
+
+Everyday people visiting the site to view or create memorials
+
+Bereaved families wanting to honour a loved one
+
+Friends or community members leaving messages, tributes, or flowers
+
+What they can do:
+
+View public memorials, programs, events, and partner listings
+
+Submit new funeral programs or memorials via forms (if logged in)
+
+Leave guestbook entries or tributes
+
+Download or print programs or obituaries
+
+Engage based on subscription tier (e.g., view galleries if premium)
+
+2. 📝 Submitters / Contributors
+
+Who they are:
+
+Logged-in users (usually family members or organizers)
+
+Can be limited to a Contributor role in WordPress
+
+What they can do:
+
+Submit new:
+
+Funeral programs
+
+Memorials
+
+Memorial events
+
+(In testing) Partner listings
+
+Their posts are saved as drafts for admin moderation
+
+May receive email updates or confirmations
+
+3. 👩‍💼 Administrators (Site Moderators & Managers)
+
+Who they are:
+
+Soulbridge team members
+
+Site owners or trusted moderators
+
+What they can do:
+
+Full access to all content (CPTs, ACF fields, Breakdance templates)
+
+Approve or edit submitted posts
+
+Manage partner accounts and content visibility
+
+Customize forms, layouts, styles
+
+Manage subscription levels manually (or via WooCommerce in future)
+
+Special responsibilities:
+
+Content moderation (respect, dignity, no spam)
+
+Ensuring cultural sensitivity and data privacy
+
+Approving partner listings and events
+
+Maintaining data backups and security
+
+4. 🤝 Partner Organizations
+
+Who they are:
+
+Funeral homes
+
+Cultural organizations
+
+Florists
+
+Caterers
+
+Musicians
+
+Memorial photographers
+
+Faith leaders or spiritual advisors
+
+What they can do:
+
+Create and manage a Partner profile
+
+Submit via form or through admin support
+
+Appear in the Partner Directory with:
+
+Type (e.g. Funeral Home)
+
+Province & Address
+
+Website & Social media
+
+Logo and Description
+
+Future opportunities:
+
+Upgrade visibility via paid tiers (Professional / Enterprise)
+
+Appear in related memorials or events
+
+Respond to family requests
