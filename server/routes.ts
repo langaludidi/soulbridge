@@ -3,10 +3,15 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { enforceMemorialLimits, enforcePremiumFeatures } from "./middleware/subscription";
+import { resolveBrandingContext, getBrandingResponse, getPartnerIdFromContext, type BrandedRequest } from "./middleware/branding";
+import { type AuthenticatedRequest } from "./middleware/auth";
 import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema } from "@shared/schema";
 import { billingRouter } from "./billing/routes";
 import fs from "fs";
 import path from "path";
+
+// Combined type for authenticated requests with branding context
+type AuthenticatedBrandedRequest = AuthenticatedRequest & BrandedRequest;
 
 // Function to generate HTML with OpenGraph meta tags for memorial pages
 function generateMemorialHTML(memorial: any, request: any): string {
@@ -62,6 +67,9 @@ function generateMemorialHTML(memorial: any, request: any): string {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
+  
+  // Apply branding middleware to all routes
+  app.use(resolveBrandingContext);
 
   // Memorial page route with OpenGraph meta tags for social media crawlers
   app.get('/memorial/:id', async (req, res, next) => {
@@ -90,6 +98,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error serving memorial page:", error);
       // Fallback to letting vite handle it
       next();
+    }
+  });
+
+  // Brand endpoint - returns branding context for current domain/partner
+  app.get('/api/brand', async (req: BrandedRequest, res) => {
+    try {
+      const brandingResponse = getBrandingResponse(req.brandContext);
+      res.json(brandingResponse);
+    } catch (error) {
+      console.error("Error fetching branding context:", error);
+      res.status(500).json({ message: "Failed to fetch branding context" });
     }
   });
 
@@ -160,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const memorials = await storage.getMemorials({
         province: province as string,
-        status: canAccessDrafts ? null : defaultStatus, // null shows all when authenticated
+        status: canAccessDrafts ? undefined : defaultStatus, // undefined shows all when authenticated
       });
       
       res.json(memorials);
@@ -203,11 +222,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/memorials', isAuthenticated, enforceMemorialLimits, async (req: any, res) => {
     try {
       const memorialData = insertMemorialSchema.parse(req.body);
-      const userId = req.user.claims.sub;
+      const authReq = req as AuthenticatedBrandedRequest;
+      const userId = authReq.user?.claims.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      // Get partner ID from branding context if available
+      const partnerId = getPartnerIdFromContext(authReq.brandContext);
       
       const memorial = await storage.createMemorial({
         ...memorialData,
         submittedBy: userId,
+        partnerId, // Associate memorial with partner if in partner context
         status: "draft", // All submissions start as drafts for moderation
       });
       

@@ -3,6 +3,7 @@ import {
   memorials,
   tributes,
   partners,
+  partnerDomains,
   memorialPhotos,
   funeralPrograms,
   memorialEvents,
@@ -17,6 +18,7 @@ import {
   type InsertTribute,
   type Partner,
   type InsertPartner,
+  type PartnerDomain,
   type MemorialPhoto,
   type InsertMemorialPhoto,
   type FuneralProgram,
@@ -56,6 +58,8 @@ export interface IStorage {
   // Partner operations
   getPartners(filters?: { province?: string; type?: string; status?: string }): Promise<Partner[]>;
   getPartner(id: string): Promise<Partner | undefined>;
+  getPartnerBySlug(slug: string): Promise<Partner | undefined>;
+  getPartnerDomainByDomain(domain: string): Promise<PartnerDomain | undefined>;
   createPartner(partner: InsertPartner): Promise<Partner>;
   updatePartner(id: string, partner: Partial<Partner>): Promise<Partner | undefined>;
   
@@ -187,6 +191,7 @@ export class DatabaseStorage implements IStorage {
         privacy: memorials.privacy,
         submittedBy: memorials.submittedBy,
         familyId: memorials.familyId,
+        partnerId: memorials.partnerId,
         viewCount: memorials.viewCount,
         createdAt: memorials.createdAt,
         updatedAt: memorials.updatedAt,
@@ -284,6 +289,30 @@ export class DatabaseStorage implements IStorage {
       .where(eq(partners.id, id))
       .returning();
     return updated;
+  }
+
+  async getPartnerBySlug(slug: string): Promise<Partner | undefined> {
+    // For now, we'll use name as slug until we add a proper slug field
+    const [partner] = await db.select().from(partners).where(
+      and(
+        or(
+          eq(partners.name, slug),
+          like(partners.name, `%${slug}%`)
+        ),
+        eq(partners.status, "published")
+      )
+    );
+    return partner;
+  }
+
+  async getPartnerDomainByDomain(domain: string): Promise<PartnerDomain | undefined> {
+    const [partnerDomain] = await db.select().from(partnerDomains).where(
+      and(
+        eq(partnerDomains.domain, domain),
+        eq(partnerDomains.isActive, true)
+      )
+    );
+    return partnerDomain;
   }
 
   // Memorial photo operations
@@ -507,6 +536,7 @@ export class MemStorage implements IStorage {
   private memorials = new Map<string, Memorial>();
   private tributes = new Map<string, Tribute>();
   private partners = new Map<string, Partner>();
+  private partnerDomains = new Map<string, PartnerDomain>();
   private memorialPhotos = new Map<string, MemorialPhoto>();
   private funeralPrograms = new Map<string, FuneralProgram>();
   private memorialEvents = new Map<string, MemorialEvent>();
@@ -533,6 +563,7 @@ export class MemStorage implements IStorage {
       memorialMessage: "A loving father and devoted husband who touched many lives with his kindness and wisdom. His legacy lives on in the hearts of all who knew him.",
       profilePhotoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=300&h=400&fit=crop&crop=face",
       familyId: null,
+      partnerId: null,
       viewCount: 245,
       createdAt: new Date("2023-08-25T10:00:00Z"),
       updatedAt: new Date("2023-08-25T10:00:00Z"),
@@ -634,6 +665,8 @@ export class MemStorage implements IStorage {
       role: userData.role || "public",
       subscriptionTier: userData.subscriptionTier || null,
       subscriptionStatus: userData.subscriptionStatus || null,
+      acquisitionPartnerId: userData.acquisitionPartnerId || null,
+      acquisitionReferralCode: userData.acquisitionReferralCode || null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -713,6 +746,7 @@ export class MemStorage implements IStorage {
       privacy: memorial.privacy || "public",
       submittedBy: memorial.submittedBy || null,
       familyId: memorial.familyId || null,
+      partnerId: memorial.partnerId || null,
       viewCount: 0,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -804,6 +838,13 @@ export class MemStorage implements IStorage {
       logoUrl: partner.logoUrl || null,
       status: partner.status || "draft",
       tier: partner.tier || "basic",
+      partnershipModel: partner.partnershipModel || "directory",
+      brandingConfig: partner.brandingConfig || null,
+      domainConfig: partner.domainConfig || null,
+      revenueSharePct: partner.revenueSharePct || 0,
+      referralPayoutZar: partner.referralPayoutZar || 0,
+      billingPlan: partner.billingPlan || "basic",
+      onboardingStatus: partner.onboardingStatus || "pending",
       submittedBy: partner.submittedBy || null,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -819,6 +860,20 @@ export class MemStorage implements IStorage {
     const updated = { ...existing, ...partner, updatedAt: new Date() };
     this.partners.set(id, updated);
     return updated;
+  }
+
+  async getPartnerBySlug(slug: string): Promise<Partner | undefined> {
+    // For now, use name as slug
+    const allPartners = Array.from(this.partners.values());
+    return allPartners.find(p => 
+      p.name.toLowerCase().includes(slug.toLowerCase()) && 
+      p.status === "published"
+    );
+  }
+
+  async getPartnerDomainByDomain(domain: string): Promise<PartnerDomain | undefined> {
+    const allDomains = Array.from(this.partnerDomains.values());
+    return allDomains.find(d => d.domain === domain && d.isActive);
   }
 
   // Memorial photo operations

@@ -37,6 +37,11 @@ export const users = pgTable("users", {
   // The subscriptions table is the source of truth - these are updated when subscription changes
   subscriptionTier: varchar("subscription_tier").default("remember"), // remember, honour, legacy, family_vault
   subscriptionStatus: varchar("subscription_status").default("active"), // active, trialing, past_due, canceled, in_grace
+  
+  // Partner acquisition tracking
+  acquisitionPartnerId: varchar("acquisition_partner_id").references((): any => partners.id), // Partner who acquired this user
+  acquisitionReferralCode: varchar("acquisition_referral_code"), // Referral code used during signup
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -55,6 +60,10 @@ export const memorials = pgTable("memorials", {
   privacy: varchar("privacy").default("public"), // public, private
   submittedBy: varchar("submitted_by").references(() => users.id),
   familyId: varchar("family_id").references(() => families.id), // For family vault subscriptions
+  
+  // Partner association
+  partnerId: varchar("partner_id").references(() => partners.id), // Partner who facilitated this memorial
+  
   viewCount: integer("view_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -86,7 +95,27 @@ export const partners = pgTable("partners", {
   logoUrl: varchar("logo_url"),
   status: varchar("status").default("draft"), // draft, published, archived
   tier: varchar("tier").default("basic"), // basic, professional, enterprise
-  submittedBy: varchar("submitted_by").references(() => users.id),
+  
+  // Partnership model and branding fields
+  partnershipModel: varchar("partnership_model").default("directory"), // directory, cobrand, whitelabel, referral
+  
+  // Branding configuration for co-brand/white-label
+  brandingConfig: jsonb("branding_config"), // { logoUrl, primaryColor, secondaryColor, fontFamily, displayName }
+  
+  // Domain configuration for white-label
+  domainConfig: jsonb("domain_config"), // { primaryDomain, customDomains[], sslEnabled }
+  
+  // Revenue sharing and payouts
+  revenueSharePct: integer("revenue_share_pct").default(0), // Percentage for co-brand partnerships
+  referralPayoutZar: integer("referral_payout_zar").default(0), // Fixed payout amount in ZAR cents for referrals
+  
+  // Partner subscription plan
+  billingPlan: varchar("billing_plan").default("basic"), // basic, professional, enterprise
+  
+  // Onboarding status
+  onboardingStatus: varchar("onboarding_status").default("pending"), // pending, documents_submitted, approved, active, suspended
+  
+  submittedBy: varchar("submitted_by").references((): any => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -215,12 +244,18 @@ export const invoices = pgTable("invoices", {
   currency: varchar("currency").default("ZAR").notNull(),
   status: varchar("status").notNull(), // pending, paid, failed, refunded
   providerPaymentId: varchar("provider_payment_id").unique(), // Unique to prevent duplicate invoices
+  
+  // Partner revenue sharing
+  partnerId: varchar("partner_id").references(() => partners.id), // Partner who facilitated this payment
+  partnerRevenueAmount: integer("partner_revenue_amount").default(0), // Partner's share in cents
+  
   paidAt: timestamp("paid_at"),
   rawEvent: jsonb("raw_event"), // Store full webhook payload
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
   index("IDX_invoices_subscription_id").on(table.subscriptionId),
   index("IDX_invoices_provider_payment_id").on(table.providerPaymentId),
+  index("IDX_invoices_partner_id").on(table.partnerId),
 ]);
 
 // Webhook events table for idempotency
@@ -293,6 +328,132 @@ export const orderOfServiceEvents = pgTable("order_of_service_events", {
   index("IDX_order_service_events_order_index").on(table.orderIndex),
 ]);
 
+// Partner Members table - for partner staff access
+export const partnerMembers = pgTable("partner_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").references(() => partners.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  role: varchar("role").default("member").notNull(), // owner, admin, member
+  permissions: jsonb("permissions"), // Specific permissions for this partner member
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_partner_members_partner_id").on(table.partnerId),
+  index("IDX_partner_members_user_id").on(table.userId),
+  unique("UNQ_partner_member_user").on(table.partnerId, table.userId),
+]);
+
+// Partner Domains table - for white-label domain mapping
+export const partnerDomains = pgTable("partner_domains", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").references(() => partners.id).notNull(),
+  domain: varchar("domain").notNull().unique(), // e.g., "memorials.example.com"
+  isPrimary: boolean("is_primary").default(false), // One primary domain per partner
+  isActive: boolean("is_active").default(true),
+  sslStatus: varchar("ssl_status").default("pending"), // pending, active, failed
+  verificationStatus: varchar("verification_status").default("pending"), // pending, verified, failed
+  verificationToken: varchar("verification_token"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_partner_domains_partner_id").on(table.partnerId),
+  index("IDX_partner_domains_domain").on(table.domain),
+]);
+
+// Referral Codes table - for tracking partner referrals
+export const referralCodes = pgTable("referral_codes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").references(() => partners.id).notNull(),
+  code: varchar("code").notNull().unique(), // e.g., "FUNERAL_HOME_2024"
+  description: text("description"), // Human-readable description
+  isActive: boolean("is_active").default(true),
+  usageCount: integer("usage_count").default(0),
+  maxUses: integer("max_uses"), // null for unlimited
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_referral_codes_partner_id").on(table.partnerId),
+  index("IDX_referral_codes_code").on(table.code),
+  index("IDX_referral_codes_active").on(table.isActive),
+]);
+
+// Referral Conversions table - for tracking successful referral conversions
+export const referralConversions = pgTable("referral_conversions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referralCodeId: varchar("referral_code_id").references(() => referralCodes.id).notNull(),
+  partnerId: varchar("partner_id").references(() => partners.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  conversionType: varchar("conversion_type").notNull(), // signup, subscription, memorial_creation
+  conversionValue: integer("conversion_value").default(0), // Value in ZAR cents
+  payoutAmount: integer("payout_amount").default(0), // Amount partner earns in ZAR cents
+  payoutStatus: varchar("payout_status").default("pending"), // pending, processing, paid, failed
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id),
+  memorialId: varchar("memorial_id").references(() => memorials.id),
+  metadata: jsonb("metadata"), // Additional conversion data
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_referral_conversions_referral_code_id").on(table.referralCodeId),
+  index("IDX_referral_conversions_partner_id").on(table.partnerId),
+  index("IDX_referral_conversions_user_id").on(table.userId),
+  index("IDX_referral_conversions_payout_status").on(table.payoutStatus),
+]);
+
+// Partner Payouts table - for partner revenue sharing and referral payouts
+export const partnerPayouts = pgTable("partner_payouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").references(() => partners.id).notNull(),
+  payoutType: varchar("payout_type").notNull(), // revenue_share, referral, bonus
+  amount: integer("amount").notNull(), // Amount in ZAR cents
+  currency: varchar("currency").default("ZAR").notNull(),
+  period: varchar("period"), // e.g., "2024-01" for monthly payouts
+  status: varchar("status").default("pending"), // pending, processing, paid, failed
+  
+  // Related records for tracking source
+  invoiceIds: jsonb("invoice_ids"), // Array of invoice IDs for revenue share
+  referralConversionIds: jsonb("referral_conversion_ids"), // Array of conversion IDs for referrals
+  
+  // Payment details
+  paymentMethod: varchar("payment_method"), // bank_transfer, paypal, etc.
+  paymentReference: varchar("payment_reference"), // External payment reference
+  paidAt: timestamp("paid_at"),
+  
+  metadata: jsonb("metadata"), // Additional payout details
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_partner_payouts_partner_id").on(table.partnerId),
+  index("IDX_partner_payouts_status").on(table.status),
+  index("IDX_partner_payouts_period").on(table.period),
+]);
+
+// Partner Subscriptions table - for partner billing management
+export const partnerSubscriptions = pgTable("partner_subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  partnerId: varchar("partner_id").references(() => partners.id).notNull(),
+  plan: varchar("plan").notNull(), // basic, professional, enterprise
+  status: varchar("status").notNull(), // active, trialing, past_due, canceled, in_grace
+  provider: varchar("provider").notNull(), // paystack, payfast, netcash
+  providerCustomerId: varchar("provider_customer_id"),
+  providerSubscriptionId: varchar("provider_subscription_id").unique(),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  trialEnd: timestamp("trial_end"),
+  
+  // Usage tracking
+  monthlyMemorialCount: integer("monthly_memorial_count").default(0),
+  monthlyRevenueShared: integer("monthly_revenue_shared").default(0), // In ZAR cents
+  
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_partner_subscriptions_partner_id").on(table.partnerId),
+  index("IDX_partner_subscriptions_provider_subscription_id").on(table.providerSubscriptionId),
+  index("IDX_partner_subscriptions_plan_status").on(table.plan, table.status),
+]);
+
 // Relations
 export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   submitter: one(users, {
@@ -302,6 +463,10 @@ export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   family: one(families, {
     fields: [memorials.familyId],
     references: [families.id],
+  }),
+  partner: one(partners, {
+    fields: [memorials.partnerId],
+    references: [partners.id],
   }),
   tributes: many(tributes),
   photos: many(memorialPhotos),
@@ -349,19 +514,29 @@ export const invoicesRelations = relations(invoices, ({ one }) => ({
     fields: [invoices.subscriptionId],
     references: [subscriptions.id],
   }),
+  partner: one(partners, {
+    fields: [invoices.partnerId],
+    references: [partners.id],
+  }),
 }));
 
 export const webhookEventsRelations = relations(webhookEvents, ({ one }) => ({
   // No direct relations - this is a standalone audit/idempotency table
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   memorials: many(memorials),
   tributes: many(tributes),
   partners: many(partners),
   ownedFamilies: many(families),
   familyMemberships: many(familyMembers),
   subscriptions: many(subscriptions),
+  partnerMemberships: many(partnerMembers),
+  referralConversions: many(referralConversions),
+  acquisitionPartner: one(partners, {
+    fields: [users.acquisitionPartnerId],
+    references: [partners.id],
+  }),
 }));
 
 export const tributesRelations = relations(tributes, ({ one }) => ({
@@ -375,11 +550,19 @@ export const tributesRelations = relations(tributes, ({ one }) => ({
   }),
 }));
 
-export const partnersRelations = relations(partners, ({ one }) => ({
+export const partnersRelations = relations(partners, ({ one, many }) => ({
   submitter: one(users, {
     fields: [partners.submittedBy],
     references: [users.id],
   }),
+  members: many(partnerMembers),
+  domains: many(partnerDomains),
+  referralCodes: many(referralCodes),
+  payouts: many(partnerPayouts),
+  conversions: many(referralConversions),
+  subscriptions: many(partnerSubscriptions),
+  memorials: many(memorials),
+  acquiredUsers: many(users),
 }));
 
 export const memorialPhotosRelations = relations(memorialPhotos, ({ one }) => ({
@@ -453,6 +636,70 @@ export const orderOfServiceEventsRelations = relations(orderOfServiceEvents, ({ 
   orderOfService: one(digitalOrderOfService, {
     fields: [orderOfServiceEvents.orderOfServiceId],
     references: [digitalOrderOfService.id],
+  }),
+}));
+
+// Partner-related table relations
+export const partnerMembersRelations = relations(partnerMembers, ({ one }) => ({
+  partner: one(partners, {
+    fields: [partnerMembers.partnerId],
+    references: [partners.id],
+  }),
+  user: one(users, {
+    fields: [partnerMembers.userId],
+    references: [users.id],
+  }),
+}));
+
+export const partnerDomainsRelations = relations(partnerDomains, ({ one }) => ({
+  partner: one(partners, {
+    fields: [partnerDomains.partnerId],
+    references: [partners.id],
+  }),
+}));
+
+export const referralCodesRelations = relations(referralCodes, ({ one, many }) => ({
+  partner: one(partners, {
+    fields: [referralCodes.partnerId],
+    references: [partners.id],
+  }),
+  conversions: many(referralConversions),
+}));
+
+export const referralConversionsRelations = relations(referralConversions, ({ one }) => ({
+  referralCode: one(referralCodes, {
+    fields: [referralConversions.referralCodeId],
+    references: [referralCodes.id],
+  }),
+  partner: one(partners, {
+    fields: [referralConversions.partnerId],
+    references: [partners.id],
+  }),
+  user: one(users, {
+    fields: [referralConversions.userId],
+    references: [users.id],
+  }),
+  subscription: one(subscriptions, {
+    fields: [referralConversions.subscriptionId],
+    references: [subscriptions.id],
+  }),
+  memorial: one(memorials, {
+    fields: [referralConversions.memorialId],
+    references: [memorials.id],
+  }),
+}));
+
+export const partnerPayoutsRelations = relations(partnerPayouts, ({ one }) => ({
+  partner: one(partners, {
+    fields: [partnerPayouts.partnerId],
+    references: [partners.id],
+  }),
+}));
+
+export const partnerSubscriptionsRelations = relations(partnerSubscriptions, ({ one }) => ({
+  partner: one(partners, {
+    fields: [partnerSubscriptions.partnerId],
+    references: [partners.id],
   }),
 }));
 
@@ -554,6 +801,45 @@ export const insertWebhookEventSchema = createInsertSchema(webhookEvents).omit({
   createdAt: true,
 });
 
+// Partner-related insert schemas
+export const insertPartnerMemberSchema = createInsertSchema(partnerMembers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPartnerDomainSchema = createInsertSchema(partnerDomains).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertReferralCodeSchema = createInsertSchema(referralCodes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  usageCount: true,
+});
+
+export const insertReferralConversionSchema = createInsertSchema(referralConversions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPartnerPayoutSchema = createInsertSchema(partnerPayouts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPartnerSubscriptionSchema = createInsertSchema(partnerSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  monthlyMemorialCount: true,
+  monthlyRevenueShared: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -602,6 +888,25 @@ export type Invoice = typeof invoices.$inferSelect;
 
 export type InsertWebhookEvent = z.infer<typeof insertWebhookEventSchema>;
 export type WebhookEvent = typeof webhookEvents.$inferSelect;
+
+// Partner-related types
+export type InsertPartnerMember = z.infer<typeof insertPartnerMemberSchema>;
+export type PartnerMember = typeof partnerMembers.$inferSelect;
+
+export type InsertPartnerDomain = z.infer<typeof insertPartnerDomainSchema>;
+export type PartnerDomain = typeof partnerDomains.$inferSelect;
+
+export type InsertReferralCode = z.infer<typeof insertReferralCodeSchema>;
+export type ReferralCode = typeof referralCodes.$inferSelect;
+
+export type InsertReferralConversion = z.infer<typeof insertReferralConversionSchema>;
+export type ReferralConversion = typeof referralConversions.$inferSelect;
+
+export type InsertPartnerPayout = z.infer<typeof insertPartnerPayoutSchema>;
+export type PartnerPayout = typeof partnerPayouts.$inferSelect;
+
+export type InsertPartnerSubscription = z.infer<typeof insertPartnerSubscriptionSchema>;
+export type PartnerSubscription = typeof partnerSubscriptions.$inferSelect;
 
 // Subscription tier types and entitlements
 export type SubscriptionTier = "remember" | "honour" | "legacy" | "family_vault";
