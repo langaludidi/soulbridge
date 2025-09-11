@@ -474,7 +474,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/browse">
-              <Button size="lg" variant="outline" className="px-10 py-4 text-lg h-14 border-white text-white hover:bg-white hover:text-primary backdrop-blur-sm shadow-lg">
+              <Button size="lg" variant="outline" className="px-10 py-4 text-lg h-14 border-white border-2 text-white bg-transparent hover:bg-white/10 backdrop-blur-sm">
                 Browse Examples
                 <ArrowRight className="ml-3 h-5 w-5" />
               </Button>
