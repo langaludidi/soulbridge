@@ -16,6 +16,7 @@ import CreateMemorialOrderOfService from "@/pages/create-memorial-order-of-servi
 import CreatePage from "@/pages/create";
 import About from "@/pages/about";
 import PricingPage from "@/pages/pricing";
+import PackagesPage from "@/pages/packages";
 import DashboardPage from "@/pages/dashboard";
 
 function Router() {
@@ -32,6 +33,7 @@ function Router() {
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
           <Route path="/about" component={About} />
+          <Route path="/packages" component={PackagesPage} />
           <Route path="/pricing" component={PricingPage} />
           <Route path="/order-of-service/:id" component={OrderOfService} />
           <Route path="/order-of-service/:id/edit" component={OrderOfServiceEdit} />
@@ -46,6 +48,7 @@ function Router() {
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
           <Route path="/about" component={About} />
+          <Route path="/packages" component={PackagesPage} />
           <Route path="/pricing" component={PricingPage} />
           <Route path="/order-of-service/:id" component={OrderOfService} />
           <Route path="/order-of-service/:id/edit" component={OrderOfServiceEdit} />
