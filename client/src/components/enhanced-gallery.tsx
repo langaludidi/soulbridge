@@ -731,65 +731,73 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         <div className="lg:col-span-3 p-6">
           {/* Media Type Tabs */}
           <Tabs value={activeMediaType} onValueChange={(value) => setActiveMediaType(value as MediaType)} className="w-full">
-            <div className="space-y-3 mb-6">
-                <div className="flex bg-muted rounded-lg p-1">
+            <div className="space-y-4 mb-6">
+                {/* Mobile-optimized tab layout */}
+                <div className="flex bg-muted rounded-lg p-1 gap-1">
                   <button
                     onClick={() => setActiveMediaType('photo')}
-                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex-1 px-2 py-3 text-xs sm:text-sm font-medium rounded-md transition-colors min-h-[44px] ${
                       activeMediaType === 'photo'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                     data-testid="tab-photos"
                   >
-                    Photos
-                    {photosCount > 0 && (
-                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
-                        {photosCount}
-                      </span>
-                    )}
+                    <div className="flex flex-col items-center gap-1">
+                      <span>Photos</span>
+                      {photosCount > 0 && (
+                        <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                          {photosCount}
+                        </span>
+                      )}
+                    </div>
                   </button>
                   <button
                     onClick={() => setActiveMediaType('video')}
-                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex-1 px-2 py-3 text-xs sm:text-sm font-medium rounded-md transition-colors min-h-[44px] ${
                       activeMediaType === 'video'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                     data-testid="tab-videos"
                   >
-                    Videos
-                    {videosCount > 0 && (
-                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
-                        {videosCount}
-                      </span>
-                    )}
+                    <div className="flex flex-col items-center gap-1">
+                      <span>Videos</span>
+                      {videosCount > 0 && (
+                        <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                          {videosCount}
+                        </span>
+                      )}
+                    </div>
                   </button>
                   <button
                     onClick={() => setActiveMediaType('audio')}
-                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex-1 px-2 py-3 text-xs sm:text-sm font-medium rounded-md transition-colors min-h-[44px] ${
                       activeMediaType === 'audio'
                         ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                     data-testid="tab-audio"
                   >
-                    Audio
-                    {audiosCount > 0 && (
-                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
-                        {audiosCount}
-                      </span>
-                    )}
+                    <div className="flex flex-col items-center gap-1">
+                      <span>Audio</span>
+                      {audiosCount > 0 && (
+                        <span className="px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                          {audiosCount}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 </div>
 
+                {/* Mobile-optimized upload button */}
                 <Button
                   onClick={() => setUploadModalOpen(true)}
-                  className="w-full sm:w-auto"
+                  className="w-full min-h-[48px] text-base"
                   size="lg"
                   data-testid={`button-add-${activeMediaType}`}
                 >
-                  <Upload className="w-4 h-4 mr-2" />
+                  <Upload className="w-5 h-5 mr-2" />
                   Add {getMediaTypeLabel(activeMediaType)}
                 </Button>
               </div>
@@ -800,7 +808,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
             {/* Gallery Content Tabs */}
             <TabsContent value={activeMediaType} className="mt-0">
               {photos.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                   {photos.map((photo, index) => (
                     <div
                       key={photo.id}
@@ -892,24 +900,24 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 </div>
               ) : (
                 /* Empty State */
-                <div className="text-center py-12 px-4">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="text-center py-8 sm:py-12 px-4">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                     {(() => {
                       const IconComponent = getMediaTypeIcon(activeMediaType);
-                      return <IconComponent className="w-8 h-8 text-muted-foreground" />;
+                      return <IconComponent className="w-7 h-7 sm:w-8 sm:h-8 text-muted-foreground" />;
                     })()}
                   </div>
-                  <h4 className="text-lg font-medium text-foreground mb-2">No {activeMediaType}s yet</h4>
-                  <p className="text-muted-foreground mb-8 max-w-sm mx-auto text-sm sm:text-base">
+                  <h4 className="text-base sm:text-lg font-medium text-foreground mb-2">No {activeMediaType}s yet</h4>
+                  <p className="text-muted-foreground mb-6 sm:mb-8 max-w-sm mx-auto text-sm sm:text-base">
                     Share precious memories by uploading {activeMediaType}s to this memorial gallery.
                   </p>
                   <Button
                     onClick={() => setUploadModalOpen(true)}
                     size="lg"
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto min-h-[48px]"
                     data-testid={`button-upload-first-${activeMediaType}`}
                   >
-                    <Upload className="w-4 h-4 mr-2" />
+                    <Upload className="w-5 h-5 mr-2" />
                     Upload First {getMediaTypeLabel(activeMediaType)}
                   </Button>
                 </div>
@@ -919,7 +927,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         </div>
 
         {/* Gallery Sidebar */}
-        <div className="lg:col-span-1 bg-muted/30 p-6 space-y-6">
+        <div className="lg:col-span-1 bg-muted/30 p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Memorial Views Section - Prominent display inspired by ForeverMissed */}
           <div className="bg-background/80 rounded-lg p-4 border border-border/50">
             <div className="text-center space-y-2">
@@ -1097,51 +1105,51 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   variant="outline"
                   size="sm"
                   onClick={handleShareWhatsApp}
-                  className="w-full justify-start text-[#25D366] border-[#25D366]/20 hover:bg-[#25D366]/10"
+                  className="w-full justify-start text-[#25D366] border-[#25D366]/20 hover:bg-[#25D366]/10 min-h-[40px]"
                   data-testid="button-share-whatsapp-gallery"
                 >
-                  <FaWhatsapp className="w-4 h-4 mr-2" />
-                  Share on WhatsApp
+                  <FaWhatsapp className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Share on WhatsApp</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleShareFacebook}
-                  className="w-full justify-start text-[#1877F2] border-[#1877F2]/20 hover:bg-[#1877F2]/10"
+                  className="w-full justify-start text-[#1877F2] border-[#1877F2]/20 hover:bg-[#1877F2]/10 min-h-[40px]"
                   data-testid="button-share-facebook-gallery"
                 >
-                  <Facebook className="w-4 h-4 mr-2" />
-                  Share on Facebook
+                  <Facebook className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Share on Facebook</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleShareEmail}
-                  className="w-full justify-start text-[#EA4335] border-[#EA4335]/20 hover:bg-[#EA4335]/10"
+                  className="w-full justify-start text-[#EA4335] border-[#EA4335]/20 hover:bg-[#EA4335]/10 min-h-[40px]"
                   data-testid="button-share-email-gallery"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Share via Email
+                  <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Share via Email</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCopyLink}
-                  className="w-full justify-start"
+                  className="w-full justify-start min-h-[40px]"
                   data-testid="button-copy-link-gallery"
                 >
                   {linkCopied ? (
                     <>
-                      <div className="w-4 h-4 text-green-500 mr-2">✓</div>
-                      <span>Link Copied!</span>
+                      <div className="w-4 h-4 text-green-500 mr-2 flex-shrink-0">✓</div>
+                      <span className="truncate">Link Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 mr-2" />
-                      <span>Copy Link</span>
+                      <Copy className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">Copy Link</span>
                     </>
                   )}
                 </Button>
@@ -1162,7 +1170,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
               <Button
                 onClick={() => setInvitationModalOpen(true)}
-                className="w-full"
+                className="w-full min-h-[44px]"
                 data-testid="button-open-invitation-modal"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
@@ -1291,21 +1299,21 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               {!showEmailInput && (
                 <Button
                   variant={subscriptionStatus?.isSubscribed ? "destructive" : "outline"}
-                  className="w-full justify-start"
+                  className="w-full justify-start min-h-[44px]"
                   onClick={subscriptionStatus?.isSubscribed ? handleUnsubscribe : handleSubscribe}
                   disabled={subscriptionLoading || subscribeMutation.isPending || unsubscribeMutation.isPending || (!isAuthenticated && subscriptionStatus?.isSubscribed && !subscriptionEmail.trim())}
                   data-testid="button-toggle-subscription"
                 >
                   {subscriptionStatus?.isSubscribed ? (
                     <>
-                      <BellOff className="w-4 h-4 mr-2" />
-                      {unsubscribeMutation.isPending ? "Unsubscribing..." : "Unsubscribe"}
+                      <BellOff className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{unsubscribeMutation.isPending ? "Unsubscribing..." : "Unsubscribe"}</span>
                     </>
                   ) : (
                     <>
-                      <Bell className="w-4 h-4 mr-2" />
-                      {subscribeMutation.isPending ? "Subscribing..." :
-                        (!isAuthenticated ? "Subscribe with Email" : "Subscribe to Updates")}
+                      <Bell className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{subscribeMutation.isPending ? "Subscribing..." :
+                        (!isAuthenticated ? "Subscribe with Email" : "Subscribe to Updates")}</span>
                     </>
                   )}
                 </Button>
@@ -1366,7 +1374,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               <Button
                 onClick={() => setContactModalOpen(true)}
                 variant="outline"
-                className="w-full justify-start"
+                className="w-full justify-start min-h-[44px]"
                 data-testid="button-contact-support"
               >
                 <HelpCircle className="w-4 h-4 mr-2" />
