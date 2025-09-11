@@ -1,4 +1,5 @@
 import type { RequestHandler } from "express";
+import type { AuthenticatedRequest } from './auth';
 import { db } from '../db';
 import { subscriptions, memorials } from '@shared/schema';
 import { eq, and, count } from 'drizzle-orm';
@@ -9,7 +10,7 @@ import type { SubscriptionTier } from '@shared/schema';
 /**
  * Middleware to enforce subscription limits for memorial creation
  */
-export const enforceMemorialLimits: RequestHandler = async (req, res, next) => {
+export const enforceMemorialLimits: RequestHandler = async (req: AuthenticatedRequest, res, next) => {
   try {
     const userId = req.user?.claims?.sub;
     
@@ -77,7 +78,7 @@ export const enforceMemorialLimits: RequestHandler = async (req, res, next) => {
  * Middleware to check if user has access to premium features
  */
 export const enforcePremiumFeatures = (requiredTier: SubscriptionTier): RequestHandler => {
-  return async (req, res, next) => {
+  return async (req: AuthenticatedRequest, res, next) => {
     try {
       const userId = req.user?.claims?.sub;
       

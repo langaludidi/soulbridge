@@ -10,6 +10,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import type { BillingProvider } from './types';
 import { PLAN_PRICING } from './types';
 import { getSubscriptionEntitlements } from '@shared/schema';
+import type { AuthenticatedRequest } from '../middleware/auth';
 
 export const billingRouter = Router();
 
@@ -81,7 +82,7 @@ billingRouter.get('/plans', (req, res) => {
 });
 
 // Get current user's subscription
-billingRouter.get('/subscription', isAuthenticated, async (req: any, res) => {
+billingRouter.get('/subscription', isAuthenticated, async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user.claims.sub;
     
@@ -139,7 +140,7 @@ const checkoutSessionSchema = z.object({
   provider: z.enum(['paystack', 'netcash']).default('paystack')
 });
 
-billingRouter.post('/checkout-session', isAuthenticated, async (req: any, res) => {
+billingRouter.post('/checkout-session', isAuthenticated, async (req: AuthenticatedRequest, res) => {
   try {
     const { plan, interval, provider: providerName } = checkoutSessionSchema.parse(req.body);
     const userId = req.user.claims.sub;
@@ -171,7 +172,7 @@ billingRouter.post('/checkout-session', isAuthenticated, async (req: any, res) =
 });
 
 // Create portal session for subscription management
-billingRouter.post('/portal-session', isAuthenticated, async (req: any, res) => {
+billingRouter.post('/portal-session', isAuthenticated, async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user.claims.sub;
     
@@ -187,7 +188,7 @@ billingRouter.post('/portal-session', isAuthenticated, async (req: any, res) => 
 });
 
 // Cancel subscription
-billingRouter.post('/cancel-subscription', isAuthenticated, async (req: any, res) => {
+billingRouter.post('/cancel-subscription', isAuthenticated, async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user.claims.sub;
     
