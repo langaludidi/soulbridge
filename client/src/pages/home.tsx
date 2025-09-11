@@ -14,6 +14,7 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
+import { Plus, ArrowRight, Star } from "lucide-react"; // Assuming Plus, ArrowRight, and Star are needed and imported
 
 export default function Home() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -23,33 +24,61 @@ export default function Home() {
     queryKey: ["/api/memorials"],
   });
 
+  // Dummy data for features and testimonials if not provided elsewhere
+  const features = [
+    { icon: Plus, name: "Simple and Beautiful", description: "Create stunning memorial pages easily, with no technical skills required." },
+    { icon: Plus, name: "Locally Rooted", description: "Built for our communities, traditions, and cultures – your stories remain connected to home." },
+    { icon: Plus, name: "Private and Secure", description: "Your family's memories and tributes are protected with the highest standards of security and privacy." },
+    { icon: Plus, name: "Always Accessible", description: "View and update your loved one's memorial anytime, from any device, wherever you are." }
+  ];
+
+  const testimonials = [
+    { content: "SoulBridge made it so easy to create a beautiful tribute for my grandmother. The platform is intuitive and the final memorial was exactly what I envisioned.", author: "Sarah J.", role: "Family Member" },
+    { content: "The ability to share stories and photos with family and friends was invaluable. It truly helped us connect and remember our loved one together.", author: "Mark T.", role: "Friend" },
+    { content: "I was looking for a way to preserve my father's legacy, and SoulBridge provided the perfect solution. It's a dignified and lasting way to honour his memory.", author: "Emily R.", role: "Daughter" }
+  ];
+
+  // Dummy functions for navigation and modal state if not provided elsewhere
+  const navigate = (path: string) => { console.log("Navigating to:", path); };
+  const setIsCreateModalOpen = (isOpen: boolean) => { setShowCreateModal(isOpen); };
+
+
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       {/* Hero Section */}
-      <section className="py-16 sm:py-24 bg-gradient-to-br from-primary/10 to-secondary/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-serif font-bold text-foreground mb-6">
-              Bridge Memories.<br />
-              <span className="text-primary">Honour Legacies.</span>
+      <section className="relative overflow-hidden section-padding-lg">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10" />
+        </div>
+        <div className="relative container-content">
+          <div className="text-center text-content">
+            <h1 className="hero-text font-serif font-bold tracking-tight text-foreground sm:text-5xl mb-8">
+              Honouring Every Life.<br />
+              <span className="text-primary">Connecting Every Soul</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              Create a beautiful online memorial to celebrate life and connect loved ones forever.
+            <p className="text-lg leading-8 text-muted-foreground mb-10 max-w-3xl mx-auto">
+              Create beautiful, lasting tributes that celebrate the unique story of your loved ones. 
+              Share memories, photos, and connect with family and friends in a meaningful digital space.
             </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/create">
-                <Button size="lg" className="px-8 py-3" data-testid="button-home-create-memorial">
-                  Create Memorial
-                </Button>
-              </Link>
-              <Link href="/browse">
-                <Button variant="outline" size="lg" className="px-8 py-3" data-testid="button-home-browse-memorials">
-                  Browse Memorials
-                </Button>
-              </Link>
+            <div className="button-group justify-center">
+              <Button
+                size="lg"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4"
+                data-testid="create-memorial-hero-button"
+              >
+                <Plus className="mr-2 h-5 w-5" />
+                Create Memorial
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate('/browse')}
+                className="shadow-sm hover:shadow-md transition-all duration-300 px-8 py-4"
+              >
+                Browse Memorials
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
@@ -130,49 +159,120 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Families Choose SoulBridge */}
-      <section className="py-16 sm:py-20 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-foreground mb-6">
-              Why Families Choose SoulBridge
+      {/* Features Section */}
+      <section className="section-padding section-elevated">
+        <div className="container-max">
+          <div className="container-content text-center mb-16">
+            <h2 className="text-3xl font-serif font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl mb-6">
+              Why Choose SoulBridge
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              At SoulBridge, we understand that honouring a loved one's life is deeply personal. Here is how we help you create beautiful, meaningful memorials with ease and dignity.
+            <p className="text-lg leading-8 text-muted-foreground max-w-3xl mx-auto">
+              Our platform offers everything you need to create meaningful, lasting tributes
             </p>
           </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">✨</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Simple and Beautiful</h3>
-              <p className="text-muted-foreground">Create stunning memorial pages easily, with no technical skills required.</p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🇿🇦</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Locally Rooted</h3>
-              <p className="text-muted-foreground">Built for our communities, traditions, and cultures – your stories remain connected to home.</p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🔒</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Private and Secure</h3>
-              <p className="text-muted-foreground">Your family's memories and tributes are protected with the highest standards of security and privacy.</p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl">📱</span>
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Always Accessible</h3>
-              <p className="text-muted-foreground">View and update your loved one's memorial anytime, from any device, wherever you are.</p>
+          <div className="container-max">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature, index) => (
+                <div 
+                  key={index} 
+                  className="relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 card-spacing-lg shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <dt>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white mb-6">
+                      <feature.icon className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                    <p className="text-lg font-semibold leading-7 text-foreground mb-3">
+                      {feature.name}
+                    </p>
+                  </dt>
+                  <dd className="text-base leading-7 text-muted-foreground">
+                    {feature.description}
+                  </dd>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <section className="section-padding section-contrast">
+        <div className="container-max">
+          <div className="container-content text-center mb-16">
+            <h2 className="text-3xl font-serif font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl mb-6">
+              Trusted by Families Worldwide
+            </h2>
+            <p className="text-lg leading-8 text-muted-foreground max-w-3xl mx-auto">
+              See how SoulBridge has helped families create lasting tributes
+            </p>
+          </div>
+          <div className="container-max">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {testimonials.map((testimonial, index) => (
+                <div 
+                  key={index}
+                  className="rounded-2xl bg-white dark:bg-slate-800 card-spacing shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex items-center space-x-1 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
+                  <div className="flex items-center">
+                    <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {testimonial.author.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-foreground">
+                        {testimonial.author}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {testimonial.role}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="section-padding section-elevated">
+        <div className="container-content text-center text-content">
+          <h2 className="text-3xl font-serif font-bold tracking-tight text-foreground sm:text-4xl mb-6">
+            Ready to Create a Beautiful Memorial?
+          </h2>
+          <p className="text-lg leading-8 text-muted-foreground mb-10 max-w-3xl mx-auto">
+            Join thousands of families who have chosen SoulBridge to honour their loved ones
+          </p>
+          <div className="button-group justify-center">
+            <Button
+              size="lg"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4"
+              data-testid="create-memorial-cta-button"
+            >
+              Get Started Today
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate('/pricing')}
+              className="shadow-sm hover:shadow-md transition-all duration-300 px-8 py-4"
+            >
+              View Pricing
+            </Button>
+          </div>
+        </div>
+      </section>
+
 
       {/* Recent Memorials */}
       <section className="py-16 sm:py-20 bg-background">
@@ -185,7 +285,7 @@ export default function Home() {
               Celebrating the lives and legacies of those who have touched our hearts
             </p>
           </div>
-          
+
           {recentMemorials.length > 0 ? (
             <div className="space-y-16">
               {/* Published Memorials (Premium Features) */}

@@ -24,7 +24,7 @@ export function Navigation() {
               </div>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
@@ -67,7 +67,7 @@ export function Navigation() {
               )}
             </div>
           </div>
-          
+
           {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (

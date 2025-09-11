@@ -80,21 +80,162 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    line-height: 1.6;
+  }
+
+  /* Improved spacing hierarchy */
+  .section-padding {
+    @apply py-16 px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding-sm {
+    @apply py-8 px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding-lg {
+    @apply py-24 px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-max {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .container-content {
+    @apply max-w-4xl mx-auto;
+  }
+
+  .container-narrow {
+    @apply max-w-2xl mx-auto;
+  }
+
+  /* Enhanced contrast sections */
+  .section-elevated {
+    @apply bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700;
+  }
+
+  .section-contrast {
+    @apply bg-slate-50 dark:bg-slate-900/50;
+  }
+
+  .section-accent {
+    @apply bg-primary/5 dark:bg-primary/10 border-l-4 border-primary;
+  }
+
+  /* Card spacing improvements */
+  .card-spacing {
+    @apply p-6 space-y-4;
+  }
+
+  .card-spacing-sm {
+    @apply p-4 space-y-3;
+  }
+
+  .card-spacing-lg {
+    @apply p-8 space-y-6;
+  }
+
+  /* Form spacing */
+  .form-spacing {
+    @apply space-y-6;
+  }
+
+  .form-group {
+    @apply space-y-2;
+  }
+
+  .form-grid {
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2;
+  }
+
+  /* Button spacing */
+  .button-group {
+    @apply flex gap-3 flex-wrap;
+  }
+
+  .button-group-sm {
+    @apply flex gap-2 flex-wrap;
+  }
+
+  /* Text spacing */
+  .text-content {
+    @apply space-y-4 leading-relaxed;
+  }
+
+  .text-content h1 {
+    @apply mb-6 mt-0;
+  }
+
+  .text-content h2 {
+    @apply mb-4 mt-8 first:mt-0;
+  }
+
+  .text-content h3 {
+    @apply mb-3 mt-6 first:mt-0;
+  }
+
+  .text-content p {
+    @apply mb-4 last:mb-0;
+  }
+
+  /* List improvements */
+  .list-spaced {
+    @apply space-y-3;
+  }
+
+  .list-spaced-sm {
+    @apply space-y-2;
+  }
+
+  /* Navigation improvements */
+  .nav-spacing {
+    @apply px-4 sm:px-6 lg:px-8 py-4;
+  }
+
+  /* Footer improvements */
+  .footer-spacing {
+    @apply py-12 px-4 sm:px-6 lg:px-8;
   }
 }
 
 .memorial-card {
   transition: all 0.3s ease;
+  @apply shadow-sm hover:shadow-md;
 }
 
 .memorial-card:hover {
   transform: translateY(-2px);
 }
 
+/* Enhanced contrast for better accessibility */
+.high-contrast {
+  @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100;
+}
+
+.medium-contrast {
+  @apply bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200;
+}
+
+.low-contrast {
+  @apply bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300;
+}
+
+/* Improved focus states */
+.focus-visible {
+  @apply focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
 @media (max-width: 640px) {
   .hero-text {
     font-size: 1.875rem;
     line-height: 1.2;
+  }
+
+  .section-padding {
+    @apply py-12 px-4;
+  }
+
+  .section-padding-lg {
+    @apply py-16 px-4;
   }
 }
 
