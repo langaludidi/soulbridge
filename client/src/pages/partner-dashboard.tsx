@@ -45,7 +45,7 @@ export default function PartnerDashboard() {
   });
 
   // Extract partner data from dashboard response
-  const partnerData = dashboardData?.partner;
+  const partnerData = dashboardData && typeof dashboardData === 'object' && 'partner' in dashboardData ? dashboardData.partner : null;
   const isPartnerLoading = isDashboardLoading; // Use same loading state
 
   const { data: brandingData, isLoading: isBrandingLoading } = useQuery({
@@ -55,7 +55,6 @@ export default function PartnerDashboard() {
 
   const { data: memorialsData, isLoading: isMemorialsLoading } = useQuery({
     queryKey: ['/api/memorials'],
-    queryFn: () => apiRequest('/api/memorials'),
     enabled: !!user,
   });
 
@@ -68,13 +67,20 @@ export default function PartnerDashboard() {
 
   // Update branding form when branding data is fetched
   React.useEffect(() => {
-    if (brandingData?.brandingConfig) {
+    if (brandingData && typeof brandingData === 'object' && 'brandingConfig' in brandingData && brandingData.brandingConfig) {
       setBrandingForm(brandingData.brandingConfig);
     }
   }, [brandingData]);
 
   // Extract data with fallbacks for loading states
-  const kpis = dashboardData || {
+  const kpis = (dashboardData && typeof dashboardData === 'object') ? {
+    totalMemorials: ('totalMemorials' in dashboardData ? dashboardData.totalMemorials : 0) as number,
+    activeMemorials: ('activeMemorials' in dashboardData ? dashboardData.activeMemorials : 0) as number,
+    monthlyViews: ('monthlyViews' in dashboardData ? dashboardData.monthlyViews : 0) as number,
+    monthlyRevenue: ('monthlyRevenue' in dashboardData ? dashboardData.monthlyRevenue : 0) as number,
+    pendingPayouts: ('pendingPayouts' in dashboardData ? dashboardData.pendingPayouts : 0) as number,
+    referralConversions: ('referralConversions' in dashboardData ? dashboardData.referralConversions : 0) as number,
+  } : {
     totalMemorials: 0,
     activeMemorials: 0,
     monthlyViews: 0,
@@ -83,16 +89,28 @@ export default function PartnerDashboard() {
     referralConversions: 0,
   };
 
-  const memorials = memorialsData || [];
+  // Helper function for currency formatting
+  const formatCurrency = (amountInCents: number) => {
+    return `R${(amountInCents / 100).toFixed(2)}`;
+  };
+
+  const memorials = Array.isArray(memorialsData) ? memorialsData : [];
   const isLoading = isDashboardLoading || isPartnerLoading || isBrandingLoading || isMemorialsLoading;
 
   // Real mutation for saving branding
   const { mutate: saveBranding, isPending: isSavingBranding } = useMutation({
     mutationFn: async (brandingConfig: any) => {
-      return apiRequest('/api/partner/branding', {
-        method: 'PUT',
+      const response = await fetch('/api/partner/branding', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ brandingConfig }),
       });
+      if (!response.ok) {
+        throw new Error('Failed to update branding');
+      }
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -163,10 +181,6 @@ export default function PartnerDashboard() {
       </div>
     );
   }
-
-  const formatCurrency = (cents: number) => {
-    return `R${(cents / 100).toFixed(2)}`;
-  };
 
   return (
     <div className="min-h-screen bg-background">
