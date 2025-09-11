@@ -1,0 +1,126 @@
+
+⸻
+
+✅ Replit Prompt 1: Soulbridge Partner Landing Page (Prompt Only)
+
+PROJECT: Build a landing page to recruit and convert Soulbridge partners — including funeral homes, churches, NGOs, municipalities, and family-owned businesses.
+
+GOAL:
+Create a clean, emotionally resonant, and trust-building page that introduces the Soulbridge partnership models and leads users to sign up, book a call, or request a demo.
+
+⸻
+
+PRIMARY AUDIENCE:
+	•	Funeral home owners
+	•	Faith leaders and church administrators
+	•	Community organisations
+	•	Memorial service providers
+	•	Local government teams
+
+⸻
+
+STRUCTURE:
+
+1. Hero Section
+	•	Headline: “Bring Dignified Digital Memorials to Your Community”
+	•	Subheadline: “Partner with Soulbridge to offer online tributes and funeral programs under your name or brand.”
+	•	CTA: “Become a Partner” / “Request Info Pack” / “Book a Call”
+
+2. How It Works
+	•	Icons or steps:
+	1.	Sign up
+	2.	Choose branding level (co-brand, white-label, referral)
+	3.	Start publishing digital memorials
+	4.	Earn revenue and support your families
+
+3. Partner Options Overview
+	•	Three cards:
+	•	🤝 Co-Branded
+	•	🔖 White-Label
+	•	📣 Referral
+	•	Each includes: what’s included, pricing summary, and ideal use case
+
+4. Testimonials or Scenarios
+	•	Example: “Mokoena Funerals now includes Soulbridge in every package — no more printing stress, just a link to honour the departed.”
+
+5. Why Partner With Soulbridge?
+	•	Emotional and operational benefits
+	•	Reduce costs for families
+	•	Promote your brand
+	•	Generate recurring revenue
+	•	Support dignified remembrance
+
+6. CTA Section
+	•	“Start in under 5 minutes”
+	•	Button: “Apply Now” or “Talk to Our Team”
+
+7. FAQ
+	•	Pricing, support, setup, billing, how to cancel, white-label options
+
+8. Footer
+	•	Contact info, social links, legal disclaimer
+	•	Note: “Soulbridge is proudly built for South African communities”
+
+⸻
+
+DESIGN GOALS:
+	•	Warm, calming, and trustworthy look
+	•	Use neutral greys, deep blue, soft icons
+	•	Simple, clear typography
+	•	Optimized for mobile (funeral home staff may be on phones)
+
+⸻
+
+✅ Replit Prompt 2: Soulbridge Partner User Journey
+
+PROJECT: Define the full user journey for a Soulbridge partner — from landing page visit to full deployment of digital memorials.
+
+GOAL:
+Map a respectful, smooth partner onboarding experience that supports different models (co-brand, white-label, referral), and creates long-term engagement.
+
+⸻
+
+1. Discovery
+	•	User sees a social post, email, or hears from a Soulbridge rep
+	•	Clicks to the partner landing page
+
+2. Interest
+	•	Reads about the 3 partner models
+	•	Watches short demo or testimonial
+	•	Downloads info pack or compares packages
+
+3. Action
+	•	Fills out a brief form: name, business name, location, email
+	•	Selects interest: Co-branded, White-label, or Referral
+	•	Gets email confirmation and follow-up message
+
+4. Onboarding
+	•	Receives welcome email + branding guide
+	•	Co-brand: Uploads logo, contact info, intro text
+	•	White-label: Submits domain or subdomain info
+	•	Referral: Gets unique link and pre-written messages to share
+
+5. Activation
+	•	Accesses dashboard
+	•	Creates first test memorial
+	•	Sees how branding appears in public link or PDF
+	•	Gets optional support via chat, email, or Zoom
+
+6. Real Use
+	•	Begins adding client memorials
+	•	Shares links with families
+	•	Collects revenue (if set up for share)
+
+7. Growth
+	•	Receives monthly email with usage and earnings
+	•	Optional upgrades: vanity links, printed PDFs, domain changes
+	•	Stays engaged via success stories or product updates
+
+⸻
+
+KEY MILESTONES:
+	•	Form submitted
+	•	First branded memorial created
+	•	First public share
+	•	First referral/commission or client payment
+	•	Long-term: 10+ memorials or upgrade to white-label

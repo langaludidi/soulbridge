@@ -1,0 +1,107 @@
+
+⸻
+
+PROJECT DESCRIPTION:
+Build a web-based system that allows Soulbridge to support:
+	1.	Branded partnerships with funeral homes, churches, NGOs, and cultural groups
+	2.	White-label licensing for large institutions wanting to run Soulbridge under their own domain and brand
+	3.	Referral partners who earn revenue by directing users to Soulbridge
+
+⸻
+
+OBJECTIVES:
+	•	Extend Soulbridge’s reach and trust through local partners
+	•	Enable recurring revenue through partner packages
+	•	Allow partners to provide digital memorials to their own clients
+	•	Offer clear branding and reporting for each partner type
+	•	Allow both one-time and subscription pricing options
+	•	Maintain Soulbridge’s standards of dignity, clarity, and simplicity across all implementations
+
+⸻
+
+THREE PARTNERSHIP MODELS:
+
+⸻
+
+1. Co-Branded Partner
+	•	Partner uses Soulbridge’s main platform
+	•	Their logo appears alongside Soulbridge on memorial pages
+	•	They receive their own login to manage memorials
+	•	Revenue is shared for each paying client brought in
+
+Pricing suggestions:
+	•	Free onboarding
+	•	Soulbridge retains 70% of revenue per memorial, partner earns 30%
+	•	Optional R99/month fee for analytics and branded dashboard access
+
+⸻
+
+2. White-Label License
+	•	Partner receives their own branded domain or subdomain
+	•	All branding, headers, footers, and PDFs reflect their name
+	•	Soulbridge provides technical maintenance and support
+	•	Ideal for funeral chains, insurers, municipalities, or faith networks
+
+Pricing suggestions:
+	•	Setup fee: R2,500 once-off
+	•	Hosting: R499–R999/month
+	•	Custom domain support: optional
+	•	Unlimited memorials included or capped at negotiated amount
+	•	SLA-based support (response within 24 hrs)
+
+⸻
+
+3. Referral Partner
+	•	No dashboard required
+	•	Partner shares a unique referral link or code
+	•	When someone purchases a paid plan, the partner earns a commission
+
+Pricing suggestions:
+	•	R50–R100 per successful referral
+	•	Monthly payment based on referral total
+	•	Optional digital toolkit provided (WhatsApp template, QR posters, etc.)
+
+⸻
+
+KEY FEATURES TO SUPPORT:
+	•	Partner dashboards (co-brand/white-label)
+	•	Login for partner admins
+	•	Branded public memorial display pages
+	•	PDF output branded per partner
+	•	Referral code tracking and reporting
+	•	Partner-level billing and reporting tools
+	•	Access control (partners only see their own content)
+	•	Graceful onboarding with optional Soulbridge support
+
+⸻
+
+GOALS FOR USER EXPERIENCE:
+	•	Easy for partners to get started
+	•	Branding should appear dignified and respectful
+	•	Partner value is visible immediately (e.g., their logo on a memorial page)
+	•	Dashboard and PDF views must maintain emotional sensitivity
+
+⸻
+
+USE CASE EXAMPLES:
+	•	A local funeral home creates memorials for clients as part of their funeral packages
+	•	A municipality offers memorials for public servants and local heroes
+	•	A church provides a digital Book of Remembrance for its members
+	•	An NGO offers grief support through free digital tributes and upgrades
+
+⸻
+
+REVENUE MODEL OPTIONS (Soulbridge):
+	•	Recurring monthly revenue from white-label licenses
+	•	Revenue share from co-branded partners
+	•	Passive income from referral commissions
+	•	Tiered pricing to support both small and large partners
+
+⸻
+
+DELIVERABLES EXPECTED FROM THE DEVELOPER:
+	•	Admin interface for Soulbridge to manage all partners
+	•	Partner interfaces with branding, dashboard, and access control
+	•	Mechanism to track referral codes or partner-attributed signups
+	•	Flexible pricing structure with ability to adjust features by partner type
+	•	Printable PDFs and public pages customized per partner
