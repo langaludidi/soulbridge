@@ -268,8 +268,8 @@ export default function Terms() {
                 <div className="space-y-2 text-muted-foreground">
                   <p><strong className="text-foreground">SoulBridge (Pty) Ltd</strong></p>
                   <p>Email: support@soulbridge.co.za</p>
-                  <p>Phone: +27 11 123 4567</p>
-                  <p>Address: 123 Memorial Street, Johannesburg, Gauteng, 2000</p>
+                  <p>Phone: 041 019 5019</p>
+                  <p>Address: 14a Pickering Street, Newton Park, Port Elizabeth</p>
                 </div>
               </div>
             </div>
