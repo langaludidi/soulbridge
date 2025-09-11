@@ -1,24 +1,15 @@
-import type { Request, Response, NextFunction } from "express";
+import type { RequestHandler } from "express";
 import { db } from '../db';
 import { subscriptions, memorials } from '@shared/schema';
 import { eq, and, count } from 'drizzle-orm';
 import { getSubscriptionEntitlements } from '@shared/schema';
 import type { SubscriptionTier } from '@shared/schema';
 
-// Extend Request type to include user info
-interface AuthenticatedRequest extends Request {
-  user: {
-    claims: {
-      sub: string;
-      email?: string;
-    };
-  };
-}
 
 /**
  * Middleware to enforce subscription limits for memorial creation
  */
-export const enforceMemorialLimits = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const enforceMemorialLimits: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user?.claims?.sub;
     
@@ -85,8 +76,8 @@ export const enforceMemorialLimits = async (req: AuthenticatedRequest, res: Resp
 /**
  * Middleware to check if user has access to premium features
  */
-export const enforcePremiumFeatures = (requiredTier: SubscriptionTier) => {
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const enforcePremiumFeatures = (requiredTier: SubscriptionTier): RequestHandler => {
+  return async (req, res, next) => {
     try {
       const userId = req.user?.claims?.sub;
       

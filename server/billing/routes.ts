@@ -314,4 +314,21 @@ billingRouter.get('/processing', async (req, res) => {
   res.redirect('/dashboard?payment_processing=true');
 });
 
+// Add /payment/notify endpoint as alias for NetCash webhook
+billingRouter.post('/payment/notify', express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    // This is an alias for the NetCash webhook endpoint
+    // NetCash sends notifications as form data
+    const payload = new URLSearchParams(req.body).toString();
+    
+    // Use NetCash provider to handle the webhook
+    await netcashProvider.handleWebhook(payload, '');
+    
+    res.status(200).send('OK'); // NetCash expects simple OK response
+  } catch (error) {
+    console.error('NetCash payment notification error:', error);
+    res.status(400).send('ERROR');
+  }
+});
+
 // Helper function already imported from @shared/schema

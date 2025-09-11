@@ -28,6 +28,9 @@ import Privacy from "@/pages/privacy";
 import Contact from "@/pages/contact";
 import FAQ from "@/pages/faq";
 import WritingGuide from "@/pages/writing-guide";
+import PaymentSuccess from "@/pages/payment-success";
+import PaymentDeclined from "@/pages/payment-declined";
+import PaymentComplete from "@/pages/payment-complete";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -57,6 +60,9 @@ function Router() {
           <Route path="/contact" component={Contact} />
           <Route path="/faq" component={FAQ} />
           <Route path="/writing-guide" component={WritingGuide} />
+          <Route path="/payment/success" component={PaymentSuccess} />
+          <Route path="/payment/declined" component={PaymentDeclined} />
+          <Route path="/payment/complete" component={PaymentComplete} />
         </>
       ) : (
         <>
@@ -81,6 +87,9 @@ function Router() {
           <Route path="/contact" component={Contact} />
           <Route path="/faq" component={FAQ} />
           <Route path="/writing-guide" component={WritingGuide} />
+          <Route path="/payment/success" component={PaymentSuccess} />
+          <Route path="/payment/declined" component={PaymentDeclined} />
+          <Route path="/payment/complete" component={PaymentComplete} />
         </>
       )}
       <Route component={NotFound} />

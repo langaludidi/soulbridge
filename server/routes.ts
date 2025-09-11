@@ -221,15 +221,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/memorials', isAuthenticated, enforceMemorialLimits, async (req: any, res) => {
     try {
       const memorialData = insertMemorialSchema.parse(req.body);
-      const authReq = req as AuthenticatedBrandedRequest;
-      const userId = authReq.user?.claims.sub;
+      const userId = req.user?.claims.sub;
       
       if (!userId) {
         return res.status(401).json({ message: "Authentication required" });
       }
       
       // Get partner ID from branding context if available
-      const partnerId = getPartnerIdFromContext(authReq.brandContext);
+      const partnerId = getPartnerIdFromContext(req.brandContext);
       
       const memorial = await storage.createMemorial({
         ...memorialData,
