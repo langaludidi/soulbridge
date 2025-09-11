@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Check, Star, Users, Heart, Crown, Shield, ArrowRight } from "lucide-react";
+import { Check, Star, Users, Heart, Crown, Shield, ArrowRight, CreditCard, Building2 } from "lucide-react";
 
 interface PlanFeatures {
   memorialLimit: string;
@@ -122,6 +124,7 @@ export default function PricingPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedInterval, setSelectedInterval] = useState<"monthly" | "yearly">("monthly");
+  const [selectedProvider, setSelectedProvider] = useState<"paystack" | "netcash">("paystack");
   
   // Get current user subscription
   const { data: subscription } = useQuery({
@@ -135,13 +138,24 @@ export default function PricingPage() {
       const response = await apiRequest("POST", `/api/billing/checkout-session`, {
         plan: planId,
         interval: selectedInterval,
+        provider: selectedProvider,
         userId: user?.id
       });
       return response.json();
     },
     onSuccess: (data: any) => {
       if (data?.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+        // Show provider-specific success message
+        const providerName = selectedProvider === 'paystack' ? 'Paystack' : 'NetCash Pay Now';
+        toast({
+          title: "Redirecting to payment",
+          description: `Taking you to ${providerName} to complete your payment securely.`
+        });
+        
+        // Small delay to show the toast before redirect
+        setTimeout(() => {
+          window.location.href = data.checkoutUrl;
+        }, 1000);
       } else {
         toast({
           title: "Checkout initiated",
@@ -149,10 +163,23 @@ export default function PricingPage() {
         });
       }
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Checkout error:', error);
+      
+      // Parse error message for better user feedback
+      let errorMessage = "Failed to start checkout process. Please try again.";
+      
+      if (error?.message?.includes('Family Vault is only available monthly')) {
+        errorMessage = "Family Vault plan is only available with monthly billing.";
+      } else if (error?.message?.includes('Invalid payment provider')) {
+        errorMessage = "The selected payment method is not available. Please try a different option.";
+      } else if (error?.message?.includes('provider')) {
+        errorMessage = `There was an issue with ${selectedProvider === 'paystack' ? 'Paystack' : 'NetCash'}. Please try the other payment method.`;
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to start checkout process. Please try again.",
+        title: "Payment Error",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -267,6 +294,68 @@ export default function PricingPage() {
             {selectedInterval === "yearly" && (
               <Badge className="ml-3" variant="secondary">Save 20%</Badge>
             )}
+          </div>
+
+          {/* Payment Provider Selection */}
+          <div className="max-w-lg mx-auto mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Choose Your Payment Method</h3>
+            <RadioGroup 
+              value={selectedProvider} 
+              onValueChange={(value: "paystack" | "netcash") => setSelectedProvider(value)}
+              className="grid grid-cols-1 gap-4"
+              data-testid="payment-provider-selection"
+            >
+              <div className="relative">
+                <RadioGroupItem value="paystack" id="paystack" className="peer sr-only" />
+                <Label
+                  htmlFor="paystack"
+                  className="flex items-center justify-between w-full p-4 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary hover:text-gray-600 dark:peer-checked:text-primary peer-checked:text-primary hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                  data-testid="label-paystack"
+                >
+                  <div className="flex items-center">
+                    <CreditCard className="w-5 h-5 mr-3" />
+                    <div>
+                      <div className="text-lg font-medium">Paystack</div>
+                      <div className="text-sm text-gray-500">Credit cards, debit cards, mobile money</div>
+                    </div>
+                  </div>
+                  <Badge variant="secondary">Most Popular</Badge>
+                </Label>
+              </div>
+              
+              <div className="relative">
+                <RadioGroupItem value="netcash" id="netcash" className="peer sr-only" />
+                <Label
+                  htmlFor="netcash"
+                  className="flex items-center justify-between w-full p-4 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary hover:text-gray-600 dark:peer-checked:text-primary peer-checked:text-primary hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                  data-testid="label-netcash"
+                >
+                  <div className="flex items-center">
+                    <Building2 className="w-5 h-5 mr-3" />
+                    <div>
+                      <div className="text-lg font-medium">NetCash Pay Now</div>
+                      <div className="text-sm text-gray-500">Direct from your bank account - secure & trusted</div>
+                    </div>
+                  </div>
+                  <Badge variant="outline">Bank Payment</Badge>
+                </Label>
+              </div>
+            </RadioGroup>
+            
+            {/* Payment Method Information */}
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                {selectedProvider === "paystack" ? (
+                  <>
+                    <strong>Paystack:</strong> Pay instantly with your credit/debit card or mobile wallet. Fast, secure, and supports all major South African banks.
+                  </>
+                ) : (
+                  <>
+                    <strong>NetCash Pay Now:</strong> Pay directly from your bank account using internet banking or EFT. Trusted by South African businesses for over 20 years.
+                  </>
+                )}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -420,6 +509,18 @@ export default function PricingPage() {
               <h3 className="font-semibold mb-2">Are there any setup fees?</h3>
               <p className="text-gray-600 text-sm">
                 No setup fees. You only pay the monthly subscription price for your chosen plan.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
+              <p className="text-gray-600 text-sm">
+                We accept card payments via Paystack (Visa, Mastercard, mobile money) and direct bank payments via NetCash Pay Now.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Is NetCash Pay Now secure?</h3>
+              <p className="text-gray-600 text-sm">
+                Yes, NetCash is PCI DSS compliant and trusted by thousands of South African businesses for over 20 years.
               </p>
             </div>
             <div>
