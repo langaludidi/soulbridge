@@ -221,8 +221,8 @@ export default function PricingPage() {
     return `Subscribe for R${displayPrice}${selectedInterval === "yearly" ? "/year" : "/month"}`;
   };
 
-  const isCurrentPlan = (planId: string) => {
-    return subscription && typeof subscription === 'object' && 'tier' in subscription && subscription.tier === planId;
+  const isCurrentPlan = (planId: string): boolean => {
+    return Boolean(subscription && typeof subscription === 'object' && 'tier' in subscription && subscription.tier === planId);
   };
 
   return (
