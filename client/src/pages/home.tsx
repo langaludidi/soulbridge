@@ -157,10 +157,10 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="section-padding-lg bg-white dark:bg-slate-900">
+      <section className="section-padding-lg bg-gradient-to-b from-slate-50 via-white to-slate-50/50 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800/50">
         <div className="container-max">
           <div className="container-content text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 font-medium text-sm mb-6">
               Simple Process
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-8">
@@ -170,52 +170,75 @@ export default function Home() {
               Creating a memorial is simple and takes just a few minutes
             </p>
           </div>
-          <div className="relative">
-            {/* Connection Line */}
-            <div className="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
 
-            <div className="grid gap-12 md:grid-cols-3 relative">
-              <div className="text-center space-y-6 relative">
-                <div className="relative inline-block">
-                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-4xl font-bold text-white">1</span>
+          <div className="relative max-w-7xl mx-auto">
+            {/* Enhanced Connection Line */}
+            <div className="hidden lg:block absolute top-24 left-1/2 transform -translate-x-1/2 w-3/4 h-px">
+              <div className="w-full h-full bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-600"></div>
+              <div className="absolute top-1/2 left-1/3 transform -translate-y-1/2 w-2 h-2 bg-slate-400 rounded-full"></div>
+              <div className="absolute top-1/2 left-2/3 transform -translate-y-1/2 w-2 h-2 bg-slate-400 rounded-full"></div>
+            </div>
+
+            <div className="grid gap-8 lg:grid-cols-3 lg:gap-12 relative">
+              {/* Step 1 */}
+              <div className="group text-center space-y-6 relative">
+                <div className="relative inline-block mb-6">
+                  <div className="w-20 h-20 mx-auto bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg border-2 border-emerald-200 dark:border-emerald-800 group-hover:border-emerald-300 dark:group-hover:border-emerald-700 transition-all duration-300">
+                    <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">1</span>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-secondary rounded-full animate-pulse"></div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">✓</span>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">Sign Up & Choose a Package</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  Get started with a plan that fits your family's needs and budget
-                </p>
+                <div className="bg-white dark:bg-slate-800/80 p-6 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 group-hover:shadow-md transition-all duration-300">
+                  <h3 className="text-xl font-semibold text-foreground mb-3">Sign Up & Choose a Package</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Get started with a plan that fits your family's needs
+                  </p>
+                </div>
               </div>
-              <div className="text-center space-y-6 relative">
-                <div className="relative inline-block">
-                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-secondary to-secondary/80 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-4xl font-bold text-white">2</span>
+
+              {/* Step 2 */}
+              <div className="group text-center space-y-6 relative">
+                <div className="relative inline-block mb-6">
+                  <div className="w-20 h-20 mx-auto bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg border-2 border-blue-200 dark:border-blue-800 group-hover:border-blue-300 dark:group-hover:border-blue-700 transition-all duration-300">
+                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">2</span>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full animate-pulse"></div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">✓</span>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">Add Photos, Stories & Tributes</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  Share their life story with photos and meaningful memories that celebrate their journey
-                </p>
+                <div className="bg-white dark:bg-slate-800/80 p-6 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 group-hover:shadow-md transition-all duration-300">
+                  <h3 className="text-xl font-semibold text-foreground mb-3">Add Photos, Stories & Tributes</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Share their life story with photos and meaningful memories
+                  </p>
+                </div>
               </div>
-              <div className="text-center space-y-6 relative">
-                <div className="relative inline-block">
-                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-accent to-accent/80 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-4xl font-bold text-white">3</span>
+
+              {/* Step 3 */}
+              <div className="group text-center space-y-6 relative">
+                <div className="relative inline-block mb-6">
+                  <div className="w-20 h-20 mx-auto bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg border-2 border-purple-200 dark:border-purple-800 group-hover:border-purple-300 dark:group-hover:border-purple-700 transition-all duration-300">
+                    <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">3</span>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full animate-pulse"></div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold text-white">✓</span>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">Share with Family & Friends</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  Invite loved ones to visit and contribute to the memorial, keeping memories alive together
-                </p>
+                <div className="bg-white dark:bg-slate-800/80 p-6 rounded-xl shadow-sm border border-slate-200/60 dark:border-slate-700/60 group-hover:shadow-md transition-all duration-300">
+                  <h3 className="text-xl font-semibold text-foreground mb-3">Share with Family & Friends</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Invite loved ones to visit and contribute to the memorial
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+
           <div className="text-center mt-16">
             <Link href="/create">
-              <Button size="lg" className="px-10 py-4 text-lg h-14 shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-how-it-works-cta">
+              <Button size="lg" className="px-10 py-4 text-lg h-14 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary" data-testid="button-how-it-works-cta">
                 <Plus className="mr-3 h-5 w-5" />
                 Start Creating Now
               </Button>
