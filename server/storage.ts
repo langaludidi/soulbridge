@@ -163,6 +163,7 @@ export class DatabaseStorage implements IStorage {
         status: memorials.status,
         privacy: memorials.privacy,
         submittedBy: memorials.submittedBy,
+        familyId: memorials.familyId,
         viewCount: memorials.viewCount,
         createdAt: memorials.createdAt,
         updatedAt: memorials.updatedAt,
@@ -508,6 +509,7 @@ export class MemStorage implements IStorage {
       privacy: "public",
       memorialMessage: "A loving father and devoted husband who touched many lives with his kindness and wisdom. His legacy lives on in the hearts of all who knew him.",
       profilePhotoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=300&h=400&fit=crop&crop=face",
+      familyId: null,
       viewCount: 245,
       createdAt: new Date("2023-08-25T10:00:00Z"),
       updatedAt: new Date("2023-08-25T10:00:00Z"),
@@ -607,6 +609,8 @@ export class MemStorage implements IStorage {
       lastName: userData.lastName || null,
       profileImageUrl: userData.profileImageUrl || null,
       role: userData.role || "public",
+      subscriptionTier: userData.subscriptionTier || null,
+      subscriptionStatus: userData.subscriptionStatus || null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -665,6 +669,7 @@ export class MemStorage implements IStorage {
       status: memorial.status || "draft",
       privacy: memorial.privacy || "public",
       submittedBy: memorial.submittedBy || null,
+      familyId: memorial.familyId || null,
       viewCount: 0,
       createdAt: new Date(),
       updatedAt: new Date()
