@@ -573,7 +573,7 @@ export default function MemorialPage() {
                       duration: 4000,
                     });
                   }}
-                  className="flex items-center justify-center space-x-3 p-4 rounded-lg bg-amber-50 hover:bg-amber-100 transition-colors text-amber-700" 
+                  className="flex items-center justify-center space-x-3 p-4 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors text-accent" 
                   data-testid="button-light-candle"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -584,7 +584,7 @@ export default function MemorialPage() {
                 
                 <button 
                   onClick={() => setShowTributeModal(true)}
-                  className="flex items-center justify-center space-x-3 p-4 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors text-blue-700"
+                  className="flex items-center justify-center space-x-3 p-4 rounded-lg bg-chart-4/10 hover:bg-chart-4/20 transition-colors text-chart-4"
                   data-testid="button-leave-note"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -599,7 +599,7 @@ export default function MemorialPage() {
                   <div className="space-y-2">
                     <button 
                       onClick={() => setLocation(`/order-of-service/${orderOfService.id}`)}
-                      className="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-purple-700"
+                      className="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-chart-5/10 hover:bg-chart-5/20 transition-colors text-chart-5"
                       data-testid="button-view-order-of-service"
                     >
                       <FileText className="w-5 h-5" />
@@ -610,7 +610,7 @@ export default function MemorialPage() {
                     {isAuthenticated && user && memorial && (user.id === memorial.submittedBy || user.role === 'admin') && (
                       <button 
                         onClick={() => setLocation(`/order-of-service/${orderOfService.id}/edit`)}
-                        className="w-full flex items-center justify-center space-x-3 p-3 rounded-lg bg-purple-100 hover:bg-purple-200 transition-colors text-purple-800 text-sm"
+                        className="w-full flex items-center justify-center space-x-3 p-3 rounded-lg bg-chart-5/20 hover:bg-chart-5/30 transition-colors text-chart-5 text-sm"
                         data-testid="button-edit-order-of-service"
                       >
                         <Edit className="w-4 h-4" />
@@ -623,7 +623,7 @@ export default function MemorialPage() {
                   isAuthenticated && user && memorial && (user.id === memorial.submittedBy || user.role === 'admin') && (
                     <button 
                       onClick={() => setLocation(`/create-memorial-order-of-service/${memorialId}`)}
-                      className="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-purple-50 hover:bg-purple-100 transition-colors text-purple-700"
+                      className="w-full flex items-center justify-center space-x-3 p-4 rounded-lg bg-chart-5/10 hover:bg-chart-5/20 transition-colors text-chart-5"
                       data-testid="button-create-order-of-service"
                     >
                       <Plus className="w-5 h-5" />
@@ -665,7 +665,7 @@ export default function MemorialPage() {
                       const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
                       window.open(url, '_blank', 'width=600,height=400');
                     }}
-                    className="flex items-center justify-center space-x-2 p-2 text-sm rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                    className="flex items-center justify-center space-x-2 p-2 text-sm rounded-lg bg-chart-4/10 hover:bg-chart-4/20 text-chart-4 transition-colors"
                     data-testid="button-share-facebook"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

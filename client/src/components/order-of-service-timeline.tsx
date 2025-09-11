@@ -50,36 +50,36 @@ export function OrderOfServiceTimeline({
 }: OrderOfServiceTimelineProps) {
   const themeClasses = {
     classic: {
-      container: "bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700",
-      eventCard: "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600",
-      timeline: "bg-slate-300 dark:bg-slate-600",
-      timelineNode: "bg-slate-500 dark:bg-slate-400 border-white dark:border-slate-800",
+      container: "bg-surface-1/50 border-border",
+      eventCard: "bg-card border-border",
+      timeline: "bg-border",
+      timelineNode: "bg-muted-foreground border-card",
       text: {
-        primary: "text-slate-900 dark:text-slate-100",
-        secondary: "text-slate-700 dark:text-slate-300",
-        muted: "text-slate-500 dark:text-slate-400"
+        primary: "text-foreground",
+        secondary: "text-muted-foreground",
+        muted: "text-muted-foreground/70"
       }
     },
     modern: {
-      container: "bg-blue-50/30 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800",
-      eventCard: "bg-white dark:bg-blue-900/20 border-blue-200 dark:border-blue-700",
-      timeline: "bg-blue-200 dark:bg-blue-700",
-      timelineNode: "bg-blue-500 dark:bg-blue-400 border-white dark:border-blue-900",
+      container: "bg-chart-4/10 border-chart-4/30",
+      eventCard: "bg-card border-chart-4/30",
+      timeline: "bg-chart-4/50",
+      timelineNode: "bg-chart-4 border-card",
       text: {
-        primary: "text-slate-900 dark:text-slate-100",
-        secondary: "text-blue-800 dark:text-blue-200",
-        muted: "text-blue-600 dark:text-blue-400"
+        primary: "text-foreground",
+        secondary: "text-chart-4",
+        muted: "text-chart-4/80"
       }
     },
     elegant: {
-      container: "bg-amber-50/30 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800",
-      eventCard: "bg-white dark:bg-amber-900/10 border-amber-200 dark:border-amber-700",
-      timeline: "bg-amber-200 dark:bg-amber-700",
-      timelineNode: "bg-amber-500 dark:bg-amber-400 border-white dark:border-amber-900",
+      container: "bg-accent/10 border-accent/30",
+      eventCard: "bg-card border-accent/30",
+      timeline: "bg-accent/50",
+      timelineNode: "bg-accent border-card",
       text: {
-        primary: "text-slate-900 dark:text-slate-100",
-        secondary: "text-amber-800 dark:text-amber-200",
-        muted: "text-amber-700 dark:text-amber-400"
+        primary: "text-foreground",
+        secondary: "text-accent",
+        muted: "text-accent/80"
       }
     }
   };
@@ -175,7 +175,7 @@ export function OrderOfServiceTimeline({
                             )}
 
                             {event.content && (
-                              <div className={`text-sm ${currentTheme.text.muted} mt-3 p-2 bg-slate-50 dark:bg-slate-700/30 rounded`}>
+                              <div className={`text-sm ${currentTheme.text.muted} mt-3 p-2 bg-surface-1/50 rounded`}>
                                 <p className="italic">{event.content}</p>
                               </div>
                             )}
@@ -198,7 +198,7 @@ export function OrderOfServiceTimeline({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive/80 opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => onDeleteEvent?.(event.id)}
                               data-testid={`delete-event-${event.id}`}
                             >
@@ -228,7 +228,7 @@ export function OrderOfServiceTimeline({
         </div>
 
         {/* Footer with event count */}
-        <div className="text-center pt-4 border-t border-slate-200 dark:border-slate-700">
+        <div className="text-center pt-4 border-t border-border">
           <p className={`text-xs ${currentTheme.text.muted}`}>
             {events.length} {events.length === 1 ? 'event' : 'events'} in this service
           </p>

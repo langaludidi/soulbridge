@@ -117,13 +117,13 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center space-y-12">
             {/* Enhanced Trust Badge */}
-            <div className="inline-flex items-center px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-card/90 backdrop-blur-md border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-center space-x-2">
                 <Heart className="h-4 w-4 text-primary animate-soft-pulse" />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Trusted by families across South Africa</span>
+                <span className="text-sm font-medium text-muted-foreground">Trusted by families across South Africa</span>
                 <div className="flex -space-x-1 ml-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-secondary border-2 border-white dark:border-slate-800"></div>
+                    <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-secondary border-2 border-card"></div>
                   ))}
                 </div>
               </div>
@@ -131,7 +131,7 @@ export default function Home() {
 
             {/* Enhanced Main Headline */}
             <div className="space-y-8">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif font-light text-slate-800 dark:text-slate-100 leading-tight tracking-tight">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif font-light text-foreground leading-tight tracking-tight">
                 <span className="block mb-4 animate-fade-in-up">Honouring Every Life,</span>
                 <span className="block bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-medium animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                   Connecting Every Soul
@@ -139,7 +139,7 @@ export default function Home() {
               </h1>
 
               <div className="relative animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                <p className="text-xl sm:text-2xl lg:text-3xl text-slate-600 dark:text-slate-300 max-w-5xl mx-auto leading-relaxed font-light">
+                <p className="text-xl sm:text-2xl lg:text-3xl text-muted-foreground max-w-5xl mx-auto leading-relaxed font-light">
                   Create beautiful, everlasting tributes that celebrate the unique journey of your loved ones.
                   <span className="block mt-2 text-lg sm:text-xl lg:text-2xl opacity-80">
                     A gentle space for memories, stories, and eternal connections.
@@ -163,7 +163,7 @@ export default function Home() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="group px-10 py-5 text-lg font-medium bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-300 rounded-2xl hover:shadow-lg"
+                  className="group px-10 py-5 text-lg font-medium bg-card/90 backdrop-blur-md border-2 border-border hover:bg-surface-1 transition-all duration-300 rounded-2xl hover:shadow-lg"
                 >
                   Browse Memorials
                   <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -179,8 +179,8 @@ export default function Home() {
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 mb-3 group-hover:scale-110 transition-transform duration-300">
                       <stat.icon className="h-6 w-6 text-primary dark:text-primary" />
                     </div>
-                    <div className="text-2xl lg:text-3xl font-bold text-slate-800 dark:text-slate-100">{stat.number}</div>
-                    <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">{stat.label}</div>
+                    <div className="text-2xl lg:text-3xl font-bold text-foreground">{stat.number}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -202,10 +202,10 @@ export default function Home() {
               <Sparkles className="w-4 h-4 mr-2 animate-soft-pulse" />
               Our Sacred Mission
             </div>
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
+            <h2 className="text-4xl sm:text-5xl font-serif font-light text-foreground mb-8">
               Why SoulBridge Exists
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
               When someone passes away, families need a gentle, beautiful way to share their legacy
               and connect those who loved them. We create sacred digital spaces that honor life's journey.
             </p>
@@ -232,13 +232,13 @@ export default function Home() {
                 gradient: "from-purple-500/10 to-pink-500/10"
               }
             ].map((item, index) => (
-              <div key={index} className={`group relative bg-gradient-to-br ${item.gradient} p-10 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-200/50 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 backdrop-blur-sm hover:-translate-y-2`}>
+              <div key={index} className={`group relative bg-gradient-to-br ${item.gradient} p-10 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-border backdrop-blur-sm hover:-translate-y-2`}>
                 <div className="text-center space-y-6">
-                  <div className="w-20 h-20 mx-auto bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <div className="w-20 h-20 mx-auto bg-card rounded-3xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     {item.icon}
                   </div>
-                  <h3 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">{item.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg">{item.description}</p>
+                  <h3 className="text-2xl font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-lg">{item.description}</p>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
@@ -256,10 +256,10 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
+            <h2 className="text-4xl sm:text-5xl font-serif font-light text-foreground mb-8">
               How It Works
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Creating a memorial is simple, gentle, and takes just a few minutes
             </p>
           </div>
@@ -299,8 +299,8 @@ export default function Home() {
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">{item.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg max-w-sm mx-auto">{item.description}</p>
+                  <h3 className="text-2xl font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-lg max-w-sm mx-auto">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -316,10 +316,10 @@ export default function Home() {
               <Award className="w-4 h-4 mr-2" />
               Why Choose SoulBridge
             </div>
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
+            <h2 className="text-4xl sm:text-5xl font-serif font-light text-foreground mb-8">
               Built with Love and Care
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
               Every feature is thoughtfully designed to provide comfort, connection, and lasting remembrance
             </p>
           </div>
@@ -333,15 +333,15 @@ export default function Home() {
                 <div className="text-center space-y-6">
                   <div className="relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative w-20 h-20 mx-auto bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                    <div className="relative w-20 h-20 mx-auto bg-card rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center`}>
                         <feature.icon className="h-6 w-6 text-white" />
                       </div>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">{feature.name}</h3>
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{feature.description}</p>
+                    <h3 className="text-xl font-semibold text-foreground group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">{feature.name}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -355,10 +355,10 @@ export default function Home() {
       <section className="py-24 section-bg-primary">
         <div className="container-max">
           <div className="container-content text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
+            <h2 className="text-4xl sm:text-5xl font-serif font-light text-foreground mb-8">
               Stories of Comfort & Connection
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
               Hear from families who found peace and connection through SoulBridge
             </p>
           </div>
@@ -383,12 +383,12 @@ export default function Home() {
                       </span>
                     </div>
                   </div>
-                  <blockquote className="text-slate-600 dark:text-slate-300 leading-relaxed text-lg italic">
+                  <blockquote className="text-muted-foreground leading-relaxed text-lg italic">
                     "{testimonial.content}"
                   </blockquote>
                   <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                     <div>
-                      <p className="font-semibold text-slate-800 dark:text-slate-100 text-lg">{testimonial.author}</p>
+                      <p className="font-semibold text-foreground text-lg">{testimonial.author}</p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">{testimonial.role} • {testimonial.location}</p>
                     </div>
                   </div>
@@ -403,10 +403,10 @@ export default function Home() {
       <section className="py-24 section-bg-muted">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
+            <h2 className="text-4xl sm:text-5xl font-serif font-light text-foreground mb-8">
               Recent Memorials
             </h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
               Honoring lives, celebrating legacies, and keeping memories alive
             </p>
           </div>
@@ -425,13 +425,13 @@ export default function Home() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="bg-white dark:bg-slate-800 shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
-            <CarouselNext className="bg-white dark:bg-slate-800 shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
+            <CarouselPrevious className="bg-card shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
+            <CarouselNext className="bg-card shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
           </Carousel>
 
           <div className="text-center mt-16">
             <Link href="/browse">
-              <Button variant="outline" size="lg" className="px-10 py-4 text-lg bg-white/90 dark:bg-slate-800/90 backdrop-blur-md hover:shadow-lg transition-all duration-300 rounded-2xl">
+              <Button variant="outline" size="lg" className="px-10 py-4 text-lg bg-card/90 backdrop-blur-md hover:shadow-lg transition-all duration-300 rounded-2xl">
                 View All Memorials
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

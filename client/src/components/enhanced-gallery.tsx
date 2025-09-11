@@ -823,7 +823,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                       )}
 
                       {activeMediaType === 'video' && (
-                        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
                           <Video className="w-12 h-12 text-white/80" />
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Play className="w-8 h-8 text-white bg-black/50 rounded-full p-2" />
@@ -839,7 +839,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
                       {/* Cover Photo Badge */}
                       {photo.isCoverPhoto && activeMediaType === 'photo' && (
-                        <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                        <div className="absolute top-2 left-2 bg-accent text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
                           <Star className="w-3 h-3" />
                           <span>Cover</span>
                         </div>
@@ -849,8 +849,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <div className="flex space-x-2">
-                            <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
-                              <Eye className="w-4 h-4 text-gray-900" />
+                            <div className="bg-card/90 backdrop-blur-sm rounded-full p-2">
+                              <Eye className="w-4 h-4 text-card-foreground" />
                             </div>
                             {activeMediaType === 'photo' && !photo.isCoverPhoto && (
                               <button
@@ -858,10 +858,10 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                                   e.stopPropagation();
                                   handleSetCoverPhoto(photo.id);
                                 }}
-                                className="bg-white/90 backdrop-blur-sm rounded-full p-2 hover:bg-white"
+                                className="bg-card/90 backdrop-blur-sm rounded-full p-2 hover:bg-card"
                                 data-testid={`button-set-cover-${photo.id}`}
                               >
-                                <Star className="w-4 h-4 text-gray-900" />
+                                <Star className="w-4 h-4 text-card-foreground" />
                               </button>
                             )}
                           </div>
@@ -935,7 +935,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 </span>
               </div>
               <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
                 <span data-testid="text-memorial-access">
                   {memorial.privacy === 'private' ? 'Private access' : 'Open access'}
                 </span>
@@ -1017,7 +1017,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 </span>
               </div>
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-chart-4 rounded-full"></div>
                 <span data-testid="text-administrator-status">
                   Active memorial steward
                 </span>
@@ -1140,7 +1140,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 >
                   {linkCopied ? (
                     <>
-                      <div className="w-4 h-4 text-green-500 mr-2 flex-shrink-0">✓</div>
+                      <div className="w-4 h-4 text-primary mr-2 flex-shrink-0">✓</div>
                       <span className="truncate">Copied!</span>
                     </>
                   ) : (
@@ -1205,19 +1205,19 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <div className="flex items-center space-x-2 text-sm">
                   {subscriptionLoading ? (
                     <>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-pulse"></div>
                       <span className="text-muted-foreground">Checking subscription status...</span>
                     </>
                   ) : subscriptionStatus?.isSubscribed ? (
                     <>
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <span className="text-foreground font-medium">
                         You are subscribed to memorial updates
                       </span>
                     </>
                   ) : (
                     <>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-muted-foreground/50 rounded-full"></div>
                       <span className="text-muted-foreground">
                         You are not subscribed to memorial updates
                       </span>
@@ -1273,9 +1273,9 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
               {/* Show current subscription email for guests */}
               {!isAuthenticated && !showEmailInput && subscriptionStatus?.isSubscribed && subscriptionEmail && (
-                <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                <div className="bg-primary/10 rounded-lg p-3 border border-primary/30">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 text-sm text-green-700 dark:text-green-300">
+                    <div className="flex items-center space-x-2 text-sm text-primary">
                       <Mail className="w-4 h-4" />
                       <span>Subscribed as: <span className="font-medium">{subscriptionEmail}</span></span>
                     </div>
@@ -1283,7 +1283,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                       onClick={() => setShowEmailInput(true)}
                       variant="ghost"
                       size="sm"
-                      className="text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/30"
+                      className="text-primary hover:bg-primary/20"
                       data-testid="button-edit-subscription-email"
                     >
                       Edit
@@ -1318,8 +1318,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
               {/* Guest user notices */}
               {!isAuthenticated && !showEmailInput && !subscriptionStatus?.isSubscribed && (
-                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-300">
+                <div className="bg-chart-4/10 rounded-lg p-3 border border-chart-4/30">
+                  <div className="flex items-center space-x-2 text-sm text-chart-4">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -1330,8 +1330,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
               {/* Guest unsubscribe notice */}
               {!isAuthenticated && !showEmailInput && subscriptionStatus?.isSubscribed && !subscriptionEmail.trim() && (
-                <div className="bg-orange-50 dark:bg-orange-950/20 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
-                  <div className="flex items-center space-x-2 text-sm text-orange-700 dark:text-orange-300">
+                <div className="bg-accent/10 rounded-lg p-3 border border-accent/30">
+                  <div className="flex items-center space-x-2 text-sm text-accent">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.898-.833-2.664 0L3.732 19c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
@@ -1465,7 +1465,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                     setLightboxOpen(false);
                   }
                 }}
-                className="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                className="absolute top-4 right-4 z-50 text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                 data-testid="button-close-lightbox"
               >
                 <X className="w-6 h-6" />
@@ -1483,7 +1483,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                         resumeSlideshow();
                       }
                     }}
-                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    className="text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                     data-testid="button-slideshow-toggle"
                   >
                     {slideshowPlaying ? (
@@ -1496,7 +1496,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   {/* Stop Slideshow Button */}
                   <button
                     onClick={stopSlideshow}
-                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    className="text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                     data-testid="button-slideshow-stop"
                   >
                     <Square className="w-5 h-5" />
@@ -1505,7 +1505,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   {/* Skip Controls */}
                   <button
                     onClick={prevPhotoSlideshow}
-                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    className="text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                     data-testid="button-slideshow-prev"
                   >
                     <SkipBack className="w-5 h-5" />
@@ -1513,7 +1513,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
                   <button
                     onClick={nextPhotoSlideshow}
-                    className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    className="text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                     data-testid="button-slideshow-next"
                   >
                     <SkipForward className="w-5 h-5" />
@@ -1552,14 +1552,14 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <>
                   <button
                     onClick={prevPhoto}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                     data-testid={`button-prev-${activeMediaType}`}
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextPhoto}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-muted-foreground transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
                     data-testid={`button-next-${activeMediaType}`}
                   >
                     <ChevronRight className="w-6 h-6" />
@@ -1616,7 +1616,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                     </h3>
                     <div className="flex items-center space-x-2">
                       {photos[currentPhotoIndex].isCoverPhoto && activeMediaType === 'photo' && (
-                        <Badge variant="secondary" className="bg-yellow-500/80 text-white">
+                        <Badge variant="secondary" className="bg-accent/80 text-white">
                           <Star className="w-3 h-3 mr-1" />
                           Cover
                         </Badge>

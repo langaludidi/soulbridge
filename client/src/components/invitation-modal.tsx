@@ -292,7 +292,7 @@ export function InvitationModal({ open, onOpenChange, memorial }: InvitationModa
                     >
                       {linkCopied ? (
                         <>
-                          <div className="w-4 h-4 text-green-500">✓</div>
+                          <div className="w-4 h-4 text-primary">✓</div>
                           <span>Copied</span>
                         </>
                       ) : (
@@ -371,12 +371,12 @@ export function InvitationModal({ open, onOpenChange, memorial }: InvitationModa
           </Tabs>
 
           {/* Tips Section */}
-          <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4">
-            <h4 className="font-medium mb-2 flex items-center space-x-2 text-blue-900 dark:text-blue-100">
+          <div className="bg-chart-4/10 rounded-lg p-4">
+            <h4 className="font-medium mb-2 flex items-center space-x-2 text-chart-4">
               <Heart className="w-4 h-4" />
               <span>Invitation Tips</span>
             </h4>
-            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+            <ul className="text-sm text-chart-4/80 space-y-1">
               <li>• Invite close family members first to help build the memorial</li>
               <li>• WhatsApp is very popular in South Africa for sharing with family</li>
               <li>• Include a personal message to encourage participation</li>

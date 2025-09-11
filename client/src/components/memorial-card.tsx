@@ -27,7 +27,7 @@ export function MemorialCard({ memorial, className }: MemorialCardProps) {
     <Link 
       href={`/memorial/${memorial.id}`} // Changed from 'to' to 'href' to match original Link component usage
       className={cn(
-        "memorial-card block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 card-spacing shadow-sm hover:shadow-md transition-all duration-300 focus-visible",
+        "memorial-card block rounded-2xl border border-border bg-card card-spacing shadow-sm hover:shadow-md transition-all duration-300 focus-visible",
         className
       )}
       data-testid={`card-memorial-${memorial.id}`} // Adjusted test id to match original

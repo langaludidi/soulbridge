@@ -259,7 +259,7 @@ export default function PartnerDashboard() {
                   <div className="text-2xl font-bold" data-testid="kpi-monthly-views">
                     {kpis.monthlyViews.toLocaleString()}
                   </div>
-                  <p className="text-xs text-green-600 flex items-center">
+                  <p className="text-xs text-primary flex items-center">
                     <TrendingUp className="w-3 h-3 mr-1" />
                     +12% from last month
                   </p>
@@ -307,8 +307,8 @@ export default function PartnerDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-                      <Heart className="w-4 h-4 text-green-600" />
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">New memorial published</p>
@@ -317,8 +317,8 @@ export default function PartnerDashboard() {
                     <p className="text-xs text-muted-foreground">2 hours ago</p>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                      <DollarSign className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 bg-chart-4/10 rounded-full flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-chart-4" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">Revenue share payment</p>

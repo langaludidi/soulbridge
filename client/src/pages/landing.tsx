@@ -195,28 +195,28 @@ export default function Landing() {
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto bg-chart-4/10 rounded-full flex items-center justify-center">
                 <span className="text-2xl">✨</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground">Simple and Beautiful</h3>
               <p className="text-muted-foreground">Create stunning memorial pages easily, with no technical skills required.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
                 <span className="text-2xl">🇿🇦</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground">Locally Rooted</h3>
               <p className="text-muted-foreground">Built for our communities, traditions, and cultures – your stories remain connected to home.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto bg-destructive/10 rounded-full flex items-center justify-center">
                 <span className="text-2xl">🔒</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground">Private and Secure</h3>
               <p className="text-muted-foreground">Your family's memories and tributes are protected with the highest standards of security and privacy.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto bg-chart-5/10 rounded-full flex items-center justify-center">
                 <span className="text-2xl">📱</span>
               </div>
               <h3 className="text-xl font-semibold text-foreground">Always Accessible</h3>

@@ -257,23 +257,23 @@ export default function PricingPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Honor Your Loved Ones with Dignity
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             Choose the perfect plan to create beautiful digital memorials that celebrate the lives 
             and legacy of your family members across South Africa.
           </p>
           
           {/* Billing Toggle */}
           <div className="flex items-center justify-center mb-8">
-            <div className="bg-gray-100 p-1 rounded-lg">
+            <div className="bg-muted/20 p-1 rounded-lg">
               <button
                 onClick={() => setSelectedInterval("monthly")}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   selectedInterval === "monthly" 
                     ? "bg-white text-primary shadow-sm" 
-                    : "text-gray-600 hover:text-primary"
+                    : "text-muted-foreground hover:text-primary"
                 }`}
                 data-testid="button-monthly"
               >
@@ -284,7 +284,7 @@ export default function PricingPage() {
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   selectedInterval === "yearly" 
                     ? "bg-white text-primary shadow-sm" 
-                    : "text-gray-600 hover:text-primary"
+                    : "text-muted-foreground hover:text-primary"
                 }`}
                 data-testid="button-yearly"
               >
@@ -298,7 +298,7 @@ export default function PricingPage() {
 
           {/* Payment Provider Selection */}
           <div className="max-w-lg mx-auto mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Choose Your Payment Method</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4 text-center">Choose Your Payment Method</h3>
             <RadioGroup 
               value={selectedProvider} 
               onValueChange={(value: "paystack" | "netcash") => setSelectedProvider(value)}
@@ -309,14 +309,14 @@ export default function PricingPage() {
                 <RadioGroupItem value="paystack" id="paystack" className="peer sr-only" />
                 <Label
                   htmlFor="paystack"
-                  className="flex items-center justify-between w-full p-4 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary hover:text-gray-600 dark:peer-checked:text-primary peer-checked:text-primary hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                  className="flex items-center justify-between w-full p-4 text-muted-foreground bg-white border-2 border-border rounded-lg cursor-pointer dark:hover:text-muted-foreground dark:border-border peer-checked:border-primary hover:text-muted-foreground dark:peer-checked:text-primary peer-checked:text-primary hover:bg-muted/10 dark:text-muted-foreground dark:bg-card dark:hover:bg-surface-2"
                   data-testid="label-paystack"
                 >
                   <div className="flex items-center">
                     <CreditCard className="w-5 h-5 mr-3" />
                     <div>
                       <div className="text-lg font-medium">Paystack</div>
-                      <div className="text-sm text-gray-500">Credit cards, debit cards, mobile money</div>
+                      <div className="text-sm text-muted-foreground">Credit cards, debit cards, mobile money</div>
                     </div>
                   </div>
                   <Badge variant="secondary">Most Popular</Badge>
@@ -327,14 +327,14 @@ export default function PricingPage() {
                 <RadioGroupItem value="netcash" id="netcash" className="peer sr-only" />
                 <Label
                   htmlFor="netcash"
-                  className="flex items-center justify-between w-full p-4 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary hover:text-gray-600 dark:peer-checked:text-primary peer-checked:text-primary hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                  className="flex items-center justify-between w-full p-4 text-muted-foreground bg-white border-2 border-border rounded-lg cursor-pointer dark:hover:text-muted-foreground dark:border-border peer-checked:border-primary hover:text-muted-foreground dark:peer-checked:text-primary peer-checked:text-primary hover:bg-muted/10 dark:text-muted-foreground dark:bg-card dark:hover:bg-surface-2"
                   data-testid="label-netcash"
                 >
                   <div className="flex items-center">
                     <Building2 className="w-5 h-5 mr-3" />
                     <div>
                       <div className="text-lg font-medium">NetCash Pay Now</div>
-                      <div className="text-sm text-gray-500">Direct from your bank account - secure & trusted</div>
+                      <div className="text-sm text-muted-foreground">Direct from your bank account - secure & trusted</div>
                     </div>
                   </div>
                   <Badge variant="outline">Bank Payment</Badge>
@@ -369,7 +369,7 @@ export default function PricingPage() {
                   ? "border-primary shadow-lg scale-105" 
                   : isCurrentPlan(plan.id)
                   ? "border-green-500 shadow-md"
-                  : "border-gray-200"
+                  : "border-border"
               }`}
               data-testid={`card-plan-${plan.id}`}
             >
@@ -399,7 +399,7 @@ export default function PricingPage() {
                   {plan.title}
                 </CardTitle>
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900">
+                  <div className="text-4xl font-bold text-foreground">
                     {plan.price === 0 
                       ? "Free" 
                       : selectedInterval === "yearly" 
@@ -408,7 +408,7 @@ export default function PricingPage() {
                     }
                   </div>
                   {plan.price > 0 && (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-muted-foreground">
                       {selectedInterval === "yearly" 
                         ? "per year (20% discount)" 
                         : "per month"
@@ -419,7 +419,7 @@ export default function PricingPage() {
               </CardHeader>
               
               <CardContent className="space-y-4">
-                <p className="text-sm text-gray-600 text-center min-h-[3rem]">
+                <p className="text-sm text-muted-foreground text-center min-h-[3rem]">
                   {plan.description}
                 </p>
                 
@@ -501,37 +501,37 @@ export default function PricingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold mb-2">Can I change plans anytime?</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Are there any setup fees?</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 No setup fees. You only pay the monthly subscription price for your chosen plan.
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">What payment methods do you accept?</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 We accept card payments via Paystack (Visa, Mastercard, mobile money) and direct bank payments via NetCash Pay Now.
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Is NetCash Pay Now secure?</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Yes, NetCash is PCI DSS compliant and trusted by thousands of South African businesses for over 20 years.
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Is my data secure?</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Absolutely. We use industry-standard encryption and security practices to protect your memories.
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Yes, you can cancel your subscription at any time. Your memorials remain active until the end of your billing period.
               </p>
             </div>
@@ -540,10 +540,10 @@ export default function PricingPage() {
 
         {/* CTA Section */}
         <div className="text-center mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Start Honoring Your Loved Ones Today
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             Join thousands of South African families preserving precious memories with dignity.
           </p>
           {!isAuthenticated && (

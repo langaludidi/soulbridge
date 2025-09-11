@@ -27,7 +27,7 @@ export function FeatureGate({ feature, children, fallback, className }: FeatureG
   }[feature];
 
   if (featureGating.isLoading) {
-    return <div className="animate-pulse bg-gray-200 rounded h-8"></div>;
+    return <div className="animate-pulse bg-muted/20 rounded h-8"></div>;
   }
 
   if (hasAccess) {
@@ -87,15 +87,15 @@ export function UpgradePrompt({ feature, variant = "inline", showIcon = true }: 
 
   if (variant === "card") {
     return (
-      <Card className="border-dashed border-amber-200 bg-amber-50">
+      <Card className="border-dashed border-accent/30 bg-accent/10">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
-            {showIcon && <Crown className="w-4 h-4 text-amber-600" />}
-            <CardTitle className="text-sm font-medium text-amber-800">
+            {showIcon && <Crown className="w-4 h-4 text-accent" />}
+            <CardTitle className="text-sm font-medium text-accent">
               Premium Feature
             </CardTitle>
           </div>
-          <CardDescription className="text-amber-700">
+          <CardDescription className="text-accent/80">
             {featureLabel} requires {requiredTierName} plan or higher
           </CardDescription>
         </CardHeader>
@@ -111,10 +111,10 @@ export function UpgradePrompt({ feature, variant = "inline", showIcon = true }: 
   }
 
   return (
-    <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-      {showIcon && <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />}
+    <div className="flex items-center gap-2 p-3 bg-accent/10 border border-accent/30 rounded-lg">
+      {showIcon && <Lock className="w-4 h-4 text-accent flex-shrink-0" />}
       <div className="flex-1">
-        <p className="text-sm font-medium text-amber-800">
+        <p className="text-sm font-medium text-accent">
           {featureLabel} requires {requiredTierName} plan
         </p>
       </div>
@@ -153,21 +153,21 @@ export function LimitWarning({ type, className }: LimitWarningProps) {
   }
 
   return (
-    <Card className={`border-orange-200 bg-orange-50 ${className}`}>
+    <Card className={`border-accent/30 bg-accent/10 ${className}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          <Crown className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+          <Crown className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-medium text-orange-800 mb-1">
+            <h4 className="font-medium text-accent mb-1">
               {isMemorialLimitReached ? "Memorial Limit Reached" : "Approaching Memorial Limit"}
             </h4>
-            <p className="text-sm text-orange-700 mb-3">
+            <p className="text-sm text-accent/80 mb-3">
               {isMemorialLimitReached 
                 ? `You've used all ${memorialLimit} memorials in your ${currentTier} plan.`
                 : `You've used ${currentMemorials} of ${memorialLimit} memorials in your ${currentTier} plan.`
               }
             </p>
-            <Button size="sm" className="bg-orange-600 hover:bg-orange-700" asChild data-testid="button-upgrade-limit">
+            <Button size="sm" className="bg-accent hover:bg-accent/80" asChild data-testid="button-upgrade-limit">
               <Link href="/pricing">
                 Upgrade for More Memorials <ArrowRight className="w-3 h-3 ml-1" />
               </Link>

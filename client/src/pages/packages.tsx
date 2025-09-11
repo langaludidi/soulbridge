@@ -115,10 +115,10 @@ export default function PackagesPage() {
       {/* Header Section */}
       <div className="container mx-auto px-4 pt-16 pb-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Memorial Packages
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
             Choose the perfect package to honor your loved ones. From simple remembrance to comprehensive family heritage preservation.
           </p>
           <div className="flex justify-center">
@@ -145,7 +145,7 @@ export default function PackagesPage() {
               {/* Popular Badge */}
               {pkg.popular && (
                 <div className="absolute -top-2 -right-2 z-10">
-                  <Badge className="bg-green-600 text-white px-3 py-1 text-xs font-semibold">
+                  <Badge className="bg-primary text-white px-3 py-1 text-xs font-semibold">
                     <Star className="w-3 h-3 mr-1" />
                     Most Popular
                   </Badge>
@@ -164,27 +164,27 @@ export default function PackagesPage() {
               <CardHeader className="text-center pb-4">
                 <div className="flex justify-center mb-3">
                   <div className={`p-3 rounded-full ${
-                    pkg.popular ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-600"
+                    pkg.popular ? "bg-primary/10 text-primary" : "bg-muted/20 text-muted-foreground"
                   }`}>
                     {pkg.icon}
                   </div>
                 </div>
-                <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                <CardTitle className="text-2xl font-bold text-foreground mb-2">
                   {pkg.name}
                 </CardTitle>
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-2">
                     {pkg.price === 0 ? (
-                      <span className="text-3xl font-bold text-gray-900">Free</span>
+                      <span className="text-3xl font-bold text-foreground">Free</span>
                     ) : (
                       <>
-                        <span className="text-sm text-gray-500 mr-1">R</span>
-                        <span className="text-3xl font-bold text-gray-900">{pkg.price}</span>
-                        <span className="text-sm text-gray-500 ml-1">/{pkg.interval}</span>
+                        <span className="text-sm text-muted-foreground mr-1">R</span>
+                        <span className="text-3xl font-bold text-foreground">{pkg.price}</span>
+                        <span className="text-sm text-muted-foreground ml-1">/{pkg.interval}</span>
                       </>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {pkg.description}
                   </p>
                 </div>
@@ -196,19 +196,19 @@ export default function PackagesPage() {
                     <div key={index} className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
                         {feature.included ? (
-                          <Check className="w-4 h-4 text-green-600" />
+                          <Check className="w-4 h-4 text-primary" />
                         ) : (
                           <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
                         )}
                       </div>
                       <div className="flex-1">
                         <p className={`text-sm font-medium ${
-                          feature.included ? "text-gray-900" : "text-gray-400"
+                          feature.included ? "text-foreground" : "text-gray-400"
                         }`}>
                           {feature.name}
                         </p>
                         {feature.description && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             {feature.description}
                           </p>
                         )}
@@ -223,7 +223,7 @@ export default function PackagesPage() {
                   asChild
                   className={`w-full ${
                     pkg.popular 
-                      ? "bg-green-600 hover:bg-green-700 text-white" 
+                      ? "bg-primary hover:bg-green-700 text-white" 
                       : "bg-gray-900 hover:bg-gray-800 text-white"
                   }`}
                   data-testid={`button-select-${pkg.id}`}
@@ -239,10 +239,10 @@ export default function PackagesPage() {
 
         {/* CTA Section */}
         <div className="text-center mt-16 max-w-2xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <h3 className="text-2xl font-bold text-foreground mb-4">
             Need Help Choosing?
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             Our team understands the importance of honoring your loved ones. We're here to help you find the perfect memorial solution for your family.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
