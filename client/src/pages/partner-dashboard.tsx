@@ -13,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, queryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   TrendingUp, 
   Users, 
@@ -44,10 +44,9 @@ export default function PartnerDashboard() {
     enabled: !!user,
   });
 
-  const { data: partnerData, isLoading: isPartnerLoading } = useQuery({
-    queryKey: ['/api/partners', user?.id],
-    enabled: !!user,
-  });
+  // Extract partner data from dashboard response
+  const partnerData = dashboardData?.partner;
+  const isPartnerLoading = isDashboardLoading; // Use same loading state
 
   const { data: brandingData, isLoading: isBrandingLoading } = useQuery({
     queryKey: ['/api/partner/branding'],
@@ -181,11 +180,11 @@ export default function PartnerDashboard() {
               Partner Dashboard
             </h1>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant="secondary">{partnerData.name}</Badge>
-              <Badge variant={partnerData.status === 'active' ? 'default' : 'secondary'}>
-                {partnerData.status}
+              <Badge variant="secondary">{partnerData?.name || 'Loading...'}</Badge>
+              <Badge variant={partnerData?.status === 'active' ? 'default' : 'secondary'}>
+                {partnerData?.status || 'pending'}
               </Badge>
-              <Badge variant="outline">{partnerData.partnershipModel}</Badge>
+              <Badge variant="outline">{partnerData?.partnershipModel || 'referral'}</Badge>
             </div>
           </div>
           <Button data-testid="button-account-settings">
@@ -208,7 +207,7 @@ export default function PartnerDashboard() {
               <Upload className="w-4 h-4 mr-2" />
               Branding
             </TabsTrigger>
-            {partnerData.partnershipModel === 'whitelabel' && (
+            {partnerData?.partnershipModel === 'whitelabel' && (
               <TabsTrigger value="domain" data-testid="tab-domain">
                 <Globe className="w-4 h-4 mr-2" />
                 Domain
@@ -268,7 +267,7 @@ export default function PartnerDashboard() {
                     {formatCurrency(kpis.monthlyRevenue)}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {partnerData.revenueSharePct}% share
+                    {partnerData?.revenueSharePct || 0}% share
                   </p>
                 </CardContent>
               </Card>
@@ -402,7 +401,7 @@ export default function PartnerDashboard() {
                 <div>
                   <Label htmlFor="logo-upload">Business Logo</Label>
                   <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                    {partnerData.logoUrl ? (
+                    {partnerData?.logoUrl ? (
                       <img 
                         src={partnerData.logoUrl} 
                         alt="Business logo" 
@@ -412,7 +411,7 @@ export default function PartnerDashboard() {
                       <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     )}
                     <p className="text-muted-foreground mb-4">
-                      {partnerData.logoUrl ? 'Update your logo' : 'Upload your business logo'}
+                      {partnerData?.logoUrl ? 'Update your logo' : 'Upload your business logo'}
                     </p>
                     <Button variant="outline" disabled={!editingBranding} data-testid="button-upload-logo">
                       Select Logo File
@@ -500,7 +499,7 @@ export default function PartnerDashboard() {
           </TabsContent>
 
           {/* Domain Tab (White-label only) */}
-          {partnerData.partnershipModel === 'whitelabel' && (
+          {partnerData?.partnershipModel === 'whitelabel' && (
             <TabsContent value="domain" className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-semibold">Domain Management</h2>
@@ -517,12 +516,12 @@ export default function PartnerDashboard() {
                   <div className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <p className="font-medium" data-testid="primary-domain">
-                        {partnerData.domainConfig.primaryDomain}
+                        {partnerData?.domainConfig?.primaryDomain || 'No domain configured'}
                       </p>
                       <div className="flex items-center space-x-2 mt-1">
                         <Badge variant="default">Primary</Badge>
-                        <Badge variant={partnerData.domainConfig.sslEnabled ? 'default' : 'secondary'}>
-                          {partnerData.domainConfig.sslEnabled ? 'SSL Active' : 'SSL Pending'}
+                        <Badge variant={partnerData?.domainConfig?.sslEnabled ? 'default' : 'secondary'}>
+                          {partnerData?.domainConfig?.sslEnabled ? 'SSL Active' : 'SSL Pending'}
                         </Badge>
                       </div>
                     </div>
@@ -544,7 +543,7 @@ export default function PartnerDashboard() {
                         </Button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span>TXT: verification → sb-verify-{partnerData.id}</span>
+                        <span>TXT: verification → sb-verify-{partnerData?.id || 'pending'}</span>
                         <Button variant="outline" size="sm" data-testid="button-copy-txt">
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -571,7 +570,7 @@ export default function PartnerDashboard() {
                     <Label>Your Referral Link</Label>
                     <div className="flex items-center space-x-2 mt-2">
                       <Input
-                        value={`https://soulbridge.co.za?ref=${partnerData.id}`}
+                        value={`https://soulbridge.co.za?ref=${partnerData?.id || 'pending'}`}
                         readOnly
                         data-testid="input-referral-link"
                       />
@@ -584,7 +583,7 @@ export default function PartnerDashboard() {
                     <Label>Commission Rate</Label>
                     <div className="mt-2">
                       <div className="text-2xl font-bold text-primary">
-                        {formatCurrency(partnerData.referralPayoutZar)}
+                        {formatCurrency(partnerData?.referralPayoutZar || 0)}
                       </div>
                       <p className="text-sm text-muted-foreground">per successful conversion</p>
                     </div>
@@ -600,7 +599,7 @@ export default function PartnerDashboard() {
                   </Card>
                   <Card className="p-4">
                     <div className="text-2xl font-bold">
-                      {formatCurrency(kpis.referralConversions * partnerData.referralPayoutZar)}
+                      {formatCurrency(kpis.referralConversions * (partnerData?.referralPayoutZar || 0))}
                     </div>
                     <p className="text-sm text-muted-foreground">Earned this month</p>
                   </Card>
