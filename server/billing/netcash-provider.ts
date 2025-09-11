@@ -16,12 +16,28 @@ import { eq, and } from 'drizzle-orm';
 export class NetcashProvider implements BillingProvider {
   readonly name = 'netcash';
   
-  private serviceKey: string = '5a99a80a-77da-41d8-b161-272af6977889';
-  private merchantEmail: string = 'LudidiL@gmail.com';
+  private serviceKey: string;
+  private merchantEmail: string;
+  private appUrl: string;
   private payNowUrl: string = 'https://paynow.netcash.co.za/site/paynow.aspx';
   
   constructor() {
-    // NetCash provider is ready with hardcoded service key
+    // Validate required environment variables
+    this.serviceKey = process.env.NETCASH_SERVICE_KEY;
+    this.merchantEmail = process.env.NETCASH_MERCHANT_EMAIL;
+    this.appUrl = process.env.APP_URL;
+    
+    if (!this.serviceKey) {
+      throw new Error('NETCASH_SERVICE_KEY environment variable is required');
+    }
+    if (!this.merchantEmail) {
+      throw new Error('NETCASH_MERCHANT_EMAIL environment variable is required');
+    }
+    if (!this.appUrl) {
+      throw new Error('APP_URL environment variable is required for NetCash integration');
+    }
+    
+    console.log('NetCash provider initialized with service key:', this.serviceKey.substring(0, 8) + '...');
   }
   
   async createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
@@ -110,8 +126,8 @@ export class NetcashProvider implements BillingProvider {
     // Convert amount from cents to rands
     const amountInRands = (amount / 100).toFixed(2);
     
-    // Base URL for our app
-    const baseUrl = process.env.APP_URL || 'http://localhost:5000';
+    // Base URL for our app - use validated environment variable
+    const baseUrl = this.appUrl;
     
     // Return URL with metadata
     const returnUrl = `${baseUrl}/billing/netcash/return?reference=${reference}`;
@@ -148,7 +164,7 @@ export class NetcashProvider implements BillingProvider {
     // NetCash doesn't have a built-in customer portal like Stripe
     // We'll redirect to a custom billing management page
     return {
-      portalUrl: `${process.env.APP_URL || 'http://localhost:5000'}/dashboard/billing`
+      portalUrl: `${this.appUrl}/dashboard/billing`
     };
   }
   
