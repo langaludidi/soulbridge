@@ -129,6 +129,31 @@
     @apply bg-muted/30 dark:bg-muted/10;
   }
 
+  /* Consistent section background utilities */
+  .section-bg-primary {
+    @apply bg-background;
+  }
+
+  .section-bg-secondary {
+    @apply bg-muted/20 dark:bg-muted/5;
+  }
+
+  .section-bg-tertiary {
+    @apply bg-slate-50/50 dark:bg-slate-900/50;
+  }
+
+  .section-bg-quaternary {
+    @apply bg-gradient-to-b from-white via-slate-50/50 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900;
+  }
+
+  .section-bg-accent {
+    @apply bg-gradient-to-b from-slate-50/30 to-blue-50/20 dark:from-slate-800/30 dark:to-slate-900/50;
+  }
+
+  .section-bg-muted {
+    @apply bg-muted/10 dark:bg-muted/5;
+  }
+
   /* Card spacing improvements */
   .card-spacing {
     @apply p-6 space-y-4;

@@ -86,10 +86,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-background">
 
       {/* Hero Section - Enhanced with Floating Elements */}
-      <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden bg-background">
+      <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden section-bg-primary">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/10"></div>
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
@@ -190,7 +190,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Mission Section */}
-      <section className="py-24 bg-gradient-to-b from-white via-slate-50/50 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900 relative overflow-hidden">
+      <section className="py-24 section-bg-quaternary relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-amber-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 left-20 w-48 h-48 bg-gradient-to-r from-emerald-200/20 to-teal-200/20 rounded-full blur-2xl"></div>
@@ -248,7 +248,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced How It Works Section */}
-      <section className="py-24 bg-gradient-to-b from-slate-50/30 to-blue-50/20 dark:from-slate-800/30 dark:to-slate-900/50 relative">
+      <section className="py-24 section-bg-accent relative">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-300/20 to-indigo-300/20 rounded-full blur-xl"></div>
           <div className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-r from-purple-300/20 to-pink-300/20 rounded-full blur-xl"></div>
@@ -309,7 +309,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Features Section */}
-      <section className="py-24 bg-muted/20 dark:bg-muted/5">
+      <section className="py-24 section-bg-secondary">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20">
             <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/30 dark:to-secondary/30 text-primary dark:text-primary font-medium text-sm mb-8 shadow-sm">
@@ -352,7 +352,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Testimonials Section */}
-      <section className="py-24 bg-background">
+      <section className="py-24 section-bg-primary">
         <div className="container-max">
           <div className="container-content text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
@@ -400,7 +400,7 @@ export default function Home() {
       </section>
 
       {/* Recent Memorials - Enhanced */}
-      <section className="py-24 bg-muted/10 dark:bg-muted/5">
+      <section className="py-24 section-bg-muted">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
