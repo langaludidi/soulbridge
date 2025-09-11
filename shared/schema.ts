@@ -457,6 +457,40 @@ export const partnerSubscriptions = pgTable("partner_subscriptions", {
   index("IDX_partner_subscriptions_plan_status").on(table.plan, table.status),
 ]);
 
+// Partner Leads table - for capturing partner signup interest
+export const partnerLeads = pgTable("partner_leads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  businessName: varchar("business_name").notNull(),
+  contactName: varchar("contact_name").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  province: varchar("province").notNull(),
+  serviceType: varchar("service_type").notNull(), // funeral_home, florist, caterer, musician, photographer
+  partnershipModel: varchar("partnership_model").notNull(), // cobrand, whitelabel, referral
+  website: varchar("website"),
+  message: text("message"), // Optional message from the lead
+  
+  // Lead status and conversion tracking
+  status: varchar("status").default("new"), // new, contacted, qualified, converted, rejected
+  convertedToPartnerId: varchar("converted_to_partner_id").references(() => partners.id),
+  leadSource: varchar("lead_source").default("website"), // website, referral, direct, marketing
+  utm: jsonb("utm"), // UTM tracking parameters { source, medium, campaign, term, content }
+  
+  // Contact tracking
+  contactedAt: timestamp("contacted_at"),
+  contactedBy: varchar("contacted_by").references(() => users.id),
+  notes: text("notes"), // Internal notes about the lead
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_partner_leads_email").on(table.email),
+  index("IDX_partner_leads_status").on(table.status),
+  index("IDX_partner_leads_partnership_model").on(table.partnershipModel),
+  index("IDX_partner_leads_service_type").on(table.serviceType),
+  index("IDX_partner_leads_province").on(table.province),
+]);
+
 // Relations
 export const memorialsRelations = relations(memorials, ({ one, many }) => ({
   submitter: one(users, {
@@ -843,6 +877,15 @@ export const insertPartnerSubscriptionSchema = createInsertSchema(partnerSubscri
   monthlyRevenueShared: true,
 });
 
+export const insertPartnerLeadSchema = createInsertSchema(partnerLeads).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  convertedToPartnerId: true,
+  contactedAt: true,
+  contactedBy: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -910,6 +953,9 @@ export type PartnerPayout = typeof partnerPayouts.$inferSelect;
 
 export type InsertPartnerSubscription = z.infer<typeof insertPartnerSubscriptionSchema>;
 export type PartnerSubscription = typeof partnerSubscriptions.$inferSelect;
+
+export type InsertPartnerLead = z.infer<typeof insertPartnerLeadSchema>;
+export type PartnerLead = typeof partnerLeads.$inferSelect;
 
 // Subscription tier types and entitlements
 export type SubscriptionTier = "remember" | "honour" | "legacy" | "family_vault";

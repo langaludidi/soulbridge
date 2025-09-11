@@ -11,6 +11,10 @@ import Home from "@/pages/home";
 import Memorial from "@/pages/memorial";
 import Browse from "@/pages/browse";
 import Partners from "@/pages/partners";
+import PartnersDirectory from "@/pages/partners-directory";
+import PartnersSignup from "@/pages/partners-signup";
+import PartnersOnboarding from "@/pages/partners-onboarding";
+import PartnerDashboard from "@/pages/partner-dashboard";
 import OrderOfService from "@/pages/order-of-service";
 import OrderOfServiceEdit from "@/pages/order-of-service-edit";
 import CreateMemorialOrderOfService from "@/pages/create-memorial-order-of-service";
@@ -38,6 +42,10 @@ function Router() {
           <Route path="/memorial/:id" component={Memorial} />
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
+          <Route path="/partners/directory" component={PartnersDirectory} />
+          <Route path="/partners/signup" component={PartnersSignup} />
+          <Route path="/partners/onboarding" component={PartnersOnboarding} />
+          <Route path="/partner-dashboard" component={PartnerDashboard} />
           <Route path="/about" component={About} />
           <Route path="/packages" component={PackagesPage} />
           <Route path="/pricing" component={PricingPage} />
@@ -58,6 +66,10 @@ function Router() {
           <Route path="/memorial/:id" component={Memorial} />
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
+          <Route path="/partners/directory" component={PartnersDirectory} />
+          <Route path="/partners/signup" component={PartnersSignup} />
+          <Route path="/partners/onboarding" component={PartnersOnboarding} />
+          <Route path="/partner-dashboard" component={PartnerDashboard} />
           <Route path="/about" component={About} />
           <Route path="/packages" component={PackagesPage} />
           <Route path="/pricing" component={PricingPage} />

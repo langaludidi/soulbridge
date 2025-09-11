@@ -5,7 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { enforceMemorialLimits, enforcePremiumFeatures } from "./middleware/subscription";
 import { resolveBrandingContext, getBrandingResponse, getPartnerIdFromContext, type BrandedRequest } from "./middleware/branding";
 import { type AuthenticatedRequest } from "./middleware/auth";
-import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema } from "@shared/schema";
+import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema, insertPartnerLeadSchema } from "@shared/schema";
 import { billingRouter } from "./billing/routes";
 import fs from "fs";
 import path from "path";
@@ -311,6 +311,339 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating partner:", error);
       res.status(500).json({ message: "Failed to create partner" });
+    }
+  });
+
+  // Partner Lead routes
+  app.post('/api/partner-leads', async (req, res) => {
+    try {
+      const leadData = insertPartnerLeadSchema.parse(req.body);
+      
+      // Check if a lead with this email already exists
+      const existingLead = await storage.getPartnerLeadByEmail(leadData.email);
+      if (existingLead && existingLead.status !== 'rejected') {
+        return res.status(409).json({ 
+          message: "A partner application with this email already exists" 
+        });
+      }
+      
+      const lead = await storage.createPartnerLead({
+        ...leadData,
+        status: "new",
+      });
+      
+      res.status(201).json(lead);
+    } catch (error) {
+      console.error("Error creating partner lead:", error);
+      res.status(500).json({ message: "Failed to create partner lead" });
+    }
+  });
+
+  app.get('/api/partner-leads', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      
+      // Only admin users can view all leads
+      if (user?.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const { status, partnershipModel, serviceType } = req.query;
+      const leads = await storage.getPartnerLeads({
+        status: status as string,
+        partnershipModel: partnershipModel as string,
+        serviceType: serviceType as string,
+      });
+      
+      res.json(leads);
+    } catch (error) {
+      console.error("Error fetching partner leads:", error);
+      res.status(500).json({ message: "Failed to fetch partner leads" });
+    }
+  });
+
+  app.patch('/api/partner-leads/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.claims.sub);
+      
+      // Only admin users can update leads
+      if (user?.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const leadId = req.params.id;
+      const updateData = req.body;
+      
+      // Prevent updating certain fields
+      delete updateData.id;
+      delete updateData.createdAt;
+      
+      // Update contacted fields if status is being changed to contacted
+      if (updateData.status === 'contacted' && !updateData.contactedAt) {
+        updateData.contactedAt = new Date();
+        updateData.contactedBy = req.user.claims.sub;
+      }
+      
+      const updatedLead = await storage.updatePartnerLead(leadId, updateData);
+      
+      if (!updatedLead) {
+        return res.status(404).json({ message: "Partner lead not found" });
+      }
+      
+      res.json(updatedLead);
+    } catch (error) {
+      console.error("Error updating partner lead:", error);
+      res.status(500).json({ message: "Failed to update partner lead" });
+    }
+  });
+
+  // Partner Dashboard routes (require partner role)
+  app.get('/api/partner/dashboard', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (user?.role !== 'partner') {
+        return res.status(403).json({ message: "Partner access required" });
+      }
+      
+      // Get partner information
+      const partner = await storage.getPartnerByUserId(userId);
+      if (!partner) {
+        return res.status(404).json({ message: "Partner profile not found" });
+      }
+      
+      // Get dashboard data
+      const dashboardData = await storage.getPartnerDashboardData(partner.id);
+      
+      res.json({
+        partner,
+        ...dashboardData,
+      });
+    } catch (error) {
+      console.error("Error fetching partner dashboard:", error);
+      res.status(500).json({ message: "Failed to fetch partner dashboard" });
+    }
+  });
+
+  // Partner Branding Configuration routes
+  app.get('/api/partner/branding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      res.json({
+        brandingConfig: partner.brandingConfig || {},
+        logoUrl: partner.logoUrl,
+      });
+    } catch (error) {
+      console.error("Error fetching partner branding:", error);
+      res.status(500).json({ message: "Failed to fetch branding configuration" });
+    }
+  });
+
+  app.patch('/api/partner/branding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      const { brandingConfig, logoUrl } = req.body;
+      
+      const updatedPartner = await storage.updatePartner(partner.id, {
+        brandingConfig,
+        logoUrl,
+        updatedAt: new Date(),
+      });
+      
+      res.json({
+        brandingConfig: updatedPartner?.brandingConfig || {},
+        logoUrl: updatedPartner?.logoUrl,
+      });
+    } catch (error) {
+      console.error("Error updating partner branding:", error);
+      res.status(500).json({ message: "Failed to update branding configuration" });
+    }
+  });
+
+  // Partner Domain Management routes (white-label only)
+  app.get('/api/partner/domains', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      if (partner.partnershipModel !== 'whitelabel') {
+        return res.status(403).json({ message: "Domain management only available for white-label partners" });
+      }
+      
+      const domains = await storage.getPartnerDomains(partner.id);
+      
+      res.json(domains);
+    } catch (error) {
+      console.error("Error fetching partner domains:", error);
+      res.status(500).json({ message: "Failed to fetch domains" });
+    }
+  });
+
+  app.post('/api/partner/domains', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      if (partner.partnershipModel !== 'whitelabel') {
+        return res.status(403).json({ message: "Domain management only available for white-label partners" });
+      }
+      
+      const { domain, isPrimary } = req.body;
+      
+      if (!domain || typeof domain !== 'string') {
+        return res.status(400).json({ message: "Valid domain is required" });
+      }
+      
+      // Validate domain format
+      const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i;
+      if (!domainRegex.test(domain)) {
+        return res.status(400).json({ message: "Invalid domain format" });
+      }
+      
+      // Check if domain is already taken
+      const existingDomain = await storage.getPartnerDomainByDomain(domain);
+      if (existingDomain) {
+        return res.status(409).json({ message: "Domain is already registered" });
+      }
+      
+      const newDomain = await storage.createPartnerDomain({
+        partnerId: partner.id,
+        domain,
+        isPrimary: isPrimary || false,
+        isActive: false, // Starts inactive until verified
+        sslStatus: 'pending',
+        verificationStatus: 'pending',
+        verificationToken: `sb-verify-${partner.id}-${Date.now()}`,
+      });
+      
+      res.status(201).json(newDomain);
+    } catch (error) {
+      console.error("Error creating partner domain:", error);
+      res.status(500).json({ message: "Failed to create domain" });
+    }
+  });
+
+  // Partner Member Management routes
+  app.get('/api/partner/members', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      const members = await storage.getPartnerMembers(partner.id);
+      
+      res.json(members);
+    } catch (error) {
+      console.error("Error fetching partner members:", error);
+      res.status(500).json({ message: "Failed to fetch partner members" });
+    }
+  });
+
+  app.post('/api/partner/members', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      // Check if current user is owner or admin of the partner
+      const currentMembership = await storage.getPartnerMembership(partner.id, userId);
+      if (!currentMembership || !['owner', 'admin'].includes(currentMembership.role)) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const { userEmail, role = 'member' } = req.body;
+      
+      if (!userEmail) {
+        return res.status(400).json({ message: "User email is required" });
+      }
+      
+      // Find user by email
+      const targetUser = await storage.getUserByEmail(userEmail);
+      if (!targetUser) {
+        return res.status(404).json({ message: "User not found with that email" });
+      }
+      
+      // Check if user is already a member
+      const existingMembership = await storage.getPartnerMembership(partner.id, targetUser.id);
+      if (existingMembership) {
+        return res.status(409).json({ message: "User is already a member of this partner" });
+      }
+      
+      const newMember = await storage.createPartnerMember({
+        partnerId: partner.id,
+        userId: targetUser.id,
+        role,
+        isActive: true,
+      });
+      
+      res.status(201).json(newMember);
+    } catch (error) {
+      console.error("Error creating partner member:", error);
+      res.status(500).json({ message: "Failed to add partner member" });
+    }
+  });
+
+  // Partner Referrals and Payouts routes
+  app.get('/api/partner/referrals', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      const referrals = await storage.getPartnerReferrals(partner.id);
+      
+      res.json(referrals);
+    } catch (error) {
+      console.error("Error fetching partner referrals:", error);
+      res.status(500).json({ message: "Failed to fetch partner referrals" });
+    }
+  });
+
+  app.get('/api/partner/payouts', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const partner = await storage.getPartnerByUserId(userId);
+      
+      if (!partner) {
+        return res.status(404).json({ message: "Partner not found" });
+      }
+      
+      const payouts = await storage.getPartnerPayouts(partner.id);
+      
+      res.json(payouts);
+    } catch (error) {
+      console.error("Error fetching partner payouts:", error);
+      res.status(500).json({ message: "Failed to fetch partner payouts" });
     }
   });
 

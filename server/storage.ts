@@ -4,6 +4,8 @@ import {
   tributes,
   partners,
   partnerDomains,
+  partnerLeads,
+  partnerMembers,
   memorialPhotos,
   funeralPrograms,
   memorialEvents,
@@ -19,6 +21,11 @@ import {
   type Partner,
   type InsertPartner,
   type PartnerDomain,
+  type InsertPartnerDomain,
+  type PartnerLead,
+  type InsertPartnerLead,
+  type PartnerMember,
+  type InsertPartnerMember,
   type MemorialPhoto,
   type InsertMemorialPhoto,
   type FuneralProgram,
@@ -59,9 +66,33 @@ export interface IStorage {
   getPartners(filters?: { province?: string; type?: string; status?: string }): Promise<Partner[]>;
   getPartner(id: string): Promise<Partner | undefined>;
   getPartnerBySlug(slug: string): Promise<Partner | undefined>;
+  getPartnerByUserId(userId: string): Promise<Partner | undefined>;
   getPartnerDomainByDomain(domain: string): Promise<PartnerDomain | undefined>;
   createPartner(partner: InsertPartner): Promise<Partner>;
   updatePartner(id: string, partner: Partial<Partner>): Promise<Partner | undefined>;
+  getPartnerDashboardData(partnerId: string): Promise<any>;
+
+  // Partner Lead operations
+  getPartnerLeadByEmail(email: string): Promise<PartnerLead | undefined>;
+  createPartnerLead(lead: InsertPartnerLead): Promise<PartnerLead>;
+  getPartnerLeads(filters?: { status?: string; partnershipModel?: string; serviceType?: string }): Promise<PartnerLead[]>;
+  updatePartnerLead(id: string, updateData: Partial<PartnerLead>): Promise<PartnerLead | undefined>;
+
+  // Partner Domain operations
+  getPartnerDomains(partnerId: string): Promise<PartnerDomain[]>;
+  createPartnerDomain(domain: InsertPartnerDomain): Promise<PartnerDomain>;
+
+  // Partner Member operations
+  getPartnerMembers(partnerId: string): Promise<PartnerMember[]>;
+  createPartnerMember(member: InsertPartnerMember): Promise<PartnerMember>;
+  getPartnerMembership(partnerId: string, userId: string): Promise<PartnerMember | undefined>;
+
+  // Additional User operations
+  getUserByEmail(email: string): Promise<User | undefined>;
+
+  // Partner Referrals and Payouts (placeholder)
+  getPartnerReferrals(partnerId: string): Promise<any[]>;
+  getPartnerPayouts(partnerId: string): Promise<any[]>;
   
   // Memorial photo operations
   getMemorialPhotos(memorialId: string, mediaType?: string): Promise<MemorialPhoto[]>;
@@ -181,9 +212,12 @@ export class DatabaseStorage implements IStorage {
         // All memorial fields
         id: memorials.id,
         firstName: memorials.firstName,
+        middleName: memorials.middleName,
         lastName: memorials.lastName,
         dateOfBirth: memorials.dateOfBirth,
         dateOfPassing: memorials.dateOfPassing,
+        dateOfFuneral: memorials.dateOfFuneral,
+        funeralAddress: memorials.funeralAddress,
         province: memorials.province,
         profilePhotoUrl: memorials.profilePhotoUrl,
         memorialMessage: memorials.memorialMessage,
@@ -313,6 +347,187 @@ export class DatabaseStorage implements IStorage {
       )
     );
     return partnerDomain;
+  }
+
+  async getPartnerByUserId(userId: string): Promise<Partner | undefined> {
+    const [partner] = await db.select().from(partners).where(eq(partners.submittedBy, userId));
+    return partner;
+  }
+
+  async getPartnerDashboardData(partnerId: string): Promise<any> {
+    // Get memorial count and stats for the partner
+    const memorialResults = await db
+      .select({
+        totalMemorials: sql<number>`count(*)`,
+        activeMemorials: sql<number>`count(*) filter (where ${memorials.status} = 'published')`,
+      })
+      .from(memorials)
+      .where(eq(memorials.partnerId, partnerId));
+
+    const memorialStats = memorialResults[0] || { totalMemorials: 0, activeMemorials: 0 };
+
+    // Mock data for other dashboard metrics (would be real calculations in production)
+    return {
+      ...memorialStats,
+      monthlyViews: 1247,
+      monthlyRevenue: 15600, // in cents
+      pendingPayouts: 31200, // in cents
+      referralConversions: 3,
+    };
+  }
+
+  // Partner Lead operations
+  async getPartnerLeadByEmail(email: string): Promise<PartnerLead | undefined> {
+    const [lead] = await db.select().from(partnerLeads).where(eq(partnerLeads.email, email));
+    return lead;
+  }
+
+  async createPartnerLead(lead: InsertPartnerLead): Promise<PartnerLead> {
+    const [created] = await db.insert(partnerLeads).values(lead).returning();
+    return created;
+  }
+
+  async getPartnerLeads(filters?: { status?: string; partnershipModel?: string; serviceType?: string }): Promise<PartnerLead[]> {
+    const conditions = [];
+    if (filters?.status) {
+      conditions.push(eq(partnerLeads.status, filters.status));
+    }
+    if (filters?.partnershipModel) {
+      conditions.push(eq(partnerLeads.partnershipModel, filters.partnershipModel));
+    }
+    if (filters?.serviceType) {
+      conditions.push(eq(partnerLeads.serviceType, filters.serviceType));
+    }
+
+    const query = conditions.length > 0 
+      ? db.select().from(partnerLeads).where(and(...conditions))
+      : db.select().from(partnerLeads);
+
+    return await query.orderBy(desc(partnerLeads.createdAt));
+  }
+
+  async updatePartnerLead(id: string, updateData: Partial<PartnerLead>): Promise<PartnerLead | undefined> {
+    const [updated] = await db
+      .update(partnerLeads)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(partnerLeads.id, id))
+      .returning();
+    return updated;
+  }
+
+  // Partner Domain operations
+  async getPartnerDomains(partnerId: string): Promise<PartnerDomain[]> {
+    return await db
+      .select()
+      .from(partnerDomains)
+      .where(eq(partnerDomains.partnerId, partnerId))
+      .orderBy(desc(partnerDomains.createdAt));
+  }
+
+  async createPartnerDomain(domain: InsertPartnerDomain): Promise<PartnerDomain> {
+    const [created] = await db.insert(partnerDomains).values(domain).returning();
+    return created;
+  }
+
+  // Partner Member operations
+  async getPartnerMembers(partnerId: string): Promise<PartnerMember[]> {
+    return await db
+      .select()
+      .from(partnerMembers)
+      .where(eq(partnerMembers.partnerId, partnerId))
+      .orderBy(desc(partnerMembers.createdAt));
+  }
+
+  async createPartnerMember(member: InsertPartnerMember): Promise<PartnerMember> {
+    const [created] = await db.insert(partnerMembers).values(member).returning();
+    return created;
+  }
+
+  async getPartnerMembership(partnerId: string, userId: string): Promise<PartnerMember | undefined> {
+    const [membership] = await db
+      .select()
+      .from(partnerMembers)
+      .where(
+        and(
+          eq(partnerMembers.partnerId, partnerId),
+          eq(partnerMembers.userId, userId),
+          eq(partnerMembers.isActive, true)
+        )
+      );
+    return membership;
+  }
+
+  // Additional User operations
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  // Partner Referrals and Payouts (mock implementations)
+  async getPartnerReferrals(partnerId: string): Promise<any[]> {
+    // In a real implementation, this would query referral tracking data
+    return [
+      {
+        id: "ref-1",
+        partnerId,
+        memorialId: "memorial-123",
+        memorialName: "Sarah Mthembu",
+        dateReferred: "2024-02-15",
+        status: "converted",
+        commission: 50000, // R500 in cents
+      },
+      {
+        id: "ref-2",
+        partnerId,
+        memorialId: "memorial-124",
+        memorialName: "John Sibiya",
+        dateReferred: "2024-02-10",
+        status: "converted",
+        commission: 50000, // R500 in cents
+      },
+      {
+        id: "ref-3",
+        partnerId,
+        memorialId: "memorial-125",
+        memorialName: "Grace Mogale",
+        dateReferred: "2024-02-08",
+        status: "pending",
+        commission: 0,
+      },
+    ];
+  }
+
+  async getPartnerPayouts(partnerId: string): Promise<any[]> {
+    // In a real implementation, this would query payout history data
+    return [
+      {
+        id: "payout-1",
+        partnerId,
+        type: "revenue_share",
+        amount: 28500, // R285 in cents
+        status: "paid",
+        paidAt: "2024-01-31",
+        description: "January 2024 revenue share",
+      },
+      {
+        id: "payout-2",
+        partnerId,
+        type: "referral_commission",
+        amount: 150000, // R1500 in cents  
+        status: "paid",
+        paidAt: "2024-01-31",
+        description: "Referral commissions for January 2024",
+      },
+      {
+        id: "payout-3",
+        partnerId,
+        type: "revenue_share",
+        amount: 31200, // R312 in cents
+        status: "pending",
+        paidAt: null,
+        description: "February 2024 revenue share",
+      },
+    ];
   }
 
   // Memorial photo operations
@@ -537,6 +752,8 @@ export class MemStorage implements IStorage {
   private tributes = new Map<string, Tribute>();
   private partners = new Map<string, Partner>();
   private partnerDomains = new Map<string, PartnerDomain>();
+  private partnerLeads = new Map<string, PartnerLead>();
+  private partnerMembers = new Map<string, PartnerMember>();
   private memorialPhotos = new Map<string, MemorialPhoto>();
   private funeralPrograms = new Map<string, FuneralProgram>();
   private memorialEvents = new Map<string, MemorialEvent>();
@@ -554,9 +771,12 @@ export class MemStorage implements IStorage {
     const testMemorial: Memorial = {
       id: "test-id",
       firstName: "John",
+      middleName: "William",
       lastName: "Mthembu",
       dateOfBirth: new Date("1955-03-15"),
       dateOfPassing: new Date("2023-08-20"),
+      dateOfFuneral: new Date("2023-08-27"),
+      funeralAddress: "St. Mary's Church, 123 Church Street, Pietermaritzburg, KwaZulu-Natal",
       province: "KwaZulu-Natal",
       status: "published",
       privacy: "public",
@@ -740,6 +960,9 @@ export class MemStorage implements IStorage {
     const newMemorial: Memorial = {
       ...memorial,
       id,
+      middleName: memorial.middleName || null,
+      dateOfFuneral: memorial.dateOfFuneral || null,
+      funeralAddress: memorial.funeralAddress || null,
       profilePhotoUrl: memorial.profilePhotoUrl || null,
       memorialMessage: memorial.memorialMessage || null,
       status: memorial.status || "draft",
@@ -874,6 +1097,209 @@ export class MemStorage implements IStorage {
   async getPartnerDomainByDomain(domain: string): Promise<PartnerDomain | undefined> {
     const allDomains = Array.from(this.partnerDomains.values());
     return allDomains.find(d => d.domain === domain && d.isActive);
+  }
+
+  async getPartnerByUserId(userId: string): Promise<Partner | undefined> {
+    const allPartners = Array.from(this.partners.values());
+    return allPartners.find(p => p.submittedBy === userId);
+  }
+
+  async getPartnerDashboardData(partnerId: string): Promise<any> {
+    // Get memorial count and stats for the partner
+    const memorials = Array.from(this.memorials.values()).filter(m => m.partnerId === partnerId);
+    const totalMemorials = memorials.length;
+    const activeMemorials = memorials.filter(m => m.status === "published").length;
+
+    // Mock data for other dashboard metrics (would be real calculations in production)
+    return {
+      totalMemorials,
+      activeMemorials,
+      monthlyViews: 1247,
+      monthlyRevenue: 15600, // in cents
+      pendingPayouts: 31200, // in cents
+      referralConversions: 3,
+    };
+  }
+
+  // Partner Lead operations
+  async getPartnerLeadByEmail(email: string): Promise<PartnerLead | undefined> {
+    const allLeads = Array.from(this.partnerLeads.values());
+    return allLeads.find(lead => lead.email === email);
+  }
+
+  async createPartnerLead(lead: InsertPartnerLead): Promise<PartnerLead> {
+    const id = `lead-${Date.now()}`;
+    const newLead: PartnerLead = {
+      ...lead,
+      id,
+      phone: lead.phone || null,
+      website: lead.website || null,
+      message: lead.message || null,
+      status: lead.status || "new",
+      convertedToPartnerId: null,
+      leadSource: "website",
+      utm: null,
+      contactedAt: null,
+      contactedBy: null,
+      notes: lead.notes || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.partnerLeads.set(id, newLead);
+    return newLead;
+  }
+
+  async getPartnerLeads(filters?: { status?: string; partnershipModel?: string; serviceType?: string }): Promise<PartnerLead[]> {
+    let result = Array.from(this.partnerLeads.values());
+    
+    if (filters?.status) {
+      result = result.filter(lead => lead.status === filters.status);
+    }
+    if (filters?.partnershipModel) {
+      result = result.filter(lead => lead.partnershipModel === filters.partnershipModel);
+    }
+    if (filters?.serviceType) {
+      result = result.filter(lead => lead.serviceType === filters.serviceType);
+    }
+
+    return result.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async updatePartnerLead(id: string, updateData: Partial<PartnerLead>): Promise<PartnerLead | undefined> {
+    const existing = this.partnerLeads.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...updateData, updatedAt: new Date() };
+    this.partnerLeads.set(id, updated);
+    return updated;
+  }
+
+  // Partner Domain operations
+  async getPartnerDomains(partnerId: string): Promise<PartnerDomain[]> {
+    return Array.from(this.partnerDomains.values())
+      .filter(domain => domain.partnerId === partnerId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async createPartnerDomain(domain: InsertPartnerDomain): Promise<PartnerDomain> {
+    const id = `domain-${Date.now()}`;
+    const newDomain: PartnerDomain = {
+      ...domain,
+      id,
+      isPrimary: domain.isPrimary || false,
+      isActive: domain.isActive ?? true,
+      sslStatus: domain.sslStatus || "pending",
+      verificationStatus: domain.verificationStatus || "pending",
+      verificationToken: domain.verificationToken || null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.partnerDomains.set(id, newDomain);
+    return newDomain;
+  }
+
+  // Partner Member operations
+  async getPartnerMembers(partnerId: string): Promise<PartnerMember[]> {
+    return Array.from(this.partnerMembers.values())
+      .filter(member => member.partnerId === partnerId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async createPartnerMember(member: InsertPartnerMember): Promise<PartnerMember> {
+    const id = `member-${Date.now()}`;
+    const newMember: PartnerMember = {
+      ...member,
+      id,
+      role: member.role || "member",
+      permissions: member.permissions || null,
+      isActive: member.isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.partnerMembers.set(id, newMember);
+    return newMember;
+  }
+
+  async getPartnerMembership(partnerId: string, userId: string): Promise<PartnerMember | undefined> {
+    const allMembers = Array.from(this.partnerMembers.values());
+    return allMembers.find(member => 
+      member.partnerId === partnerId && 
+      member.userId === userId && 
+      member.isActive
+    );
+  }
+
+  // Additional User operations
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const allUsers = Array.from(this.users.values());
+    return allUsers.find(user => user.email === email);
+  }
+
+  // Partner Referrals and Payouts (mock implementations)
+  async getPartnerReferrals(partnerId: string): Promise<any[]> {
+    // In a real implementation, this would query referral tracking data
+    return [
+      {
+        id: "ref-1",
+        partnerId,
+        memorialId: "memorial-123",
+        memorialName: "Sarah Mthembu",
+        dateReferred: "2024-02-15",
+        status: "converted",
+        commission: 50000, // R500 in cents
+      },
+      {
+        id: "ref-2",
+        partnerId,
+        memorialId: "memorial-124",
+        memorialName: "John Sibiya",
+        dateReferred: "2024-02-10",
+        status: "converted",
+        commission: 50000, // R500 in cents
+      },
+      {
+        id: "ref-3",
+        partnerId,
+        memorialId: "memorial-125",
+        memorialName: "Grace Mogale",
+        dateReferred: "2024-02-08",
+        status: "pending",
+        commission: 0,
+      },
+    ];
+  }
+
+  async getPartnerPayouts(partnerId: string): Promise<any[]> {
+    // In a real implementation, this would query payout history data
+    return [
+      {
+        id: "payout-1",
+        partnerId,
+        type: "revenue_share",
+        amount: 28500, // R285 in cents
+        status: "paid",
+        paidAt: "2024-01-31",
+        description: "January 2024 revenue share",
+      },
+      {
+        id: "payout-2",
+        partnerId,
+        type: "referral_commission",
+        amount: 150000, // R1500 in cents  
+        status: "paid",
+        paidAt: "2024-01-31",
+        description: "Referral commissions for January 2024",
+      },
+      {
+        id: "payout-3",
+        partnerId,
+        type: "revenue_share",
+        amount: 31200, // R312 in cents
+        status: "pending",
+        paidAt: null,
+        description: "February 2024 revenue share",
+      },
+    ];
   }
 
   // Memorial photo operations
