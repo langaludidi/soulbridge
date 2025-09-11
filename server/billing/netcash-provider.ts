@@ -22,22 +22,66 @@ export class NetcashProvider implements BillingProvider {
   private payNowUrl: string = 'https://paynow.netcash.co.za/site/paynow.aspx';
   
   constructor() {
-    // Validate required environment variables
+    // Validate required environment variables with detailed error messages
     this.serviceKey = process.env.NETCASH_SERVICE_KEY;
     this.merchantEmail = process.env.NETCASH_MERCHANT_EMAIL;
     this.appUrl = process.env.APP_URL;
     
     if (!this.serviceKey) {
-      throw new Error('NETCASH_SERVICE_KEY environment variable is required');
-    }
-    if (!this.merchantEmail) {
-      throw new Error('NETCASH_MERCHANT_EMAIL environment variable is required');
-    }
-    if (!this.appUrl) {
-      throw new Error('APP_URL environment variable is required for NetCash integration');
+      throw new Error(
+        'NETCASH_SERVICE_KEY environment variable is required. ' +
+        'Get this from your NetCash merchant account > NetConnector > Pay Now settings. ' +
+        'See .env.example for configuration details.'
+      );
     }
     
-    console.log('NetCash provider initialized with service key:', this.serviceKey.substring(0, 8) + '...');
+    if (!this.merchantEmail) {
+      throw new Error(
+        'NETCASH_MERCHANT_EMAIL environment variable is required. ' +
+        'This should match your NetCash merchant account email. ' +
+        'See .env.example for configuration details.'
+      );
+    }
+    
+    if (!this.appUrl) {
+      throw new Error(
+        'APP_URL environment variable is required for NetCash integration. ' +
+        'Set to your production domain (e.g., https://soulbridge.co.za) or ' +
+        'http://localhost:5000 for development. See .env.example for details.'
+      );
+    }
+    
+    // Validate APP_URL format
+    try {
+      new URL(this.appUrl);
+    } catch (error) {
+      throw new Error(
+        `APP_URL "${this.appUrl}" is not a valid URL. ` +
+        'It must include protocol (http:// or https://). Example: https://soulbridge.co.za'
+      );
+    }
+    
+    // Validate service key format (should be UUID)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(this.serviceKey)) {
+      throw new Error(
+        'NETCASH_SERVICE_KEY appears to be invalid. It should be a UUID format like: ' +
+        '12345678-1234-1234-1234-123456789012. Check your NetCash account settings.'
+      );
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.merchantEmail)) {
+      throw new Error(
+        `NETCASH_MERCHANT_EMAIL "${this.merchantEmail}" is not a valid email format.`
+      );
+    }
+    
+    console.log('NetCash provider initialized successfully');
+    console.log('- Service key:', this.serviceKey.substring(0, 8) + '...');
+    console.log('- Merchant email:', this.merchantEmail);
+    console.log('- App URL:', this.appUrl);
   }
   
   async createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
@@ -168,18 +212,105 @@ export class NetcashProvider implements BillingProvider {
     };
   }
   
-  verifyWebhook(payload: string, signature: string): boolean {
-    // NetCash Pay Now uses a different verification method
-    // They typically include the reference and amount in the notification
-    // For now, we'll parse the payload and verify essential fields are present
+  async verifyWebhook(payload: string, signature: string): Promise<boolean> {
+    // NetCash Pay Now uses service key authentication and transaction verification
+    // rather than HMAC signatures. We need to verify the transaction data matches our records.
     try {
       const data = new URLSearchParams(payload);
-      const reference = data.get('Reference') || data.get('m1');
-      const amount = data.get('Amount') || data.get('m3'); 
-      const status = data.get('RequestTrace') || data.get('Status');
       
-      // Basic validation - ensure we have the required fields
-      return !!(reference && amount && status !== undefined);
+      // Extract key fields from the notification
+      const reference = data.get('Reference') || data.get('m1');
+      const amount = data.get('Amount') || data.get('m3');
+      const status = data.get('RequestTrace') || data.get('Status');
+      const extra1 = data.get('Extra1'); // Plan name
+      const extra2 = data.get('Extra2'); // User ID
+      const extra3 = data.get('Extra3'); // Family ID
+      const extra4 = data.get('Extra4'); // Billing interval
+      
+      // Basic field validation
+      if (!reference) {
+        console.error('NetCash webhook missing reference');
+        return false;
+      }
+      
+      if (!amount) {
+        console.error('NetCash webhook missing amount');
+        return false;
+      }
+      
+      if (status === undefined) {
+        console.error('NetCash webhook missing status');
+        return false;
+      }
+      
+      // Find the corresponding transaction in our database
+      const transaction = await db
+        .select()
+        .from(netcashTransactions)
+        .where(eq(netcashTransactions.paynowReference, reference))
+        .limit(1)
+        .then(rows => rows[0]);
+      
+      if (!transaction) {
+        console.error(`NetCash webhook: transaction not found for reference ${reference}`);
+        return false;
+      }
+      
+      // Verify transaction amount matches (convert notification amount to cents)
+      const notificationAmountCents = Math.round(parseFloat(amount) * 100);
+      if (transaction.amount !== notificationAmountCents) {
+        console.error(`NetCash webhook: amount mismatch. Expected ${transaction.amount}, got ${notificationAmountCents}`);
+        return false;
+      }
+      
+      // Verify metadata fields match if they exist in the notification
+      if (extra1 && transaction.extraField1 !== extra1) {
+        console.error(`NetCash webhook: plan mismatch. Expected ${transaction.extraField1}, got ${extra1}`);
+        return false;
+      }
+      
+      if (extra2 && transaction.extraField2 !== extra2) {
+        console.error(`NetCash webhook: user ID mismatch. Expected ${transaction.extraField2}, got ${extra2}`);
+        return false;
+      }
+      
+      if (extra3 && transaction.extraField3 !== extra3) {
+        console.error(`NetCash webhook: family ID mismatch. Expected ${transaction.extraField3}, got ${extra3}`);
+        return false;
+      }
+      
+      if (extra4 && transaction.extraField4 !== extra4) {
+        console.error(`NetCash webhook: interval mismatch. Expected ${transaction.extraField4}, got ${extra4}`);
+        return false;
+      }
+      
+      // Additional security: ensure transaction is in a valid state for this notification
+      if (status === '1' && transaction.status === 'completed') {
+        console.warn(`NetCash webhook: duplicate success notification for reference ${reference}`);
+        return true; // Not an error, but we've already processed this
+      }
+      
+      if (status !== '1' && transaction.status === 'failed') {
+        console.warn(`NetCash webhook: duplicate failure notification for reference ${reference}`);
+        return true; // Not an error, but we've already processed this
+      }
+      
+      // Create a hash for additional verification (optional security layer)
+      const verificationString = `${reference}:${amount}:${status}:${this.serviceKey}`;
+      const verificationHash = crypto.createHash('sha256').update(verificationString).digest('hex');
+      
+      // Store verification hash for audit trail
+      await db
+        .update(netcashTransactions)
+        .set({
+          securityKey: verificationHash,
+          updatedAt: new Date()
+        })
+        .where(eq(netcashTransactions.paynowReference, reference));
+      
+      console.log(`NetCash webhook verified successfully for reference ${reference}`);
+      return true;
+      
     } catch (error) {
       console.error('NetCash webhook verification error:', error);
       return false;
@@ -189,9 +320,9 @@ export class NetcashProvider implements BillingProvider {
   async handleWebhook(payload: string, signature: string): Promise<void> {
     console.log('NetCash webhook received:', payload);
     
-    // Verify webhook
-    if (!this.verifyWebhook(payload, signature)) {
-      throw new Error('Invalid webhook data');
+    // Verify webhook with enhanced security
+    if (!(await this.verifyWebhook(payload, signature))) {
+      throw new Error('NetCash webhook verification failed');
     }
     
     // Parse NetCash notification data
