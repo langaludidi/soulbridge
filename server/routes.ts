@@ -2,7 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { enforceMemorialLimits, enforcePremiumFeatures } from "./middleware/subscription";
 import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema } from "@shared/schema";
+import { billingRouter } from "./billing/routes";
 import fs from "fs";
 import path from "path";
 
@@ -154,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/memorials', isAuthenticated, async (req: any, res) => {
+  app.post('/api/memorials', isAuthenticated, enforceMemorialLimits, async (req: any, res) => {
     try {
       const memorialData = insertMemorialSchema.parse(req.body);
       const userId = req.user.claims.sub;
@@ -886,6 +888,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to reorder events" });
     }
   });
+
+  // Billing routes
+  app.use('/api/billing', billingRouter);
 
   const httpServer = createServer(app);
   return httpServer;

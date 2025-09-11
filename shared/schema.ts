@@ -8,6 +8,7 @@ import {
   varchar,
   boolean,
   integer,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -176,7 +177,7 @@ export const familyMembers = pgTable("family_members", {
   index("IDX_family_members_family_id").on(table.familyId),
   index("IDX_family_members_user_id").on(table.userId),
   // Ensure unique family membership - no duplicate users in same family
-  index("UNQ_family_member_user").unique().on(table.familyId, table.userId),
+  unique("UNQ_family_member_user").on(table.familyId, table.userId),
 ]);
 
 // Subscriptions table for billing management
@@ -213,13 +214,29 @@ export const invoices = pgTable("invoices", {
   amount: integer("amount").notNull(), // Amount in cents
   currency: varchar("currency").default("ZAR").notNull(),
   status: varchar("status").notNull(), // pending, paid, failed, refunded
-  providerPaymentId: varchar("provider_payment_id"),
+  providerPaymentId: varchar("provider_payment_id").unique(), // Unique to prevent duplicate invoices
   paidAt: timestamp("paid_at"),
   rawEvent: jsonb("raw_event"), // Store full webhook payload
   createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
   index("IDX_invoices_subscription_id").on(table.subscriptionId),
   index("IDX_invoices_provider_payment_id").on(table.providerPaymentId),
+]);
+
+// Webhook events table for idempotency
+export const webhookEvents = pgTable("webhook_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  provider: varchar("provider").notNull(), // paystack, payfast, netcash
+  eventId: varchar("event_id").notNull(), // Provider's event ID
+  eventType: varchar("event_type").notNull(), // charge.success, subscription.create, etc.
+  processed: boolean("processed").default(false),
+  processedAt: timestamp("processed_at"),
+  rawEvent: jsonb("raw_event"), // Store full event payload
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  // Ensure we don't process the same event twice from same provider
+  unique("UNQ_webhook_provider_event").on(table.provider, table.eventId),
+  index("IDX_webhook_events_provider_type").on(table.provider, table.eventType),
 ]);
 
 // Digital Order of Service table - Main program details
@@ -332,6 +349,10 @@ export const invoicesRelations = relations(invoices, ({ one }) => ({
     fields: [invoices.subscriptionId],
     references: [subscriptions.id],
   }),
+}));
+
+export const webhookEventsRelations = relations(webhookEvents, ({ one }) => ({
+  // No direct relations - this is a standalone audit/idempotency table
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -528,6 +549,11 @@ export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   createdAt: true,
 });
 
+export const insertWebhookEventSchema = createInsertSchema(webhookEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -573,6 +599,9 @@ export type Subscription = typeof subscriptions.$inferSelect;
 
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type Invoice = typeof invoices.$inferSelect;
+
+export type InsertWebhookEvent = z.infer<typeof insertWebhookEventSchema>;
+export type WebhookEvent = typeof webhookEvents.$inferSelect;
 
 // Subscription tier types and entitlements
 export type SubscriptionTier = "remember" | "honour" | "legacy" | "family_vault";
