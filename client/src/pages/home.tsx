@@ -95,9 +95,9 @@ export default function Home() {
       <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }}></div>
-          <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-400/15 to-pink-400/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/6 w-64 h-64 bg-gradient-to-r from-emerald-300/10 to-teal-300/10 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '8s', animationDelay: '1s' }}></div>
+          <div className="absolute top-10 left-1/4 w-96 h-96 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }}></div>
+          <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-gradient-to-r from-accent/15 to-primary/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 left-1/6 w-64 h-64 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '8s', animationDelay: '1s' }}></div>
         </div>
 
         {/* Floating Particles */}
@@ -105,7 +105,7 @@ export default function Home() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 bg-blue-400/30 rounded-full animate-gentle-float"
+              className="absolute w-2 h-2 bg-primary/30 rounded-full animate-gentle-float"
               style={{
                 left: `${20 + i * 15}%`,
                 top: `${30 + i * 10}%`,
@@ -121,11 +121,11 @@ export default function Home() {
             {/* Enhanced Trust Badge */}
             <div className="inline-flex items-center px-6 py-3 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-center space-x-2">
-                <Heart className="h-4 w-4 text-rose-500 animate-soft-pulse" />
+                <Heart className="h-4 w-4 text-primary animate-soft-pulse" />
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Trusted by families across South Africa</span>
                 <div className="flex -space-x-1 ml-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 border-2 border-white dark:border-slate-800"></div>
+                    <div key={i} className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-secondary border-2 border-white dark:border-slate-800"></div>
                   ))}
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function Home() {
             <div className="space-y-8">
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif font-light text-slate-800 dark:text-slate-100 leading-tight tracking-tight">
                 <span className="block mb-4 animate-fade-in-up">Honouring Every Life,</span>
-                <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent font-medium animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <span className="block bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-medium animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                   Connecting Every Soul
                 </span>
               </h1>
@@ -154,12 +154,12 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
               <Button
                 size="lg"
-                className="group px-10 py-5 text-lg font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 rounded-2xl"
+                className="group px-10 py-5 text-lg font-medium bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0 rounded-2xl"
                 onClick={() => setShowCreateModal(true)}
               >
                 <Plus className="mr-3 h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
                 Create Memorial
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/40 to-secondary/40 opacity-0 group-hover:opacity-20 rounded-2xl transition-opacity duration-300"></div>
               </Button>
               <Link href="/browse">
                 <Button
@@ -178,8 +178,8 @@ export default function Home() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 {stats.map((stat, index) => (
                   <div key={index} className="group text-center space-y-2">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 mb-3 group-hover:scale-110 transition-transform duration-300">
-                      <stat.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 mb-3 group-hover:scale-110 transition-transform duration-300">
+                      <stat.icon className="h-6 w-6 text-primary dark:text-primary" />
                     </div>
                     <div className="text-2xl lg:text-3xl font-bold text-slate-800 dark:text-slate-100">{stat.number}</div>
                     <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">{stat.label}</div>
@@ -200,7 +200,7 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-400 font-medium text-sm mb-8 shadow-sm">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/30 dark:to-secondary/30 text-primary dark:text-primary font-medium text-sm mb-8 shadow-sm">
               <Sparkles className="w-4 h-4 mr-2 animate-soft-pulse" />
               Our Sacred Mission
             </div>
@@ -278,19 +278,19 @@ export default function Home() {
                 step: "1", 
                 title: "Begin Your Journey", 
                 description: "Choose a plan that honors your loved one's memory with the care they deserve",
-                color: "from-blue-500 to-indigo-600"
+                color: "from-primary to-secondary"
               },
               { 
                 step: "2", 
                 title: "Share Their Story", 
                 description: "Add photos, memories, and stories that capture their beautiful life and lasting impact",
-                color: "from-emerald-500 to-teal-600"
+                color: "from-secondary to-accent"
               },
               { 
                 step: "3", 
                 title: "Connect Hearts", 
                 description: "Invite family and friends to visit, contribute, and find comfort in shared memories",
-                color: "from-purple-500 to-pink-600"
+                color: "from-accent to-primary"
               }
             ].map((item, index) => (
               <div key={index} className="text-center space-y-8 relative group">
@@ -298,7 +298,7 @@ export default function Home() {
                   <div className={`w-20 h-20 mx-auto bg-gradient-to-br ${item.color} rounded-3xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110`}>
                     <span className="text-2xl font-bold text-white">{item.step}</span>
                   </div>
-                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div className="space-y-4">
                   <h3 className="text-2xl font-semibold text-slate-800 dark:text-slate-100">{item.title}</h3>
@@ -319,7 +319,7 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-24">
-            <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-400 font-medium text-sm mb-8 shadow-sm">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/30 dark:to-secondary/30 text-primary dark:text-primary font-medium text-sm mb-8 shadow-sm">
               <Award className="w-4 h-4 mr-2" />
               Why Choose SoulBridge
             </div>
@@ -347,7 +347,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">{feature.name}</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">{feature.name}</h3>
                     <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
@@ -458,7 +458,7 @@ export default function Home() {
       )}
 
       {/* Enhanced Final CTA Section */}
-      <section className="py-32 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 relative overflow-hidden">
+      <section className="py-32 bg-gradient-to-br from-primary via-secondary to-accent relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.15),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.1),transparent_50%)]" />
@@ -500,7 +500,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
               <Button
                 size="lg"
-                className="group px-12 py-6 text-xl bg-white text-blue-600 hover:bg-white/95 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 rounded-2xl font-medium"
+                className="group px-12 py-6 text-xl bg-white text-primary hover:bg-white/95 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 rounded-2xl font-medium"
                 onClick={() => setShowCreateModal(true)}
               >
                 <Plus className="mr-3 h-6 w-6 group-hover:rotate-90 transition-transform duration-300" />
