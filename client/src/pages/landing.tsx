@@ -8,6 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import type { Memorial } from "@shared/schema";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 
 export default function Landing() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -232,11 +239,77 @@ export default function Landing() {
             </p>
           </div>
           
-          {featuredMemorials.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredMemorials.map((memorial) => (
-                <MemorialCard key={memorial.id} memorial={memorial} />
-              ))}
+          {recentMemorials.length > 0 ? (
+            <div className="space-y-16">
+              {/* Featured Memorial Stories Carousel */}
+              {recentMemorials.filter(m => m.status === 'published').length > 0 && (
+                <div>
+                  <div className="text-center mb-8">
+                    <h3 className="text-xl sm:text-2xl font-serif font-semibold text-foreground mb-2">
+                      Featured Memorial Stories
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Complete memorial experiences with photos, stories, and family contributions
+                    </p>
+                  </div>
+                  <Carousel
+                    opts={{
+                      align: "start",
+                    }}
+                    className="w-full max-w-sm sm:max-w-2xl lg:max-w-6xl mx-auto"
+                  >
+                    <CarouselContent>
+                      {recentMemorials
+                        .filter(m => m.status === 'published')
+                        .slice(0, 8)
+                        .map((memorial) => (
+                        <CarouselItem key={memorial.id} className="sm:basis-1/2 lg:basis-1/3">
+                          <div className="p-1">
+                            <MemorialCard memorial={memorial} />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                </div>
+              )}
+
+              {/* Recent Memorials Carousel */}
+              {recentMemorials.filter(m => m.status !== 'published').length > 0 && (
+                <div>
+                  <div className="text-center mb-8">
+                    <h3 className="text-xl sm:text-2xl font-serif font-semibold text-foreground mb-2">
+                      Recent Memorials
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Simple tributes created with love and care
+                    </p>
+                  </div>
+                  <Carousel
+                    opts={{
+                      align: "start",
+                    }}
+                    className="w-full max-w-sm sm:max-w-2xl lg:max-w-6xl mx-auto"
+                  >
+                    <CarouselContent>
+                      {recentMemorials
+                        .filter(m => m.status !== 'published')
+                        .slice(0, 6)
+                        .map((memorial) => (
+                        <CarouselItem key={memorial.id} className="sm:basis-1/2 lg:basis-1/3">
+                          <div className="p-1">
+                            <MemorialCard memorial={memorial} />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious />
+                    <CarouselNext />
+                  </Carousel>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-12">
@@ -251,7 +324,7 @@ export default function Landing() {
             </div>
           )}
           
-          {featuredMemorials.length > 0 && (
+          {recentMemorials.length > 0 && (
             <div className="text-center mt-12">
               <Link href="/browse">
                 <Button variant="secondary" data-testid="button-view-all-memorials">
