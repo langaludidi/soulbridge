@@ -1,0 +1,107 @@
+Replit Prompt: Soulbridge – Memorial Subscription Platform (With Paystack, Netcash, Payfast)
+
+⸻
+
+PROJECT GOAL:
+Build a subscription-based memorial platform that allows individuals and families in South Africa to create and manage online tributes for their loved ones. The platform must support recurring billing (monthly/yearly), allow memorial creation and sharing, and reduce the need for printed funeral programs.
+
+⸻
+
+CONTEXT:
+Soulbridge is a respectful, culturally aware platform for South African families to:
+	•	Honour and remember their loved ones
+	•	Create digital memorials with multimedia and guest messages
+	•	Reduce printing costs while preserving ceremony structure
+	•	Sustain operations through subscription-based access
+
+⸻
+
+KEY SUBSCRIPTION TIERS (Recurring):
+	1.	Remember (Free)
+	•	R0/month
+	•	1 memorial
+	•	Basic info, photo, public view
+	•	Printable layout
+	2.	Honour
+	•	R49/month or R499/year
+	•	Up to 3 memorials
+	•	Full obituary + quote
+	•	Gallery (10 images), audio or video
+	•	Shareable private/public link
+	3.	Legacy
+	•	R99/month or R999/year
+	•	Unlimited memorials
+	•	Unlimited gallery, editable content
+	•	Family tree file upload
+	•	Event announcements
+	•	Featured homepage placement
+	4.	Family Vault (Optional)
+	•	R199/month
+	•	All Legacy features
+	•	Multi-user family archive
+	•	Shared login dashboard
+	•	Schedule memorials in advance
+
+⸻
+
+CORE FUNCTIONAL REQUIREMENTS:
+	•	User registration and login
+	•	Tier selection during onboarding or upgrade
+	•	Free tier limited to 1 memorial
+	•	Tiers unlock more media fields/features
+	•	Monthly or annual subscription system
+	•	Option to cancel or downgrade
+	•	Admin panel for content moderation and user management
+	•	Clean, print-optimized memorial display
+	•	“Print Program” and “Download PDF” options per memorial
+	•	All public content must include footer:
+“© Soulbridge. All rights reserved.”
+
+⸻
+
+PAYMENT GATEWAY REQUIREMENTS:
+
+Use any of the following (no Stripe):
+	•	✅ Paystack
+	•	✅ Netcash (South Africa only)
+	•	✅ Payfast
+	•	Integrate one provider at a time or offer user choice
+	•	Support secure recurring billing (subscriptions)
+	•	Must handle payment success, failure, retry logic
+	•	Provide user billing overview and cancel option
+	•	Grace period for failed payments is optional
+
+⸻
+
+DESIGN NOTES:
+	•	Simple, dignified, mobile-first UI
+	•	Fonts: sans-serif or system font
+	•	Colors: Deep blue, neutral grays, clean white
+	•	Break content into readable sections (cover page, service list, photo, quote)
+	•	Keep all memorials easily shareable by link
+
+⸻
+
+DELIVERABLES:
+	•	Full web app (front + back end)
+	•	User dashboard (view, edit, manage memorials)
+	•	Admin dashboard (moderate, feature, manage users)
+	•	PDF output generator from displayed memorial
+	•	Subscription system using Paystack/Netcash/Payfast
+	•	Memorial post preview and sharing view
+
+⸻
+
+OPTIONAL NEXT PHASE:
+	•	Vanity URLs (e.g. soulbridge.co.za/mandela)
+	•	SMS share button
+	•	Offline-access PDFs
+	•	Printed keepsake delivery workflow
+
+⸻
+
+REMINDERS:
+	•	This is a human-first product — build with empathy
+	•	Not an ecommerce store — it’s a platform for legacy and dignity
+	•	UX must be calm, simple, clear — especially for grieving users
+	•	Keep upgrade paths clear but not salesy
