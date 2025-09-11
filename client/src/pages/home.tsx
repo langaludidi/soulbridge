@@ -46,17 +46,16 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center bg-background overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground mb-8 leading-tight">
-              Honouring Every Life.{" "}
-              <span className="text-primary">Connecting</span> Every Soul.
+      <section className="hero-section py-16 sm:py-20 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="mb-6">
+              Honouring Every Life, <br />
+              <span className="text-primary">Connecting Every Soul</span>
             </h1>
-            <p className="text-xl sm:text-2xl text-muted-foreground mb-12 leading-relaxed max-w-3xl mx-auto">
-              Create beautiful, lasting tributes that celebrate the unique stories of your loved ones.
-              Share memories, photos, and connect with family and friends in a meaningful digital space.
+            <p className="lead max-w-3xl mx-auto mb-8">
+              Create beautiful, lasting tributes that celebrate the unique journey of your loved ones.
+              Share memories, connect with family, and keep their legacy alive forever.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button
@@ -100,10 +99,10 @@ export default function Home() {
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 font-medium text-sm mb-6">
               Our Mission
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-8">
+            <h2 className="mb-8">
               Why SoulBridge Exists
             </h2>
-            <p className="text-xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="lead max-w-4xl mx-auto">
               When someone passes away, families need a simple, beautiful way to share their legacy and connect those who loved them. But traditional methods are limited, and existing platforms often feel disconnected from our culture and values.
             </p>
             <div className="grid gap-8 md:grid-cols-3">
@@ -111,7 +110,7 @@ export default function Home() {
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <span className="text-3xl">🕯️</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Honour with dignity</h3>
+                <h3 className="h4 mb-3">Honour with dignity</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Create respectful, beautiful tributes that truly reflect the person they were
                 </p>
@@ -120,7 +119,7 @@ export default function Home() {
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <span className="text-3xl">🤝</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Bridge families and memories</h3>
+                <h3 className="h4 mb-3">Bridge families and memories</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Connect loved ones across distances and generations through shared memories
                 </p>
@@ -129,7 +128,7 @@ export default function Home() {
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <span className="text-3xl">♾️</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">Preserve their legacy forever</h3>
+                <h3 className="h4 mb-3">Preserve their legacy forever</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Ensure their stories, values, and memories live on for future generations
                 </p>
@@ -140,13 +139,13 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 bg-slate-50 dark:bg-slate-900/30">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+      <section className="features-section py-16 sm:py-20 lg:py-24 bg-slate-50 dark:bg-slate-900/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="mb-6">
               How It Works
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="lead max-w-2xl mx-auto">
               Creating a memorial is simple and takes just a few minutes
             </p>
           </div>
@@ -162,7 +161,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">Sign Up & Choose a Package</h3>
+                  <h3 className="h4">Sign Up & Choose a Package</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     Get started with a plan that fits your family's needs
                   </p>
@@ -176,7 +175,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">Add Photos, Stories & Tributes</h3>
+                  <h3 className="h4">Add Photos, Stories & Tributes</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     Share their life story with photos and meaningful memories
                   </p>
@@ -190,7 +189,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-foreground">Share with Family & Friends</h3>
+                  <h3 className="h4">Share with Family & Friends</h3>
                   <p className="text-muted-foreground leading-relaxed">
                     Invite loved ones to visit and contribute to the memorial
                   </p>
@@ -205,10 +204,10 @@ export default function Home() {
       <section className="py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+            <h2 className="mb-6">
               Why Choose SoulBridge?
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="lead max-w-3xl mx-auto">
               We provide a compassionate and secure platform to honor your loved ones
             </p>
           </div>
@@ -223,7 +222,7 @@ export default function Home() {
                     <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                       <feature.icon className="h-8 w-8" aria-hidden="true" />
                     </div>
-                    <h3 className="text-xl font-semibold leading-7 text-foreground mb-3">
+                    <h3 className="h4 mb-3">
                       {feature.name}
                     </h3>
                     <p className="text-base leading-7 text-muted-foreground">
@@ -241,7 +240,7 @@ export default function Home() {
       <section className="section-padding section-contrast">
         <div className="container-max">
           <div className="container-content text-center mb-16">
-            <h2 className="text-3xl font-serif font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl mb-6">
+            <h2 className="mb-6">
               Trusted by Families Worldwide
             </h2>
             <p className="text-lg leading-8 text-muted-foreground max-w-3xl mx-auto">
@@ -288,10 +287,10 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-24 bg-primary/5">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-8">
+          <h2 className="mb-8">
             Start Preserving Precious Memories Today
           </h2>
-          <p className="text-xl text-muted-foreground mb-12 leading-relaxed">
+          <p className="lead mb-12">
             Create a lasting tribute that celebrates a life well-lived and brings comfort to family and friends.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -322,10 +321,10 @@ export default function Home() {
       <section className="py-24 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
+            <h2 className="mb-6">
               Recent Memorials
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="lead max-w-3xl mx-auto">
               Honoring the lives and legacies of those who have touched our hearts
             </p>
           </div>
