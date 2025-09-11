@@ -14,6 +14,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import { Check, ChevronLeft, ChevronRight, Upload } from "lucide-react";
 import type { InsertMemorial } from "@shared/schema";
+import { useLocation } from "wouter";
 
 interface CreateMemorialModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface CreateMemorialModalProps {
 type FormStep = 1 | 2 | 3 | 4;
 
 export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps) {
+  const [, setLocation] = useLocation();
   const [currentStep, setCurrentStep] = useState<FormStep>(1);
   const [formData, setFormData] = useState({
     // Step 1: About your loved one
@@ -61,14 +63,18 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
       const response = await apiRequest("POST", "/api/memorials", memorial);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (createdMemorial: any) => {
       toast({
-        title: "Memorial Submitted",
-        description: "Your memorial has been submitted for review and will be published once approved by our team.",
+        title: "Memorial Created Successfully",
+        description: "Your memorial has been created and you can now view it.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/memorials"] });
       onClose();
       resetForm();
+      // Navigate to the newly created memorial
+      if (createdMemorial?.id) {
+        setLocation(`/memorial/${createdMemorial.id}`);
+      }
     },
     onError: (error) => {
       if (isUnauthorizedError(error)) {
