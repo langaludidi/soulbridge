@@ -331,4 +331,201 @@ billingRouter.post('/payment/notify', express.urlencoded({ extended: true }), as
   }
 });
 
+// Transaction lookup endpoint for frontend polling
+billingRouter.get('/transaction', async (req, res) => {
+  try {
+    const { reference } = req.query;
+    
+    if (!reference || typeof reference !== 'string') {
+      return res.status(400).json({ error: 'Transaction reference is required' });
+    }
+    
+    // Find the NetCash transaction
+    const transaction = await db
+      .select()
+      .from(netcashTransactions)
+      .where(eq(netcashTransactions.paynowReference, reference))
+      .limit(1)
+      .then(rows => rows[0]);
+    
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+    
+    // Get related subscription if available
+    let subscription = null;
+    if (transaction.subscriptionId) {
+      subscription = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.id, transaction.subscriptionId))
+        .limit(1)
+        .then(rows => rows[0]);
+    }
+    
+    // Return transaction status and details
+    res.json({
+      transaction: {
+        id: transaction.id,
+        reference: transaction.paynowReference,
+        status: transaction.status,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        description: transaction.description,
+        customerEmail: transaction.customerEmail,
+        verified: transaction.verified,
+        paidAt: transaction.paidAt,
+        failedAt: transaction.failedAt,
+        createdAt: transaction.createdAt,
+        metadata: {
+          plan: transaction.extraField1,
+          userId: transaction.extraField2,
+          familyId: transaction.extraField3,
+          interval: transaction.extraField4
+        }
+      },
+      subscription: subscription ? {
+        id: subscription.id,
+        plan: subscription.plan,
+        interval: subscription.interval,
+        status: subscription.status,
+        currentPeriodEnd: subscription.currentPeriodEnd
+      } : null
+    });
+  } catch (error) {
+    console.error('Error fetching transaction:', error);
+    res.status(500).json({ error: 'Failed to fetch transaction details' });
+  }
+});
+
+// NetCash transaction status update endpoint (for manual reconciliation)
+billingRouter.post('/transaction/:reference/status', isAuthenticated, async (req: any, res) => {
+  try {
+    const { reference } = req.params;
+    const { status, adminNote } = req.body;
+    const userId = req.user.claims.sub;
+    
+    // Validate request
+    if (!reference) {
+      return res.status(400).json({ error: 'Transaction reference is required' });
+    }
+    
+    if (!['pending', 'completed', 'failed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status value' });
+    }
+    
+    // Check if user has admin privileges (you might want to add role checking here)
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+      .then(rows => rows[0]);
+    
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin privileges required' });
+    }
+    
+    // Find and update the transaction
+    const transaction = await db
+      .select()
+      .from(netcashTransactions)
+      .where(eq(netcashTransactions.paynowReference, reference))
+      .limit(1)
+      .then(rows => rows[0]);
+    
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+    
+    // Update transaction status
+    await db
+      .update(netcashTransactions)
+      .set({
+        status: status as any,
+        updatedAt: new Date(),
+        ...(adminNote && { extraField5: adminNote }) // Store admin note in extra field
+      })
+      .where(eq(netcashTransactions.id, transaction.id));
+    
+    res.json({ 
+      message: 'Transaction status updated successfully',
+      transaction: {
+        reference,
+        oldStatus: transaction.status,
+        newStatus: status,
+        updatedBy: userId,
+        adminNote
+      }
+    });
+  } catch (error) {
+    console.error('Error updating transaction status:', error);
+    res.status(500).json({ error: 'Failed to update transaction status' });
+  }
+});
+
+// NetCash transaction history endpoint for admins
+billingRouter.get('/transactions', isAuthenticated, async (req: any, res) => {
+  try {
+    const userId = req.user.claims.sub;
+    const { status, limit = 50, offset = 0 } = req.query;
+    
+    // Check if user has admin privileges
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+      .then(rows => rows[0]);
+    
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin privileges required' });
+    }
+    
+    // Build query conditions
+    let query = db.select().from(netcashTransactions);
+    
+    if (status) {
+      query = query.where(eq(netcashTransactions.status, status as any));
+    }
+    
+    // Get transactions with pagination
+    const transactions = await query
+      .limit(parseInt(limit as string))
+      .offset(parseInt(offset as string))
+      .orderBy(netcashTransactions.createdAt);
+    
+    res.json({
+      transactions: transactions.map(t => ({
+        id: t.id,
+        reference: t.paynowReference,
+        status: t.status,
+        amount: t.amount,
+        currency: t.currency,
+        customerEmail: t.customerEmail,
+        description: t.description,
+        verified: t.verified,
+        paidAt: t.paidAt,
+        failedAt: t.failedAt,
+        createdAt: t.createdAt,
+        metadata: {
+          plan: t.extraField1,
+          userId: t.extraField2,
+          familyId: t.extraField3,
+          interval: t.extraField4,
+          adminNote: t.extraField5
+        }
+      })),
+      pagination: {
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+        total: transactions.length
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
 // Helper function already imported from @shared/schema
