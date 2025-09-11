@@ -1,5 +1,5 @@
 import type { RequestHandler } from "express";
-import type { AuthenticatedRequest } from './auth';
+import type { AuthenticatedRequestStrict, AuthenticatedRequest } from './auth';
 import { db } from '../db';
 import { subscriptions, memorials } from '@shared/schema';
 import { eq, and, count } from 'drizzle-orm';
@@ -10,9 +10,10 @@ import type { SubscriptionTier } from '@shared/schema';
 /**
  * Middleware to enforce subscription limits for memorial creation
  */
-export const enforceMemorialLimits: RequestHandler = async (req: AuthenticatedRequest, res, next) => {
+export const enforceMemorialLimits: RequestHandler = async (req, res, next) => {
   try {
-    const userId = req.user?.claims?.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     
     if (!userId) {
       return res.status(401).json({ 
@@ -78,9 +79,10 @@ export const enforceMemorialLimits: RequestHandler = async (req: AuthenticatedRe
  * Middleware to check if user has access to premium features
  */
 export const enforcePremiumFeatures = (requiredTier: SubscriptionTier): RequestHandler => {
-  return async (req: AuthenticatedRequest, res, next) => {
+  return async (req, res, next) => {
     try {
-      const userId = req.user?.claims?.sub;
+      const authReq = req as AuthenticatedRequestStrict;
+      const userId = authReq.user.claims.sub;
       
       if (!userId) {
         return res.status(401).json({ 

@@ -10,7 +10,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import type { BillingProvider } from './types';
 import { PLAN_PRICING } from './types';
 import { getSubscriptionEntitlements } from '@shared/schema';
-import type { AuthenticatedRequest } from '../middleware/auth';
+import type { AuthenticatedRequestStrict, AuthenticatedRequest } from '../middleware/auth';
 
 export const billingRouter = Router();
 
@@ -82,9 +82,10 @@ billingRouter.get('/plans', (req, res) => {
 });
 
 // Get current user's subscription
-billingRouter.get('/subscription', isAuthenticated, async (req: AuthenticatedRequest, res) => {
+billingRouter.get('/subscription', isAuthenticated, async (req, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     
     // Get user's current subscription
     const subscription = await db
@@ -140,10 +141,11 @@ const checkoutSessionSchema = z.object({
   provider: z.enum(['paystack', 'netcash']).default('paystack')
 });
 
-billingRouter.post('/checkout-session', isAuthenticated, async (req: AuthenticatedRequest, res) => {
+billingRouter.post('/checkout-session', isAuthenticated, async (req, res) => {
   try {
     const { plan, interval, provider: providerName } = checkoutSessionSchema.parse(req.body);
-    const userId = req.user.claims.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     
     // Validate plan/interval combination
     if (plan === 'family_vault' && interval === 'yearly') {
@@ -172,9 +174,10 @@ billingRouter.post('/checkout-session', isAuthenticated, async (req: Authenticat
 });
 
 // Create portal session for subscription management
-billingRouter.post('/portal-session', isAuthenticated, async (req: AuthenticatedRequest, res) => {
+billingRouter.post('/portal-session', isAuthenticated, async (req, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     
     // Use Paystack as default provider for now
     const provider = providers.paystack;
@@ -188,9 +191,10 @@ billingRouter.post('/portal-session', isAuthenticated, async (req: Authenticated
 });
 
 // Cancel subscription
-billingRouter.post('/cancel-subscription', isAuthenticated, async (req: AuthenticatedRequest, res) => {
+billingRouter.post('/cancel-subscription', isAuthenticated, async (req, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     
     // Find user's active subscription
     const subscription = await db
@@ -400,11 +404,12 @@ billingRouter.get('/transaction', async (req, res) => {
 });
 
 // NetCash transaction status update endpoint (for manual reconciliation)
-billingRouter.post('/transaction/:reference/status', isAuthenticated, async (req: any, res) => {
+billingRouter.post('/transaction/:reference/status', isAuthenticated, async (req, res) => {
   try {
     const { reference } = req.params;
     const { status, adminNote } = req.body;
-    const userId = req.user.claims.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     
     // Validate request
     if (!reference) {
@@ -466,9 +471,10 @@ billingRouter.post('/transaction/:reference/status', isAuthenticated, async (req
 });
 
 // NetCash transaction history endpoint for admins
-billingRouter.get('/transactions', isAuthenticated, async (req: any, res) => {
+billingRouter.get('/transactions', isAuthenticated, async (req, res) => {
   try {
-    const userId = req.user.claims.sub;
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
     const { status, limit = 50, offset = 0 } = req.query;
     
     // Check if user has admin privileges
@@ -483,15 +489,11 @@ billingRouter.get('/transactions', isAuthenticated, async (req: any, res) => {
       return res.status(403).json({ error: 'Admin privileges required' });
     }
     
-    // Build query conditions
-    let query = db.select().from(netcashTransactions);
-    
-    if (status) {
-      query = query.where(eq(netcashTransactions.status, status as any));
-    }
-    
     // Get transactions with pagination
-    const transactions = await query
+    const transactions = await db
+      .select()
+      .from(netcashTransactions)
+      .where(status ? eq(netcashTransactions.status, status as any) : undefined)
       .limit(parseInt(limit as string))
       .offset(parseInt(offset as string))
       .orderBy(netcashTransactions.createdAt);

@@ -17,6 +17,8 @@ export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;
 }
 
+export type AuthenticatedRequestStrict = Request & { user: AuthenticatedUser };
+
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
