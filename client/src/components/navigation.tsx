@@ -49,6 +49,13 @@ export function Navigation() {
                   Partners
                 </span>
               </Link>
+              <Link href="/about" data-testid="link-nav-about">
+                <span className={`px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                  location === "/about" ? "text-primary" : "text-muted-foreground hover:text-primary"
+                }`}>
+                  About
+                </span>
+              </Link>
               {isAuthenticated && (
                 <Link href="/create" data-testid="link-nav-create">
                   <span className={`px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
@@ -177,6 +184,16 @@ export function Navigation() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Partners
+                </span>
+              </Link>
+              <Link href="/about" data-testid="link-nav-about-mobile">
+                <span 
+                  className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
+                    location === "/about" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
                 </span>
               </Link>
               {isAuthenticated && (
