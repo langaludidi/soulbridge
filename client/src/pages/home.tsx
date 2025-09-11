@@ -201,9 +201,12 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-muted/30">
+      <section className="py-24 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-20">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
+              Why SoulBridge
+            </div>
             <h2 className="mb-6">
               Why Choose SoulBridge?
             </h2>
@@ -211,33 +214,36 @@ export default function Home() {
               We provide a compassionate and secure platform to honor your loved ones
             </p>
           </div>
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="group relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-8 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div className="text-center space-y-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="group relative rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 p-8 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-2"
+              >
+                <div className="text-center space-y-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary/10 rounded-xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
+                    <div className="relative flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-primary to-primary/90 text-white mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
                       <feature.icon className="h-8 w-8" aria-hidden="true" />
                     </div>
-                    <h3 className="h4 mb-3">
+                  </div>
+                  <div className="space-y-3">
+                    <h3 className="h4 group-hover:text-primary transition-colors duration-300">
                       {feature.name}
                     </h3>
-                    <p className="text-base leading-7 text-muted-foreground">
+                    <p className="text-base leading-relaxed text-muted-foreground">
                       {feature.description}
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="section-padding section-contrast">
+      <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
         <div className="container-max">
           <div className="container-content text-center mb-16">
             <h2 className="mb-6">
@@ -285,7 +291,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-primary/5">
+      <section className="py-24 bg-gradient-to-b from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <h2 className="mb-8">
             Start Preserving Precious Memories Today
@@ -318,7 +324,7 @@ export default function Home() {
 
 
       {/* Recent Memorials Section */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="mb-6">
