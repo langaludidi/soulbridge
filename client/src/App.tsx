@@ -22,6 +22,7 @@ function Router() {
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
+          <Route path="/create" component={Landing} />
           <Route path="/memorial/:id" component={Memorial} />
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
@@ -32,6 +33,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/create" component={Home} />
           <Route path="/memorial/:id" component={Memorial} />
           <Route path="/browse" component={Browse} />
           <Route path="/partners" component={Partners} />
