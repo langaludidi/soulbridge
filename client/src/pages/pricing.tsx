@@ -1,0 +1,457 @@
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Check, Star, Users, Heart, Crown, Shield, ArrowRight } from "lucide-react";
+
+interface PlanFeatures {
+  memorialLimit: string;
+  allowGallery: boolean;
+  allowAudioVideo: boolean;
+  allowPdf: boolean;
+  allowEvents: boolean;
+  allowFamilyTree: boolean;
+  allowPrivateLink: boolean;
+  maxPhotos: string;
+}
+
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  title: string;
+  price: number;
+  interval: string;
+  description: string;
+  features: PlanFeatures;
+  popular?: boolean;
+  icon: React.ReactNode;
+  badge?: string;
+}
+
+const plans: SubscriptionPlan[] = [
+  {
+    id: "remember",
+    name: "Remember",
+    title: "Remember",
+    price: 0,
+    interval: "Free Forever",
+    description: "Perfect for commemorating a single loved one with dignity and respect.",
+    features: {
+      memorialLimit: "1 memorial",
+      allowGallery: false,
+      allowAudioVideo: false,
+      allowPdf: true,
+      allowEvents: false,
+      allowFamilyTree: false,
+      allowPrivateLink: false,
+      maxPhotos: "1 photo"
+    },
+    icon: <Heart className="w-6 h-6" />,
+    badge: "Free"
+  },
+  {
+    id: "honour",
+    name: "Honour",
+    title: "Honour",
+    price: 49,
+    interval: "monthly",
+    description: "Honor multiple family members with enhanced memorial features and media galleries.",
+    features: {
+      memorialLimit: "3 memorials",
+      allowGallery: true,
+      allowAudioVideo: true,
+      allowPdf: true,
+      allowEvents: false,
+      allowFamilyTree: false,
+      allowPrivateLink: true,
+      maxPhotos: "10 photos each"
+    },
+    popular: true,
+    icon: <Star className="w-6 h-6" />,
+    badge: "Popular"
+  },
+  {
+    id: "legacy",
+    name: "Legacy",
+    title: "Legacy",
+    price: 99,
+    interval: "monthly",
+    description: "Create unlimited memorials with advanced features for preserving family history.",
+    features: {
+      memorialLimit: "Unlimited",
+      allowGallery: true,
+      allowAudioVideo: true,
+      allowPdf: true,
+      allowEvents: true,
+      allowFamilyTree: true,
+      allowPrivateLink: true,
+      maxPhotos: "Unlimited"
+    },
+    icon: <Crown className="w-6 h-6" />
+  },
+  {
+    id: "family_vault",
+    name: "Family Vault",
+    title: "Family Vault", 
+    price: 199,
+    interval: "monthly",
+    description: "Complete family heritage solution with collaborative features and premium support.",
+    features: {
+      memorialLimit: "Unlimited",
+      allowGallery: true,
+      allowAudioVideo: true,
+      allowPdf: true,
+      allowEvents: true,
+      allowFamilyTree: true,
+      allowPrivateLink: true,
+      maxPhotos: "Unlimited"
+    },
+    icon: <Shield className="w-6 h-6" />,
+    badge: "Premium"
+  }
+];
+
+export default function PricingPage() {
+  const { isAuthenticated, user } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [selectedInterval, setSelectedInterval] = useState<"monthly" | "yearly">("monthly");
+  
+  // Get current user subscription
+  const { data: subscription } = useQuery({
+    queryKey: ["/api/billing/subscription"],
+    enabled: !!isAuthenticated
+  });
+
+  // Checkout mutation
+  const checkoutMutation = useMutation({
+    mutationFn: async (planId: string) => {
+      const response = await apiRequest("POST", `/api/billing/checkout-session`, {
+        plan: planId,
+        interval: selectedInterval,
+        userId: user?.id
+      });
+      return response.json();
+    },
+    onSuccess: (data: any) => {
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast({
+          title: "Checkout initiated",
+          description: "Please complete your payment to activate your subscription."
+        });
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleSubscribe = (planId: string) => {
+    if (!isAuthenticated) {
+      setLocation("/api/login");
+      return;
+    }
+
+    if (planId === "remember") {
+      toast({
+        title: "Already active",
+        description: "You're currently on the free Remember plan."
+      });
+      return;
+    }
+
+    checkoutMutation.mutate(planId);
+  };
+
+  const getButtonText = (plan: SubscriptionPlan) => {
+    if (!isAuthenticated) {
+      return plan.price === 0 ? "Get Started Free" : "Sign up to Subscribe";
+    }
+    
+    if (subscription && typeof subscription === 'object' && 'tier' in subscription && subscription.tier === plan.id) {
+      return "Current Plan";
+    }
+    
+    if (plan.price === 0) {
+      return "Get Started Free";
+    }
+    
+    const displayPrice = selectedInterval === "yearly" 
+      ? Math.round(plan.price * 12 * 0.8) 
+      : plan.price;
+    return `Subscribe for R${displayPrice}${selectedInterval === "yearly" ? "/year" : "/month"}`;
+  };
+
+  const isCurrentPlan = (planId: string) => {
+    return subscription && typeof subscription === 'object' && 'tier' in subscription && subscription.tier === planId;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="font-bold text-2xl text-primary">
+              Soulbridge
+            </Link>
+            <div className="flex items-center gap-4">
+              {isAuthenticated ? (
+                <Button variant="outline" asChild>
+                  <Link href="/">Dashboard</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <Link href="/api/login">Sign In</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/api/login">Get Started</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Honor Your Loved Ones with Dignity
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Choose the perfect plan to create beautiful digital memorials that celebrate the lives 
+            and legacy of your family members across South Africa.
+          </p>
+          
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center mb-8">
+            <div className="bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setSelectedInterval("monthly")}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  selectedInterval === "monthly" 
+                    ? "bg-white text-primary shadow-sm" 
+                    : "text-gray-600 hover:text-primary"
+                }`}
+                data-testid="button-monthly"
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setSelectedInterval("yearly")}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  selectedInterval === "yearly" 
+                    ? "bg-white text-primary shadow-sm" 
+                    : "text-gray-600 hover:text-primary"
+                }`}
+                data-testid="button-yearly"
+              >
+                Yearly
+              </button>
+            </div>
+            {selectedInterval === "yearly" && (
+              <Badge className="ml-3" variant="secondary">Save 20%</Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {plans.map((plan) => (
+            <Card 
+              key={plan.id}
+              className={`relative ${
+                plan.popular 
+                  ? "border-primary shadow-lg scale-105" 
+                  : isCurrentPlan(plan.id)
+                  ? "border-green-500 shadow-md"
+                  : "border-gray-200"
+              }`}
+              data-testid={`card-plan-${plan.id}`}
+            >
+              {plan.badge && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge 
+                    className={
+                      plan.popular 
+                        ? "bg-primary text-white" 
+                        : plan.badge === "Premium"
+                        ? "bg-purple-600 text-white"
+                        : "bg-green-600 text-white"
+                    }
+                  >
+                    {plan.badge}
+                  </Badge>
+                </div>
+              )}
+              
+              <CardHeader className="text-center pb-2">
+                <div className="flex justify-center mb-2">
+                  <div className="p-3 bg-primary/10 rounded-full text-primary">
+                    {plan.icon}
+                  </div>
+                </div>
+                <CardTitle className="text-xl font-bold">
+                  {plan.title}
+                </CardTitle>
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-gray-900">
+                    {plan.price === 0 
+                      ? "Free" 
+                      : selectedInterval === "yearly" 
+                      ? `R${Math.round(plan.price * 12 * 0.8)}` 
+                      : `R${plan.price}`
+                    }
+                  </div>
+                  {plan.price > 0 && (
+                    <div className="text-sm text-gray-500">
+                      {selectedInterval === "yearly" 
+                        ? "per year (20% discount)" 
+                        : "per month"
+                      }
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-4">
+                <p className="text-sm text-gray-600 text-center min-h-[3rem]">
+                  {plan.description}
+                </p>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span className="text-sm">{plan.features.memorialLimit}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600" />
+                    <span className="text-sm">{plan.features.maxPhotos}</span>
+                  </div>
+                  {plan.features.allowPdf && (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">PDF downloads</span>
+                    </div>
+                  )}
+                  {plan.features.allowGallery && (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">Photo gallery</span>
+                    </div>
+                  )}
+                  {plan.features.allowAudioVideo && (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">Audio & video</span>
+                    </div>
+                  )}
+                  {plan.features.allowEvents && (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">Memorial events</span>
+                    </div>
+                  )}
+                  {plan.features.allowFamilyTree && (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">Family tree</span>
+                    </div>
+                  )}
+                  {plan.features.allowPrivateLink && (
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span className="text-sm">Private sharing</span>
+                    </div>
+                  )}
+                </div>
+                
+                <Button
+                  onClick={() => handleSubscribe(plan.id)}
+                  disabled={checkoutMutation.isPending || isCurrentPlan(plan.id)}
+                  className={`w-full ${
+                    plan.popular 
+                      ? "bg-primary hover:bg-primary/90" 
+                      : isCurrentPlan(plan.id)
+                      ? "bg-green-600 hover:bg-green-700"
+                      : ""
+                  }`}
+                  variant={isCurrentPlan(plan.id) ? "default" : plan.popular ? "default" : "outline"}
+                  data-testid={`button-subscribe-${plan.id}`}
+                >
+                  {checkoutMutation.isPending ? "Processing..." : getButtonText(plan)}
+                  {!isCurrentPlan(plan.id) && plan.price > 0 && (
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* FAQ Section */}
+        <div className="bg-white rounded-xl shadow-sm p-8">
+          <h2 className="text-2xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold mb-2">Can I change plans anytime?</h3>
+              <p className="text-gray-600 text-sm">
+                Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Are there any setup fees?</h3>
+              <p className="text-gray-600 text-sm">
+                No setup fees. You only pay the monthly subscription price for your chosen plan.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Is my data secure?</h3>
+              <p className="text-gray-600 text-sm">
+                Absolutely. We use industry-standard encryption and security practices to protect your memories.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
+              <p className="text-gray-600 text-sm">
+                Yes, you can cancel your subscription at any time. Your memorials remain active until the end of your billing period.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="text-center mt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Start Honoring Your Loved Ones Today
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Join thousands of South African families preserving precious memories with dignity.
+          </p>
+          {!isAuthenticated && (
+            <Button size="lg" asChild>
+              <Link href="/api/login">Get Started Free</Link>
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
