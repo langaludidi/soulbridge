@@ -154,7 +154,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        </div>
       </section>
 
       {/* How It Works */}
@@ -223,7 +222,6 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        </div>
       </section>
 
       {/* Features Section */}
@@ -259,7 +257,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </div>
         </div>
       </section>
 
@@ -308,7 +305,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </div>
         </div>
       </section>
 
