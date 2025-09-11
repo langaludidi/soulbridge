@@ -277,6 +277,48 @@ export const webhookEvents = pgTable("webhook_events", {
   index("IDX_webhook_events_provider_type").on(table.provider, table.eventType),
 ]);
 
+// NetCash Pay Now transactions table for detailed tracking
+export const netcashTransactions = pgTable("netcash_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id),
+  invoiceId: varchar("invoice_id").references(() => invoices.id),
+  
+  // NetCash transaction details
+  paynowReference: varchar("paynow_reference").notNull().unique(), // NetCash reference
+  netcashId: varchar("netcash_id").unique(), // NetCash transaction ID
+  amount: integer("amount").notNull(), // Amount in cents
+  currency: varchar("currency").default("ZAR").notNull(),
+  status: varchar("status").notNull(), // pending, completed, failed, cancelled
+  
+  // Customer details
+  customerEmail: varchar("customer_email").notNull(),
+  customerReference: varchar("customer_reference"), // User-provided reference
+  description: text("description"),
+  
+  // NetCash response fields
+  extraField1: varchar("extra_field_1"), // Plan name
+  extraField2: varchar("extra_field_2"), // User ID
+  extraField3: varchar("extra_field_3"), // Family ID
+  extraField4: varchar("extra_field_4"), // Interval
+  extraField5: varchar("extra_field_5"), // Partner ID
+  
+  // Payment verification
+  verified: boolean("verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  securityKey: varchar("security_key"), // For verification
+  
+  // Timestamps
+  paidAt: timestamp("paid_at"),
+  failedAt: timestamp("failed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_netcash_transactions_subscription_id").on(table.subscriptionId),
+  index("IDX_netcash_transactions_invoice_id").on(table.invoiceId),
+  index("IDX_netcash_transactions_paynow_reference").on(table.paynowReference),
+  index("IDX_netcash_transactions_status").on(table.status),
+]);
+
 // Digital Order of Service table - Main program details
 export const digitalOrderOfService = pgTable("digital_order_of_service", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -886,6 +928,16 @@ export const insertPartnerLeadSchema = createInsertSchema(partnerLeads).omit({
   contactedBy: true,
 });
 
+export const insertNetcashTransactionSchema = createInsertSchema(netcashTransactions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  verified: true,
+  verifiedAt: true,
+  paidAt: true,
+  failedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -956,6 +1008,9 @@ export type PartnerSubscription = typeof partnerSubscriptions.$inferSelect;
 
 export type InsertPartnerLead = z.infer<typeof insertPartnerLeadSchema>;
 export type PartnerLead = typeof partnerLeads.$inferSelect;
+
+export type InsertNetcashTransaction = z.infer<typeof insertNetcashTransactionSchema>;
+export type NetcashTransaction = typeof netcashTransactions.$inferSelect;
 
 // Subscription tier types and entitlements
 export type SubscriptionTier = "remember" | "honour" | "legacy" | "family_vault";
