@@ -161,7 +161,7 @@ export default function PartnersOnboarding() {
   const progress = (completedCount / totalSteps) * 100;
 
   const handleStepComplete = (stepId: string) => {
-    setCompletedSteps(prev => new Set([...prev, stepId]));
+    setCompletedSteps(prev => new Set([...Array.from(prev), stepId]));
     toast({
       title: "Step Completed!",
       description: "Great progress on your onboarding.",
@@ -393,7 +393,7 @@ function StepContent({
               <h4 className="font-semibold mb-2">Your Referral Link</h4>
               <div className="flex items-center space-x-2">
                 <Input
-                  value={`https://soulbridge.co.za?ref=${user?.id?.slice(-6).toUpperCase() || 'REF001'}`}
+                  value="https://soulbridge.co.za?ref=DEMO123"
                   readOnly
                   data-testid="input-referral-link"
                 />

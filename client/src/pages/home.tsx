@@ -14,7 +14,7 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
-import { Plus, ArrowRight, Star } from "lucide-react"; // Assuming Plus, ArrowRight, and Star are needed and imported
+import { Plus, ArrowRight, Star, Heart } from "lucide-react";
 
 export default function Home() {
   const [showCreateModal, setShowCreateModal] = useState(false);

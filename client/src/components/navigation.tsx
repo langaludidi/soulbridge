@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import soulbridgeLogo from "@assets/SoulBridge Logo Sep 25_1757519878176.png";
+import soulbridgeLogo from "@assets/SoulBridge-Word_1757600692449.png";
 
 export function Navigation() {
   const { user, isAuthenticated } = useAuth();

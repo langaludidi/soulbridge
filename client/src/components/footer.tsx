@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import soulbridgeIcon from "@assets/SoulBridge-Favicon_1757600710068.png";
 
 export function Footer() {
   return (
@@ -11,7 +12,11 @@ export function Footer() {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Heart className="w-6 h-6 text-primary" />
+              <img 
+                src={soulbridgeIcon} 
+                alt="SoulBridge" 
+                className="w-8 h-8"
+              />
               <h3 className="text-lg font-serif font-semibold text-foreground">SoulBridge</h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
