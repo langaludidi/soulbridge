@@ -105,6 +105,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User usage statistics endpoint
+  app.get('/api/user/usage', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get user's memorials to calculate usage
+      const userMemorials = await storage.getMemorialsByUser(userId);
+      
+      // Calculate current month activity (created this month)
+      const currentDate = new Date();
+      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const currentMonthMemorials = userMemorials.filter((memorial: any) => 
+        new Date(memorial.createdAt || memorial.dateSubmitted) >= firstDayOfMonth
+      );
+      
+      // Get total tributes across all user's memorials
+      const totalTributes = await storage.getTotalTributesByUser(userId);
+      
+      // Get user's subscription to determine limits
+      const user = await storage.getUser(userId);
+      const tier = user?.subscriptionTier || 'remember';
+      
+      // Define memorial limits by tier
+      const memorialLimits = {
+        remember: 1,
+        honour: 3,
+        legacy: "unlimited",
+        family_vault: "unlimited"
+      };
+      
+      const usageStats = {
+        memorialsUsed: userMemorials.length,
+        memorialsLimit: memorialLimits[tier as keyof typeof memorialLimits] || 1,
+        currentMonthActive: currentMonthMemorials.length,
+        totalTributes: totalTributes || 0
+      };
+      
+      res.json(usageStats);
+    } catch (error) {
+      console.error("Error fetching user usage:", error);
+      res.status(500).json({ message: "Failed to fetch usage statistics" });
+    }
+  });
+
   // Memorial routes
   app.get('/api/memorials', async (req, res) => {
     try {

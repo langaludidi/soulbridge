@@ -40,11 +40,13 @@ export interface IStorage {
   
   // Memorial operations
   getMemorials(filters?: { province?: string; status?: string }): Promise<Memorial[]>;
+  getMemorialsByUser(userId: string): Promise<Memorial[]>;
   getMemorial(id: string): Promise<Memorial | undefined>;
   getMemorialWithAdmin(id: string): Promise<(Memorial & { administratorName?: string }) | undefined>;
   createMemorial(memorial: InsertMemorial): Promise<Memorial>;
   updateMemorial(id: string, memorial: Partial<Memorial>): Promise<Memorial | undefined>;
   incrementMemorialViews(id: string): Promise<void>;
+  getTotalTributesByUser(userId: string): Promise<number>;
   
   // Tribute operations
   getTributesByMemorial(memorialId: string): Promise<Tribute[]>;
@@ -140,6 +142,27 @@ export class DatabaseStorage implements IStorage {
       : db.select().from(memorials);
     
     return await query.orderBy(desc(memorials.createdAt));
+  }
+
+  async getMemorialsByUser(userId: string): Promise<Memorial[]> {
+    return await db
+      .select()
+      .from(memorials)
+      .where(eq(memorials.submittedBy, userId))
+      .orderBy(desc(memorials.createdAt));
+  }
+
+  async getTotalTributesByUser(userId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(tributes)
+      .innerJoin(memorials, eq(tributes.memorialId, memorials.id))
+      .where(and(
+        eq(memorials.submittedBy, userId),
+        eq(tributes.status, "published")
+      ));
+    
+    return result[0]?.count || 0;
   }
 
   async getMemorial(id: string): Promise<Memorial | undefined> {
@@ -632,6 +655,26 @@ export class MemStorage implements IStorage {
     }
     
     return result.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getMemorialsByUser(userId: string): Promise<Memorial[]> {
+    return Array.from(this.memorials.values())
+      .filter(m => m.submittedBy === userId)
+      .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
+  }
+
+  async getTotalTributesByUser(userId: string): Promise<number> {
+    const userMemorials = Array.from(this.memorials.values())
+      .filter(m => m.submittedBy === userId);
+    
+    let totalTributes = 0;
+    for (const memorial of userMemorials) {
+      const tributesCount = Array.from(this.tributes.values())
+        .filter(t => t.memorialId === memorial.id && t.status === "published").length;
+      totalTributes += tributesCount;
+    }
+    
+    return totalTributes;
   }
 
   async getMemorial(id: string): Promise<Memorial | undefined> {
