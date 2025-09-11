@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useFeatureGating } from "@/hooks/useFeatureGating";
+import { LimitWarning } from "@/components/ui/feature-gate";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +59,7 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+  const featureGating = useFeatureGating();
 
   const createMemorialMutation = useMutation({
     mutationFn: async (memorial: InsertMemorial) => {
@@ -197,6 +200,16 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
       setTimeout(() => {
         window.location.href = "/api/login";
       }, 500);
+      return;
+    }
+
+    // Check memorial limits
+    if (!featureGating.canCreateMemorial) {
+      toast({
+        title: "Memorial Limit Reached",
+        description: `You've reached your limit of ${featureGating.memorialLimit} memorials. Please upgrade your plan to create more.`,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -773,7 +786,7 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
               ) : (
                 <Button 
                   type="submit"
-                  disabled={createMemorialMutation.isPending}
+                  disabled={createMemorialMutation.isPending || !featureGating.canCreateMemorial}
                   data-testid="button-memorial-submit"
                 >
                   {createMemorialMutation.isPending ? "Creating Memorial..." : "Create Memorial"}

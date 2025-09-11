@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useFeatureGating } from "@/hooks/useFeatureGating";
+import { LimitWarning } from "@/components/ui/feature-gate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,6 +64,7 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+  const featureGating = useFeatureGating();
 
   // Comprehensive relationship options inspired by ForeverMissed
   const relationshipOptions = [
@@ -108,7 +111,7 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
 
   // Designation/circumstances options inspired by ForeverMissed
   const designationOptions = [
-    { value: "", label: "Not specified" },
+    { value: "not-specified", label: "Not specified" },
     { value: "war-veteran", label: "War Veteran" },
     { value: "covid-victim", label: "COVID-19" },
     { value: "cancer-fighter", label: "Cancer Fighter" },
@@ -285,6 +288,16 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
       setTimeout(() => {
         window.location.href = "/api/login";
       }, 500);
+      return;
+    }
+
+    // Check memorial limits
+    if (!featureGating.canCreateMemorial) {
+      toast({
+        title: "Memorial Limit Reached",
+        description: `You've reached your limit of ${featureGating.memorialLimit} memorials. Please upgrade your plan to create more.`,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -826,6 +839,9 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
             )}
 
             {/* Navigation Buttons */}
+            {/* Show limit warning for authenticated users */}
+            {isAuthenticated && <LimitWarning type="memorial" className="mb-4" />}
+            
             <div className="flex justify-between pt-6 border-t">
               <div className="flex gap-2">
                 {onBack && (
@@ -864,7 +880,7 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
                 ) : (
                   <Button
                     type="submit"
-                    disabled={createMemorialMutation.isPending}
+                    disabled={createMemorialMutation.isPending || !featureGating.canCreateMemorial}
                     data-testid="button-create-memorial"
                     className="min-w-[150px]"
                   >
