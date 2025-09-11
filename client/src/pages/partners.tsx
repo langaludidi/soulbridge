@@ -45,11 +45,159 @@ export default function Partners() {
       <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            Partner Directory
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-6">
+            Partner with SoulBridge
           </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+            Families want dignified online memorials. We make it simple for you to offer them seamlessly.
+          </p>
+        </div>
+
+        {/* Why This Matters */}
+        <section className="mb-16 bg-muted/50 rounded-2xl p-8 md:p-12">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-6 text-center">
+              Why This Matters
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed text-center">
+              Families today want to share their loved ones' legacies online with dignity and ease. Yet, many funeral homes still lack local, culturally relevant digital memorial solutions. Using overseas platforms feels disconnected and does not integrate seamlessly with your services, missing an opportunity to support families better and grow your brand.
+            </p>
+          </div>
+        </section>
+
+        {/* How SoulBridge Helps */}
+        <section className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+              How SoulBridge Helps You Serve Better
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-2xl">🔗</span>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Seamless Integration</h3>
+              <p className="text-muted-foreground">Add online memorials easily to your packages with minimal setup.</p>
+            </div>
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Grow Your Brand</h3>
+              <p className="text-muted-foreground">Offer innovative services that position your brand as modern and compassionate.</p>
+            </div>
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-2xl">🤝</span>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Support Families Fully</h3>
+              <p className="text-muted-foreground">Help families share stories and memories with dignity, wherever they are.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="mb-16 bg-muted/30 rounded-2xl p-8 md:p-12">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+              How It Works
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-3xl font-bold text-primary">1</span>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Contact Us</h3>
+              <p className="text-muted-foreground">Sign up & choose a package that fits your business needs</p>
+            </div>
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-3xl font-bold text-primary">2</span>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Onboard Seamlessly</h3>
+              <p className="text-muted-foreground">Get your branded partner dashboard set up quickly</p>
+            </div>
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-3xl font-bold text-primary">3</span>
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Offer Families More</h3>
+              <p className="text-muted-foreground">Create beautiful memorials easily as part of your services</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Partner Packages */}
+        <section className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+              Partner Packages
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <Card className="text-center p-6">
+              <CardContent className="space-y-4">
+                <h3 className="text-xl font-semibold">Partner Basic</h3>
+                <div className="text-3xl font-bold text-primary">R2,000</div>
+                <div className="text-muted-foreground">/ month</div>
+                <ul className="text-left space-y-2 text-sm">
+                  <li>• Up to 20 memorials per month</li>
+                  <li>• White-label branding with your logo</li>
+                  <li>• Partner dashboard access</li>
+                  <li>• Basic analytics</li>
+                </ul>
+                <button className="w-full bg-primary text-primary-foreground rounded-md px-4 py-2 hover:bg-primary/90 transition-colors" data-testid="button-choose-basic">
+                  Choose Plan
+                </button>
+              </CardContent>
+            </Card>
+            <Card className="text-center p-6 border-primary relative">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Most Popular</Badge>
+              <CardContent className="space-y-4">
+                <h3 className="text-xl font-semibold">Partner Standard</h3>
+                <div className="text-3xl font-bold text-primary">R5,000</div>
+                <div className="text-muted-foreground">/ month</div>
+                <ul className="text-left space-y-2 text-sm">
+                  <li>• Up to 50 memorials per month</li>
+                  <li>• All Partner Basic features</li>
+                  <li>• Advanced analytics and reporting</li>
+                  <li>• Priority partner support</li>
+                  <li>• Featured partner listing</li>
+                </ul>
+                <button className="w-full bg-primary text-primary-foreground rounded-md px-4 py-2 hover:bg-primary/90 transition-colors" data-testid="button-choose-standard">
+                  Choose Plan
+                </button>
+              </CardContent>
+            </Card>
+            <Card className="text-center p-6">
+              <CardContent className="space-y-4">
+                <h3 className="text-xl font-semibold">Partner Premium</h3>
+                <div className="text-3xl font-bold text-primary">R10,000</div>
+                <div className="text-muted-foreground">/ month</div>
+                <ul className="text-left space-y-2 text-sm">
+                  <li>• All Partner Standard features</li>
+                  <li>• Unlimited memorials per month</li>
+                  <li>• Dedicated account manager</li>
+                  <li>• Early access to new features</li>
+                  <li>• API integration options</li>
+                </ul>
+                <button className="w-full bg-primary text-primary-foreground rounded-md px-4 py-2 hover:bg-primary/90 transition-colors" data-testid="button-choose-premium">
+                  Choose Plan
+                </button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Partner Directory Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+            Current Partner Directory
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Connect with verified funeral service providers who understand South African traditions
           </p>
@@ -225,6 +373,21 @@ export default function Partners() {
             )}
           </div>
         )}
+
+        {/* Final CTA */}
+        <section className="mt-16 bg-primary/5 rounded-2xl p-8 md:p-12 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-6">
+              Ready to Offer Families More?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Join other leading funeral homes and partners who trust SoulBridge to provide families with dignified, modern memorial experiences.
+            </p>
+            <button className="bg-primary text-primary-foreground rounded-lg px-8 py-3 text-lg font-semibold hover:bg-primary/90 transition-colors" data-testid="button-contact-us-today">
+              Contact Us Today
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   );
