@@ -133,12 +133,12 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
       queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos"] });
       setUploadModalOpen(false);
-      setUploadForm({ 
-        photoUrl: "", 
-        caption: "", 
-        mediaType: 'photo', 
-        isCoverPhoto: false, 
-        uploaderName: "" 
+      setUploadForm({
+        photoUrl: "",
+        caption: "",
+        mediaType: 'photo',
+        isCoverPhoto: false,
+        uploaderName: ""
       });
       toast({
         title: `${uploadForm.mediaType.charAt(0).toUpperCase() + uploadForm.mediaType.slice(1)} uploaded successfully`,
@@ -176,8 +176,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       // Optimistic update: increment view count locally instead of full refetch
       queryClient.setQueryData<MemorialPhoto[]>(['/api/memorials', memorialId, 'photos'], (oldData) => {
         if (!oldData) return oldData;
-        return oldData.map(photo => 
-          photo.id === photoId 
+        return oldData.map(photo =>
+          photo.id === photoId
             ? { ...photo, viewCount: (photo.viewCount || 0) + 1 }
             : photo
         );
@@ -195,10 +195,10 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     },
     onSuccess: (response) => {
       setContactModalOpen(false);
-      setContactForm({ 
-        subject: "general_inquiry", 
-        message: "", 
-        email: "" 
+      setContactForm({
+        subject: "general_inquiry",
+        message: "",
+        email: ""
       });
       toast({
         title: "Thank you for your feedback!",
@@ -429,9 +429,9 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       return;
     }
 
-    subscribeMutation.mutate({ 
-      email: email, 
-      subscriptionType: "all_updates" 
+    subscribeMutation.mutate({
+      email: email,
+      subscriptionType: "all_updates"
     });
   };
 
@@ -736,8 +736,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <button
                     onClick={() => setActiveMediaType('photo')}
                     className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      activeMediaType === 'photo' 
-                        ? 'bg-background text-foreground shadow-sm' 
+                      activeMediaType === 'photo'
+                        ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                     data-testid="tab-photos"
@@ -752,8 +752,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <button
                     onClick={() => setActiveMediaType('video')}
                     className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      activeMediaType === 'video' 
-                        ? 'bg-background text-foreground shadow-sm' 
+                      activeMediaType === 'video'
+                        ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                     data-testid="tab-videos"
@@ -768,8 +768,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <button
                     onClick={() => setActiveMediaType('audio')}
                     className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      activeMediaType === 'audio' 
-                        ? 'bg-background text-foreground shadow-sm' 
+                      activeMediaType === 'audio'
+                        ? 'bg-background text-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                     data-testid="tab-audio"
@@ -950,7 +950,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               </p>
               <div className="flex items-center space-x-2">
                 <User className="w-4 h-4 text-primary" />
-                <span 
+                <span
                   className="font-medium text-foreground"
                   data-testid="text-administrator-name"
                 >
@@ -1304,7 +1304,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   ) : (
                     <>
                       <Bell className="w-4 h-4 mr-2" />
-                      {subscribeMutation.isPending ? "Subscribing..." : 
+                      {subscribeMutation.isPending ? "Subscribing..." :
                         (!isAuthenticated ? "Subscribe with Email" : "Subscribe to Updates")}
                     </>
                   )}
@@ -1429,7 +1429,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <Users className="w-4 h-4" />
                 <span>
                   {totalCount} memories • Last updated{" "}
-                  {allPhotos?.[0]?.createdAt 
+                  {allPhotos?.[0]?.createdAt
                     ? format(new Date(allPhotos[0].createdAt), "MMM dd, yyyy")
                     : "recently"
                   }
@@ -1534,7 +1534,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
                   {/* Progress Bar */}
                   <div className="mt-2 w-64 bg-white/20 rounded-full h-1 overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-white transition-all duration-300 ease-out"
                       style={{ width: `${((currentPhotoIndex + 1) / photos.length) * 100}%` }}
                     ></div>
@@ -1625,7 +1625,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                     <span className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        {photos[currentPhotoIndex].createdAt 
+                        {photos[currentPhotoIndex].createdAt
                           ? format(new Date(photos[currentPhotoIndex].createdAt), "MMMM dd, yyyy")
                           : "Recently added"
                         }
@@ -1655,6 +1655,105 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         onOpenChange={setInvitationModalOpen}
         memorial={memorial}
       />
+
+      {/* Upload Modal */}
+      <Dialog open={uploadModalOpen} onOpenChange={setUploadModalOpen}>
+        <DialogContent className="sm:max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Upload {getMediaTypeLabel(uploadForm.mediaType)}</DialogTitle>
+            <DialogDescription>
+              Share a precious memory by uploading a {uploadForm.mediaType} to this memorial gallery.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUploadSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="mediaUrl" className="text-sm font-medium">
+                {getMediaTypeLabel(uploadForm.mediaType)} URL *
+              </label>
+              <Input
+                id="mediaUrl"
+                type="url"
+                placeholder={`Enter the ${uploadForm.mediaType} URL`}
+                value={uploadForm.photoUrl}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, photoUrl: e.target.value }))}
+                required
+                data-testid="input-upload-url"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="caption" className="text-sm font-medium">Caption (optional)</label>
+              <Textarea
+                id="caption"
+                placeholder={`Add a caption for your ${uploadForm.mediaType}...`}
+                value={uploadForm.caption}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, caption: e.target.value }))}
+                className="min-h-20"
+                data-testid="textarea-upload-caption"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="uploaderName" className="text-sm font-medium">Your Name (optional)</label>
+              <Input
+                id="uploaderName"
+                type="text"
+                placeholder="Your name (e.g., John Doe)"
+                value={uploadForm.uploaderName}
+                onChange={(e) => setUploadForm(prev => ({ ...prev, uploaderName: e.target.value }))}
+                data-testid="input-upload-uploader-name"
+              />
+              <p className="text-xs text-muted-foreground">
+                This name will be displayed with the {uploadForm.mediaType}
+              </p>
+            </div>
+
+            {/* Cover Photo Option */}
+            {uploadForm.mediaType === 'photo' && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isCoverPhoto"
+                  checked={uploadForm.isCoverPhoto}
+                  onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isCoverPhoto: !!checked }))}
+                />
+                <label htmlFor="isCoverPhoto" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Set as Cover Photo
+                </label>
+              </div>
+            )}
+
+            <div className="flex space-x-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setUploadModalOpen(false);
+                  // Reset form state when closing
+                  setUploadForm({
+                    photoUrl: "",
+                    caption: "",
+                    mediaType: 'photo',
+                    isCoverPhoto: false,
+                    uploaderName: "",
+                  });
+                }}
+                className="flex-1"
+                data-testid="button-cancel-upload"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!uploadForm.photoUrl.trim() || uploadPhotoMutation.isPending}
+                className="flex-1"
+                data-testid="button-submit-upload"
+              >
+                {uploadPhotoMutation.isPending ? `Uploading ${uploadForm.mediaType}...` : `Upload ${getMediaTypeLabel(uploadForm.mediaType)}`}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Contact Support Modal */}
       <Dialog open={contactModalOpen} onOpenChange={setContactModalOpen}>
