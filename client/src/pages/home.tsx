@@ -39,79 +39,117 @@ export default function Home() {
   ];
 
   // Dummy functions for navigation and modal state if not provided elsewhere
-  const navigate = (path: string) => { window.location.href = path; };
+  const navigate = (path: string) => { console.log("Navigating to:", path); };
   const setIsCreateModalOpen = (isOpen: boolean) => { setShowCreateModal(isOpen); };
 
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden section-padding-lg">
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-primary/5 dark:from-slate-900 dark:via-slate-800 dark:to-primary/10">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.2),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(76,175,80,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(76,175,80,0.2),transparent_50%)]" />
         </div>
-        <div className="relative container-content">
-          <div className="text-center text-content">
-            <h1 className="hero-text font-serif font-bold tracking-tight text-foreground sm:text-5xl mb-8">
-              Honouring Every Life.<br />
-              <span className="text-primary">Connecting Every Soul</span>
-            </h1>
-            <p className="text-lg leading-8 text-muted-foreground mb-10 max-w-3xl mx-auto">
-              Create beautiful, lasting tributes that celebrate the unique story of your loved ones. 
-              Share memories, photos, and connect with family and friends in a meaningful digital space.
-            </p>
-            <div className="button-group justify-center">
-              <Button
-                size="lg"
-                onClick={() => setIsCreateModalOpen(true)}
-                className="shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4"
-                data-testid="create-memorial-hero-button"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                Create Memorial
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/browse')}
-                className="shadow-sm hover:shadow-md transition-all duration-300 px-8 py-4"
-              >
-                Browse Memorials
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+        <div className="relative section-padding-lg">
+          <div className="container-content">
+            <div className="text-center text-content">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-8 border border-primary/20">
+                <span className="relative flex h-2 w-2 mr-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                Trusted by thousands of families worldwide
+              </div>
+              <h1 className="hero-text font-serif font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl mb-8 leading-tight">
+                Honouring Every Life.<br />
+                <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                  Connecting Every Soul
+                </span>
+              </h1>
+              <p className="text-xl leading-relaxed text-muted-foreground mb-12 max-w-4xl mx-auto">
+                Create beautiful, lasting tributes that celebrate the unique story of your loved ones. 
+                Share memories, photos, and connect with family and friends in a meaningful digital space.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                <Button
+                  size="lg"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="shadow-lg hover:shadow-xl transition-all duration-300 px-10 py-4 text-lg h-14 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                  data-testid="create-memorial-hero-button"
+                >
+                  <Plus className="mr-3 h-6 w-6" />
+                  Create Memorial
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate('/browse')}
+                  className="shadow-sm hover:shadow-md transition-all duration-300 px-10 py-4 text-lg h-14 border-2 hover:bg-primary/5"
+                >
+                  Browse Memorials
+                  <ArrowRight className="ml-3 h-6 w-6" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  Free to create
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                  No time limits
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                  Family friendly
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Why SoulBridge Exists */}
-      <section className="py-16 sm:py-20 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-foreground mb-6">
+      <section className="section-padding-lg bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-800/50">
+        <div className="container-max">
+          <div className="container-content text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400 font-medium text-sm mb-6">
+              Our Mission
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-8">
               Why SoulBridge Exists
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
               When someone passes away, families need a simple, beautiful way to share their legacy and connect those who loved them. But traditional methods are limited, and existing platforms often feel disconnected from our culture and values.
             </p>
-            <div className="grid gap-8 md:grid-cols-3 text-center">
-              <div className="space-y-4">
-                <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-2xl text-white">🕯️</span>
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="group bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-700">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-3xl">🕯️</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">Honour with dignity</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-3">Honour with dignity</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Create respectful, beautiful tributes that truly reflect the person they were
+                </p>
               </div>
-              <div className="space-y-4">
-                <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-2xl text-white">🤝</span>
+              <div className="group bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-700">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-3xl">🤝</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">Bridge families and memories</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-3">Bridge families and memories</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Connect loved ones across distances and generations through shared memories
+                </p>
               </div>
-              <div className="space-y-4">
-                <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-2xl text-white">♾️</span>
+              <div className="group bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-200 dark:border-slate-700">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-3xl">♾️</span>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">Preserve their legacy forever</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-3">Preserve their legacy forever</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Ensure their stories, values, and memories live on for future generations
+                </p>
               </div>
             </div>
           </div>
@@ -119,40 +157,67 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-foreground mb-4">
+      <section className="section-padding-lg bg-white dark:bg-slate-900">
+        <div className="container-max">
+          <div className="container-content text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6">
+              Simple Process
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-8">
               How It Works
             </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Creating a memorial is simple and takes just a few minutes
+            </p>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-3xl font-bold text-primary">1</span>
+          <div className="relative">
+            {/* Connection Line */}
+            <div className="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
+            
+            <div className="grid gap-12 md:grid-cols-3 relative">
+              <div className="text-center space-y-6 relative">
+                <div className="relative inline-block">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span className="text-4xl font-bold text-white">1</span>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-secondary rounded-full animate-pulse"></div>
+                </div>
+                <h3 className="text-2xl font-semibold text-foreground">Sign Up & Choose a Package</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Get started with a plan that fits your family's needs and budget
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Sign Up & Choose a Package</h3>
-              <p className="text-muted-foreground">Get started with a plan that fits your family's needs</p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-3xl font-bold text-primary">2</span>
+              <div className="text-center space-y-6 relative">
+                <div className="relative inline-block">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-secondary to-secondary/80 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span className="text-4xl font-bold text-white">2</span>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full animate-pulse"></div>
+                </div>
+                <h3 className="text-2xl font-semibold text-foreground">Add Photos, Stories & Tributes</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Share their life story with photos and meaningful memories that celebrate their journey
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Add Photos, Stories & Tributes</h3>
-              <p className="text-muted-foreground">Share their life story with photos and meaningful memories</p>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-3xl font-bold text-primary">3</span>
+              <div className="text-center space-y-6 relative">
+                <div className="relative inline-block">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-accent to-accent/80 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span className="text-4xl font-bold text-white">3</span>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full animate-pulse"></div>
+                </div>
+                <h3 className="text-2xl font-semibold text-foreground">Share with Family & Friends</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Invite loved ones to visit and contribute to the memorial, keeping memories alive together
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Share with Family & Friends</h3>
-              <p className="text-muted-foreground">Invite loved ones to visit and contribute to the memorial</p>
             </div>
           </div>
-          <div className="text-center mt-12">
+          <div className="text-center mt-16">
             <Link href="/create">
-              <Button size="lg" className="px-8 py-3" data-testid="button-how-it-works-cta">
-                Create Memorial
+              <Button size="lg" className="px-10 py-4 text-lg h-14 shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-how-it-works-cta">
+                <Plus className="mr-3 h-5 w-5" />
+                Start Creating Now
               </Button>
             </Link>
           </div>
@@ -275,13 +340,16 @@ export default function Home() {
 
 
       {/* Recent Memorials */}
-      <section className="py-16 sm:py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-foreground mb-4">
+      <section className="section-padding-lg bg-gradient-to-b from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
+        <div className="container-max">
+          <div className="container-content text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400 font-medium text-sm mb-6">
+              Memorial Gallery
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-foreground mb-8">
               Beautiful Memorials Created by Families
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Celebrating the lives and legacies of those who have touched our hearts
             </p>
           </div>
@@ -382,20 +450,49 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 sm:py-20 bg-primary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-foreground mb-6">
-              Ready to Create a Memorial?
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Create a beautiful memorial page to celebrate their life and keep their memory alive forever.
-            </p>
+      <section className="section-padding-lg bg-gradient-to-br from-primary via-primary/95 to-secondary relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.05),transparent_50%)]" />
+        </div>
+        <div className="relative container-content text-center">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 text-white font-medium text-sm mb-8 backdrop-blur-sm">
+            <Heart className="w-4 h-4 mr-2" />
+            Join Our Community
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-white mb-8">
+            Ready to Create a Memorial?
+          </h2>
+          <p className="text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Create a beautiful memorial page to celebrate their life and keep their memory alive forever.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/create">
-              <Button size="lg" className="px-8 py-3" data-testid="button-final-cta-create">
-                Create a memorial
+              <Button size="lg" className="px-10 py-4 text-lg h-14 bg-white text-primary hover:bg-white/95 shadow-lg hover:shadow-xl transition-all duration-300" data-testid="button-final-cta-create">
+                <Plus className="mr-3 h-5 w-5" />
+                Create a Memorial
               </Button>
             </Link>
+            <Link href="/browse">
+              <Button size="lg" variant="outline" className="px-10 py-4 text-lg h-14 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
+                Browse Examples
+                <ArrowRight className="ml-3 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+          <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/80">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+              <span>Trusted by thousands</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+              <span>Start for free</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+              <span>No commitments</span>
+            </div>
           </div>
         </div>
       </section>
