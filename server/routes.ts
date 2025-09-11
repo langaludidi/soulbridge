@@ -452,7 +452,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact submission route
-  app.post('/api/contact', async (req: any, res) => {
+  app.post('/api/contact', async (req: Request, res) => {
     try {
       const contactData = insertContactSubmissionSchema.parse(req.body);
       

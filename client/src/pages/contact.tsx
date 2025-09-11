@@ -16,13 +16,10 @@ import { z } from "zod";
 import { Phone, Mail, MapPin, Clock, MessageCircle, HelpCircle, ShieldCheck } from "lucide-react";
 
 const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  phone: z.string().optional(),
   subject: z.string().min(5, "Subject must be at least 5 characters"),
-  category: z.string().min(1, "Please select a category"),
   message: z.string().min(10, "Message must be at least 10 characters"),
-  priority: z.string().optional()
+  email: z.string().email("Please enter a valid email address").optional(),
+  memorialId: z.string().optional(),
 });
 
 type ContactForm = z.infer<typeof contactSchema>;
@@ -49,21 +46,15 @@ export default function Contact() {
   const form = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
       subject: "",
-      category: "",
       message: "",
-      priority: "normal"
+      email: "",
+      memorialId: "",
     }
   });
 
   const contactMutation = useMutation({
-    mutationFn: (data: ContactForm) => apiRequest("/api/contact", {
-      method: "POST",
-      body: JSON.stringify(data)
-    }),
+    mutationFn: (data: ContactForm) => apiRequest("POST", "/api/contact", data),
     onSuccess: () => {
       toast({
         title: "Message Sent Successfully",
@@ -202,92 +193,24 @@ export default function Contact() {
                 <CardContent>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Full Name *</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Enter your full name" 
-                                  {...field} 
-                                  data-testid="input-name"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email Address *</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="email" 
-                                  placeholder="Enter your email address" 
-                                  {...field} 
-                                  data-testid="input-email"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={form.control}
-                          name="phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone Number (Optional)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  placeholder="+27 XX XXX XXXX" 
-                                  {...field} 
-                                  data-testid="input-phone"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="category"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Category *</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger data-testid="select-category">
-                                    <SelectValue placeholder="Select a category" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="technical">Technical Support</SelectItem>
-                                  <SelectItem value="billing">Billing & Subscriptions</SelectItem>
-                                  <SelectItem value="memorial">Memorial Assistance</SelectItem>
-                                  <SelectItem value="account">Account Management</SelectItem>
-                                  <SelectItem value="privacy">Privacy & Data</SelectItem>
-                                  <SelectItem value="feedback">Feedback & Suggestions</SelectItem>
-                                  <SelectItem value="partnership">Partnership Inquiry</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Address (Optional)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="email" 
+                                placeholder="Enter your email address" 
+                                {...field} 
+                                data-testid="input-email"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
                       <FormField
                         control={form.control}
@@ -307,29 +230,6 @@ export default function Contact() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="priority"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Priority Level</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger data-testid="select-priority">
-                                  <SelectValue placeholder="Select priority" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="low">Low - General inquiry</SelectItem>
-                                <SelectItem value="normal">Normal - Standard support</SelectItem>
-                                <SelectItem value="high">High - Urgent issue</SelectItem>
-                                <SelectItem value="urgent">Urgent - Critical problem</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
 
                       <FormField
                         control={form.control}
