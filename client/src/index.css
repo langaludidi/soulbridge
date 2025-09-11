@@ -114,19 +114,36 @@
   }
 
   .section-contrast {
-    @apply bg-muted/20 dark:bg-muted/5;
+    background-color: hsl(var(--muted) / 0.2);
+  }
+  
+  .dark .section-contrast {
+    background-color: hsl(var(--muted) / 0.05);
   }
 
   .section-accent {
-    @apply bg-primary/5 dark:bg-primary/10 border-l-4 border-primary;
+    background-color: hsl(var(--primary) / 0.05);
+    @apply border-l-4 border-primary;
+  }
+  
+  .dark .section-accent {
+    background-color: hsl(var(--primary) / 0.1);
   }
 
   .section-subtle {
-    @apply bg-muted/10 dark:bg-muted/5;
+    background-color: hsl(var(--muted) / 0.1);
+  }
+  
+  .dark .section-subtle {
+    background-color: hsl(var(--muted) / 0.05);
   }
 
   .section-alternate {
-    @apply bg-muted/30 dark:bg-muted/10;
+    background-color: hsl(var(--muted) / 0.3);
+  }
+  
+  .dark .section-alternate {
+    background-color: hsl(var(--muted) / 0.1);
   }
 
   /* Consistent section background utilities */
@@ -135,23 +152,43 @@
   }
 
   .section-bg-secondary {
-    @apply bg-muted/20 dark:bg-muted/5;
+    background-color: hsl(var(--muted) / 0.2);
+  }
+  
+  .dark .section-bg-secondary {
+    background-color: hsl(var(--muted) / 0.05);
   }
 
   .section-bg-tertiary {
-    @apply bg-slate-50/50 dark:bg-slate-900/50;
+    background-color: hsl(210 40% 96% / 0.5);
+  }
+  
+  .dark .section-bg-tertiary {
+    background-color: hsl(222 84% 5% / 0.5);
   }
 
   .section-bg-quaternary {
-    @apply bg-gradient-to-b from-white via-slate-50/50 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900;
+    background: linear-gradient(to bottom, white, hsl(210 40% 96% / 0.5), white);
+  }
+  
+  .dark .section-bg-quaternary {
+    background: linear-gradient(to bottom, hsl(222 84% 5%), hsl(215 28% 17% / 0.5), hsl(222 84% 5%));
   }
 
   .section-bg-accent {
-    @apply bg-gradient-to-b from-slate-50/30 to-blue-50/20 dark:from-slate-800/30 dark:to-slate-900/50;
+    background: linear-gradient(to bottom, hsl(210 40% 96% / 0.3), hsl(214 100% 97% / 0.2));
+  }
+  
+  .dark .section-bg-accent {
+    background: linear-gradient(to bottom, hsl(215 28% 17% / 0.3), hsl(222 84% 5% / 0.5));
   }
 
   .section-bg-muted {
-    @apply bg-muted/10 dark:bg-muted/5;
+    background-color: hsl(var(--muted) / 0.1);
+  }
+  
+  .dark .section-bg-muted {
+    background-color: hsl(var(--muted) / 0.05);
   }
 
   /* Card spacing improvements */
