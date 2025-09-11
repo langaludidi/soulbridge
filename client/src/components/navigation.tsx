@@ -19,7 +19,7 @@ export function Navigation() {
                 <img 
                   src={soulbridgeLogo} 
                   alt="SoulBridge - Honouring Every Life. Connecting Every Soul" 
-                  className="h-8 sm:h-10 w-auto"
+                  className="h-12 sm:h-14 w-auto filter brightness-110 contrast-110"
                 />
               </div>
             </Link>
@@ -47,20 +47,6 @@ export function Navigation() {
                   location === "/partners" ? "text-primary" : "text-muted-foreground hover:text-primary"
                 }`}>
                   Partners
-                </span>
-              </Link>
-              <Link href="/faq" data-testid="link-nav-faq">
-                <span className={`px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                  location === "/faq" ? "text-primary" : "text-muted-foreground hover:text-primary"
-                }`}>
-                  FAQ
-                </span>
-              </Link>
-              <Link href="/contact" data-testid="link-nav-contact">
-                <span className={`px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                  location === "/contact" ? "text-primary" : "text-muted-foreground hover:text-primary"
-                }`}>
-                  Contact
                 </span>
               </Link>
               <Link href="/about" data-testid="link-nav-about">
@@ -198,26 +184,6 @@ export function Navigation() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Partners
-                </span>
-              </Link>
-              <Link href="/faq" data-testid="link-nav-faq-mobile">
-                <span 
-                  className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
-                    location === "/faq" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  FAQ
-                </span>
-              </Link>
-              <Link href="/contact" data-testid="link-nav-contact-mobile">
-                <span 
-                  className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
-                    location === "/contact" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Contact
                 </span>
               </Link>
               <Link href="/about" data-testid="link-nav-about-mobile">
