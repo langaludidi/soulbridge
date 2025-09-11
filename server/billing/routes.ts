@@ -2,9 +2,10 @@ import { Router } from 'express';
 import express from 'express';
 import { z } from 'zod';
 import { paystackProvider } from './paystack-provider';
+import { netcashProvider } from './netcash-provider';
 import { isAuthenticated } from '../replitAuth';
 import { db } from '../db';
-import { subscriptions, users, families } from '@shared/schema';
+import { subscriptions, users, families, netcashTransactions } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import type { BillingProvider } from './types';
 import { PLAN_PRICING } from './types';
@@ -15,6 +16,7 @@ export const billingRouter = Router();
 // Available billing providers - can be extended later
 const providers: Record<string, BillingProvider> = {
   paystack: paystackProvider,
+  netcash: netcashProvider,
 };
 
 // Get available subscription plans
@@ -134,7 +136,7 @@ billingRouter.get('/subscription', isAuthenticated, async (req: any, res) => {
 const checkoutSessionSchema = z.object({
   plan: z.enum(['honour', 'legacy', 'family_vault']),
   interval: z.enum(['monthly', 'yearly']),
-  provider: z.enum(['paystack']).default('paystack')
+  provider: z.enum(['paystack', 'netcash']).default('paystack')
 });
 
 billingRouter.post('/checkout-session', isAuthenticated, async (req: any, res) => {
@@ -240,6 +242,76 @@ billingRouter.post('/webhooks/paystack', express.raw({ type: 'application/json' 
     console.error('Paystack webhook error:', error);
     res.status(400).json({ error: 'Webhook processing failed' });
   }
+});
+
+// NetCash Pay Now webhook endpoint - receives form-encoded notifications
+billingRouter.post('/webhooks/netcash', express.urlencoded({ extended: true }), async (req, res) => {
+  try {
+    // NetCash sends notifications as form data
+    const payload = new URLSearchParams(req.body).toString();
+    
+    // NetCash doesn't use signatures in the same way - verification happens in the provider
+    await netcashProvider.handleWebhook(payload, '');
+    
+    res.status(200).send('OK'); // NetCash expects simple OK response
+  } catch (error) {
+    console.error('NetCash webhook error:', error);
+    res.status(400).send('ERROR');
+  }
+});
+
+// NetCash return URL handler - handles customer return after payment
+billingRouter.get('/netcash/return', async (req, res) => {
+  try {
+    const { reference } = req.query;
+    
+    if (!reference || typeof reference !== 'string') {
+      return res.redirect('/pricing?error=invalid_reference');
+    }
+    
+    // Find the transaction
+    const transaction = await db
+      .select()
+      .from(netcashTransactions)
+      .where(eq(netcashTransactions.paynowReference, reference))
+      .limit(1)
+      .then(rows => rows[0]);
+    
+    if (!transaction) {
+      return res.redirect('/pricing?error=transaction_not_found');
+    }
+    
+    // Check transaction status
+    if (transaction.status === 'completed') {
+      // Redirect to success page
+      return res.redirect('/billing/success?reference=' + reference);
+    } else if (transaction.status === 'failed') {
+      // Redirect to failure page
+      return res.redirect('/pricing?error=payment_failed');
+    } else {
+      // Still pending - redirect to processing page
+      return res.redirect('/billing/processing?reference=' + reference);
+    }
+  } catch (error) {
+    console.error('NetCash return handler error:', error);
+    res.redirect('/pricing?error=processing_error');
+  }
+});
+
+// Generic success page for completed payments
+billingRouter.get('/success', async (req, res) => {
+  const { reference } = req.query;
+  
+  // You could render a success page here or redirect to dashboard
+  res.redirect('/dashboard?subscription_created=true');
+});
+
+// Processing page for pending payments
+billingRouter.get('/processing', async (req, res) => {
+  const { reference } = req.query;
+  
+  // You could render a processing page or redirect to dashboard with a message
+  res.redirect('/dashboard?payment_processing=true');
 });
 
 // Helper function already imported from @shared/schema
