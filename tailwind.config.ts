@@ -61,11 +61,20 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        surface: {
+          1: "var(--surface-1)",
+          2: "var(--surface-2)",
+          3: "var(--surface-3)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
+      },
+      backgroundImage: {
+        "gradient-brand": "linear-gradient(135deg, var(--gradient-brand-start), var(--gradient-brand-end))",
+        "gradient-brand-radial": "radial-gradient(circle, var(--gradient-brand-start), var(--gradient-brand-end))",
       },
       keyframes: {
         "accordion-down": {

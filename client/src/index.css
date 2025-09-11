@@ -37,6 +37,16 @@
   --sidebar-accent-foreground: hsl(158, 64%, 26%);
   --sidebar-border: hsl(54, 20%, 85%);
   --sidebar-ring: hsl(158, 64%, 26%);
+  
+  /* Semantic surface tokens for elevation hierarchy */
+  --surface-1: hsl(0, 0%, 99%);
+  --surface-2: hsl(54, 30%, 98%);
+  --surface-3: hsl(54, 40%, 99%);
+  
+  /* Brand gradient tokens */
+  --gradient-brand-start: hsl(158, 64%, 26%);
+  --gradient-brand-end: hsl(84, 55%, 45%);
+  
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', serif;
   --font-mono: Menlo, monospace;
@@ -71,6 +81,15 @@
   --sidebar-accent-foreground: hsl(158, 64%, 35%);
   --sidebar-border: hsl(215, 15%, 25%);
   --sidebar-ring: hsl(158, 64%, 35%);
+  
+  /* Semantic surface tokens for elevation hierarchy (dark mode) */
+  --surface-1: hsl(215, 15%, 15%);
+  --surface-2: hsl(215, 15%, 18%);
+  --surface-3: hsl(215, 15%, 22%);
+  
+  /* Brand gradient tokens (dark mode) */
+  --gradient-brand-start: hsl(158, 64%, 35%);
+  --gradient-brand-end: hsl(84, 55%, 55%);
 }
 
 @layer base {
