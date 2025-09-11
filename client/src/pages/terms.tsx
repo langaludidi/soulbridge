@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { useEffect } from "react";
@@ -21,7 +20,6 @@ export default function Terms() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Hero Section */}
       <section className="py-16 sm:py-20 bg-gradient-to-br from-primary/10 to-secondary/10">

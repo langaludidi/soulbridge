@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,7 +76,6 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Hero Section */}
       <section className="py-16 sm:py-20 bg-gradient-to-br from-primary/10 to-secondary/10">

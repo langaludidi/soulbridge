@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navigation } from "@/components/navigation";
 import { MemorialCard } from "@/components/memorial-card";
 import { CreateMemorialModal } from "@/components/create-memorial-modal";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,6 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary to-secondary overflow-hidden">

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import React from "react";
 import { useRoute, useLocation } from "wouter";
-import { Navigation } from "@/components/navigation";
 import { TributeModal } from "@/components/tribute-modal";
 import { EnhancedGallery } from "@/components/enhanced-gallery";
 import { Button } from "@/components/ui/button";
@@ -140,7 +139,6 @@ export default function MemorialPage() {
   if (memorialLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -154,7 +152,6 @@ export default function MemorialPage() {
   if (!memorial) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground mb-4">Memorial Not Found</h1>
@@ -174,7 +171,6 @@ export default function MemorialPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Memorial Hero Section */}
       <section className="relative">

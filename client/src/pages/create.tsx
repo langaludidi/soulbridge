@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navigation } from "@/components/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -93,7 +92,6 @@ export default function CreatePage() {
   if (showForm) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8 text-center">
             <Button
@@ -119,7 +117,6 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-secondary/20 overflow-hidden">

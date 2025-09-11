@@ -1,11 +1,9 @@
-import { Navigation } from "@/components/navigation";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
 export default function About() {
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       {/* Hero Section */}
       <section className="py-16 sm:py-24 bg-gradient-to-br from-primary/10 to-secondary/10">

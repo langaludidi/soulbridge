@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navigation } from "@/components/navigation";
 import { MemorialCard } from "@/components/memorial-card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,7 +41,6 @@ export default function Browse() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
