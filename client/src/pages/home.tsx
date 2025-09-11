@@ -236,23 +236,23 @@ export default function Home() {
             </p>
           </div>
           <div className="container-max">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-8">
               {features.map((feature, index) => (
                 <div 
                   key={index} 
-                  className="relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 card-spacing-lg shadow-sm hover:shadow-md transition-all duration-300"
+                  className="group relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-8 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1"
                 >
-                  <dt>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white mb-6">
-                      <feature.icon className="h-6 w-6" aria-hidden="true" />
+                  <div className="text-center space-y-4">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="h-8 w-8" aria-hidden="true" />
                     </div>
-                    <p className="text-lg font-semibold leading-7 text-foreground mb-3">
+                    <h3 className="text-xl font-semibold leading-7 text-foreground mb-3">
                       {feature.name}
+                    </h3>
+                    <p className="text-base leading-7 text-muted-foreground">
+                      {feature.description}
                     </p>
-                  </dt>
-                  <dd className="text-base leading-7 text-muted-foreground">
-                    {feature.description}
-                  </dd>
+                  </div>
                 </div>
               ))}
             </div>
