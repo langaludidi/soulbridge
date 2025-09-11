@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { Navigation } from "@/components/navigation";
 import { MemorialCard } from "@/components/memorial-card";
 import { CreateMemorialModal } from "@/components/create-memorial-modal";
 import { Button } from "@/components/ui/button";
@@ -25,30 +25,30 @@ export default function Home() {
   });
 
   const features = [
-    { 
-      icon: Feather, 
-      name: "Simple and Beautiful", 
+    {
+      icon: Feather,
+      name: "Simple and Beautiful",
       description: "Create stunning memorial pages easily, with no technical skills required.",
       color: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-50 to-cyan-50 dark:from-blue-900/10 dark:to-cyan-900/10"
     },
-    { 
-      icon: MapPin, 
-      name: "Locally Rooted", 
+    {
+      icon: MapPin,
+      name: "Locally Rooted",
       description: "Built for our communities, traditions, and cultures – your stories remain connected to home.",
       color: "from-emerald-500 to-teal-500",
       bgGradient: "from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10"
     },
-    { 
-      icon: Shield, 
-      name: "Private and Secure", 
+    {
+      icon: Shield,
+      name: "Private and Secure",
       description: "Your family's memories and tributes are protected with the highest standards of security and privacy.",
       color: "from-amber-500 to-orange-500",
       bgGradient: "from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10"
     },
-    { 
-      icon: Clock, 
-      name: "Always Accessible", 
+    {
+      icon: Clock,
+      name: "Always Accessible",
       description: "View and update your loved one's memorial anytime, from any device, wherever you are.",
       color: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10"
@@ -56,23 +56,23 @@ export default function Home() {
   ];
 
   const testimonials = [
-    { 
-      content: "SoulBridge made it so easy to create a beautiful tribute for my grandmother. The platform is intuitive and the final memorial was exactly what I envisioned.", 
-      author: "Sarah J.", 
+    {
+      content: "SoulBridge made it so easy to create a beautiful tribute for my grandmother. The platform is intuitive and the final memorial was exactly what I envisioned.",
+      author: "Sarah J.",
       role: "Granddaughter",
       location: "Cape Town",
       rating: 5
     },
-    { 
-      content: "The ability to share stories and photos with family and friends was invaluable. It truly helped us connect and remember our loved one together.", 
-      author: "Mark T.", 
+    {
+      content: "The ability to share stories and photos with family and friends was invaluable. It truly helped us connect and remember our loved one together.",
+      author: "Mark T.",
       role: "Family Friend",
       location: "Johannesburg",
       rating: 5
     },
-    { 
-      content: "I was looking for a way to preserve my father's legacy, and SoulBridge provided the perfect solution. It's a dignified and lasting way to honour his memory.", 
-      author: "Emily R.", 
+    {
+      content: "I was looking for a way to preserve my father's legacy, and SoulBridge provided the perfect solution. It's a dignified and lasting way to honour his memory.",
+      author: "Emily R.",
       role: "Daughter",
       location: "Durban",
       rating: 5
@@ -88,9 +88,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+      <Navigation />
 
       {/* Hero Section - Enhanced with Floating Elements */}
-      <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
+      <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/10"></div>
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 left-1/4 w-96 h-96 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }}></div>
@@ -140,7 +142,7 @@ export default function Home() {
 
               <div className="relative animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                 <p className="text-xl sm:text-2xl lg:text-3xl text-slate-600 dark:text-slate-300 max-w-5xl mx-auto leading-relaxed font-light">
-                  Create beautiful, everlasting tributes that celebrate the unique journey of your loved ones. 
+                  Create beautiful, everlasting tributes that celebrate the unique journey of your loved ones.
                   <span className="block mt-2 text-lg sm:text-xl lg:text-2xl opacity-80">
                     A gentle space for memories, stories, and eternal connections.
                   </span>
@@ -206,7 +208,7 @@ export default function Home() {
               Why SoulBridge Exists
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed">
-              When someone passes away, families need a gentle, beautiful way to share their legacy 
+              When someone passes away, families need a gentle, beautiful way to share their legacy
               and connect those who loved them. We create sacred digital spaces that honor life's journey.
             </p>
           </div>
@@ -272,21 +274,21 @@ export default function Home() {
             </div>
 
             {[
-              { 
-                step: "1", 
-                title: "Begin Your Journey", 
+              {
+                step: "1",
+                title: "Begin Your Journey",
                 description: "Choose a plan that honors your loved one's memory with the care they deserve",
                 color: "from-primary to-secondary"
               },
-              { 
-                step: "2", 
-                title: "Share Their Story", 
+              {
+                step: "2",
+                title: "Share Their Story",
                 description: "Add photos, memories, and stories that capture their beautiful life and lasting impact",
                 color: "from-secondary to-accent"
               },
-              { 
-                step: "3", 
-                title: "Connect Hearts", 
+              {
+                step: "3",
+                title: "Connect Hearts",
                 description: "Invite family and friends to visit, contribute, and find comfort in shared memories",
                 color: "from-accent to-primary"
               }
@@ -309,14 +311,9 @@ export default function Home() {
       </section>
 
       {/* Enhanced Features Section */}
-      <section className="py-24 bg-white dark:bg-slate-900 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-1/4 w-72 h-72 bg-gradient-to-r from-blue-100/30 to-indigo-100/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-gradient-to-r from-purple-100/30 to-pink-100/30 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-24">
+      <section className="py-24 bg-muted/20 dark:bg-muted/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-20">
             <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/30 dark:to-secondary/30 text-primary dark:text-primary font-medium text-sm mb-8 shadow-sm">
               <Award className="w-4 h-4 mr-2" />
               Why Choose SoulBridge
@@ -329,11 +326,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className={`group relative p-10 rounded-3xl bg-gradient-to-br ${feature.bgGradient} border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl transition-all duration-500 hover:-translate-y-3 backdrop-blur-sm`}
+                className="group relative rounded-2xl bg-gradient-to-b from-card to-background dark:from-card dark:to-background border border-border p-8 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-2"
               >
                 <div className="text-center space-y-6">
                   <div className="relative">
@@ -357,14 +354,9 @@ export default function Home() {
       </section>
 
       {/* Enhanced Testimonials Section */}
-      <section className="py-24 bg-gradient-to-b from-slate-50/50 to-blue-50/30 dark:from-slate-800/50 dark:to-slate-900/70 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-32 right-20 w-56 h-56 bg-gradient-to-r from-yellow-200/20 to-orange-200/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-32 left-20 w-64 h-64 bg-gradient-to-r from-emerald-200/20 to-teal-200/20 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20">
+      <section className="py-24 bg-background">
+        <div className="container-max">
+          <div className="container-content text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
               Stories of Comfort & Connection
             </h2>
@@ -373,11 +365,11 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="group bg-white dark:bg-slate-800 p-10 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 backdrop-blur-sm relative overflow-hidden"
+                className="relative group bg-card p-8 rounded-2xl shadow-sm border border-border hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative space-y-6">
@@ -410,50 +402,45 @@ export default function Home() {
       </section>
 
       {/* Recent Memorials - Enhanced */}
-      {recentMemorials.length > 0 && (
-        <section className="py-24 bg-white dark:bg-slate-900 relative">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-20 w-40 h-40 bg-gradient-to-r from-blue-200/20 to-indigo-200/20 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-20 right-20 w-48 h-48 bg-gradient-to-r from-purple-200/20 to-pink-200/20 rounded-full blur-2xl"></div>
+      <section className="py-24 bg-muted/10 dark:bg-muted/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
+              Recent Memorials
+            </h2>
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto">
+              Honoring lives, celebrating legacies, and keeping memories alive
+            </p>
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl sm:text-5xl font-serif font-light text-slate-800 dark:text-slate-100 mb-8">
-                Recent Memorials
-              </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto">
-                Honoring lives, celebrating legacies, and keeping memories alive
-              </p>
-            </div>
-
-            <Carousel className="w-full max-w-6xl mx-auto">
-              <CarouselContent className="-ml-6">
-                {recentMemorials.slice(0, 6).map((memorial) => (
-                  <CarouselItem key={memorial.id} className="md:basis-1/2 lg:basis-1/3 pl-6">
-                    <div className="group">
-                      <div className="transform transition-all duration-300 group-hover:scale-105">
+          <Carousel className="w-full max-w-6xl mx-auto">
+            <CarouselContent className="-ml-6">
+              {recentMemorials.slice(0, 6).map((memorial, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 pl-6">
+                  <div className="group">
+                    <div className="relative overflow-hidden rounded-2xl bg-card border border-border shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-muted to-muted/80 flex items-center justify-center">
                         <MemorialCard memorial={memorial} />
                       </div>
                     </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="bg-white dark:bg-slate-800 shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
-              <CarouselNext className="bg-white dark:bg-slate-800 shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
-            </Carousel>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="bg-white dark:bg-slate-800 shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
+            <CarouselNext className="bg-white dark:bg-slate-800 shadow-lg border-2 hover:shadow-xl transition-all duration-300" />
+          </Carousel>
 
-            <div className="text-center mt-16">
-              <Link href="/browse">
-                <Button variant="outline" size="lg" className="px-10 py-4 text-lg bg-white/90 dark:bg-slate-800/90 backdrop-blur-md hover:shadow-lg transition-all duration-300 rounded-2xl">
-                  View All Memorials
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
+          <div className="text-center mt-16">
+            <Link href="/browse">
+              <Button variant="outline" size="lg" className="px-10 py-4 text-lg bg-white/90 dark:bg-slate-800/90 backdrop-blur-md hover:shadow-lg transition-all duration-300 rounded-2xl">
+                View All Memorials
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Enhanced Final CTA Section */}
       <section className="py-32 bg-gradient-to-br from-primary via-secondary to-accent relative overflow-hidden">
@@ -506,9 +493,9 @@ export default function Home() {
                 <Zap className="ml-3 h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
               <Link href="/browse">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
                   className="group px-12 py-6 text-xl border-2 border-white/50 text-white bg-transparent hover:bg-white/10 backdrop-blur-md rounded-2xl font-medium"
                 >
                   Explore Examples

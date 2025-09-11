@@ -110,15 +110,23 @@
 
   /* Enhanced contrast sections */
   .section-elevated {
-    @apply bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700;
+    @apply bg-card shadow-sm border border-border;
   }
 
   .section-contrast {
-    @apply bg-slate-50 dark:bg-slate-900/50;
+    @apply bg-muted/20 dark:bg-muted/5;
   }
 
   .section-accent {
     @apply bg-primary/5 dark:bg-primary/10 border-l-4 border-primary;
+  }
+
+  .section-subtle {
+    @apply bg-muted/10 dark:bg-muted/5;
+  }
+
+  .section-alternate {
+    @apply bg-muted/30 dark:bg-muted/10;
   }
 
   /* Card spacing improvements */
