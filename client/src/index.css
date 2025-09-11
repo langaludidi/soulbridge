@@ -156,6 +156,25 @@
     @apply flex gap-2 flex-wrap;
   }
 
+  /* Production mobile optimizations */
+  @media (max-width: 768px) {
+    .container {
+      @apply px-3;
+    }
+    
+    .button-group {
+      @apply gap-2;
+    }
+    
+    .text-content h1 {
+      @apply text-2xl;
+    }
+    
+    .text-content h2 {
+      @apply text-xl;
+    }
+  }
+
   /* Text spacing */
   .text-content {
     @apply space-y-4 leading-relaxed;

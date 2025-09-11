@@ -127,7 +127,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         try {
           await apiRequest('PATCH', `/api/memorials/${memorialId}/photos/${newPhoto.id}/cover`, {});
         } catch (error) {
-          console.warn('Could not set cover photo:', error);
+          // Handle cover photo setting error silently
         }
       }
 
@@ -184,8 +184,8 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       });
     },
     onError: (error) => {
-      console.warn('Failed to increment photo view:', error);
       // Don't show error toast as this shouldn't interrupt user experience
+      // Silently handle view tracking errors
     },
   });
 
