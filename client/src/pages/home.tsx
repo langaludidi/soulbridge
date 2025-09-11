@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navigation } from "@/components/navigation";
 import { MemorialCard } from "@/components/memorial-card";
 import { CreateMemorialModal } from "@/components/create-memorial-modal";
 import { Button } from "@/components/ui/button";
@@ -88,7 +87,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
-      <Navigation />
 
       {/* Hero Section - Enhanced with Floating Elements */}
       <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden bg-background">
