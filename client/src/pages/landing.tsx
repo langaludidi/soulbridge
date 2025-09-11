@@ -36,43 +36,43 @@ export default function Landing() {
           }}
         />
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
           <div className="text-center">
-            <h1 className="hero-text text-4xl md:text-6xl font-serif font-bold text-white mb-6">
+            <h1 className="hero-text text-3xl sm:text-4xl md:text-6xl font-serif font-bold text-white mb-4 sm:mb-6 leading-tight">
               Where life stories<br />
               <span className="text-accent">live on</span>
             </h1>
-            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-12">
+            <p className="text-lg sm:text-xl text-white/90 max-w-3xl mx-auto mb-8 sm:mb-12 px-2">
               A digital space to remember, honour, and celebrate life — especially for South African families navigating grief, tradition, and community connection.
             </p>
             
             {/* Search and Create Section */}
-            <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-2xl p-8 md:p-10">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-5">
-                  <h3 className="text-xl font-semibold text-foreground">Search Memorials</h3>
-                  <div className="space-y-4">
+            <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 lg:p-10">
+              <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+                <div className="space-y-4 sm:space-y-5">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground">Search Memorials</h3>
+                  <div className="space-y-3 sm:space-y-4">
                     <Input
                       type="text"
                       placeholder="Enter name or location"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-12 px-4 py-3 text-base"
+                      className="h-11 sm:h-12 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base"
                       data-testid="input-search-memorials"
                     />
                     <Link href={`/browse${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`}>
-                      <Button className="w-full" data-testid="button-search-memorials">
+                      <Button className="w-full h-11 sm:h-12 text-sm sm:text-base" data-testid="button-search-memorials">
                         Search Memorials
                       </Button>
                     </Link>
                   </div>
                 </div>
                 
-                <div className="space-y-5">
-                  <h3 className="text-xl font-semibold text-foreground">Create Memorial</h3>
-                  <div className="space-y-4">
+                <div className="space-y-4 sm:space-y-5">
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground">Create Memorial</h3>
+                  <div className="space-y-3 sm:space-y-4">
                     <Select value={selectedProvince} onValueChange={setSelectedProvince}>
-                      <SelectTrigger className="h-12 px-4 py-3" data-testid="select-province">
+                      <SelectTrigger className="h-11 sm:h-12 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base" data-testid="select-province">
                         <SelectValue placeholder="Select Province" />
                       </SelectTrigger>
                       <SelectContent>
@@ -89,7 +89,7 @@ export default function Landing() {
                     </Select>
                     <Button 
                       variant="secondary" 
-                      className="w-full"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base"
                       onClick={() => setShowCreateModal(true)}
                       data-testid="button-create-memorial"
                     >
@@ -145,51 +145,51 @@ export default function Landing() {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">How We Help You Honor Their Life</h2>
+      <section className="py-12 sm:py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-foreground mb-4 px-2">How We Help You Honor Their Life</h2>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-card rounded-xl shadow-sm">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Digital Memorials</h3>
-              <p className="text-muted-foreground text-sm">Create lasting online tributes with photos, stories, and memories</p>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Digital Memorials</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">Create lasting online tributes with photos, stories, and memories</p>
             </div>
             
-            <div className="text-center p-6 bg-card rounded-xl shadow-sm">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Funeral Programs</h3>
-              <p className="text-muted-foreground text-sm">Design, upload, and print beautiful funeral programs easily</p>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Funeral Programs</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">Design, upload, and print beautiful funeral programs easily</p>
             </div>
             
-            <div className="text-center p-6 bg-card rounded-xl shadow-sm">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Partner Directory</h3>
-              <p className="text-muted-foreground text-sm">Connect with trusted funeral homes, florists, and caterers</p>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Partner Directory</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">Connect with trusted funeral homes, florists, and caterers</p>
             </div>
             
-            <div className="text-center p-6 bg-card rounded-xl shadow-sm">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Digital Guestbook</h3>
-              <p className="text-muted-foreground text-sm">Share memories and tributes from anywhere in the world</p>
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Digital Guestbook</h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">Share memories and tributes from anywhere in the world</p>
             </div>
           </div>
         </div>

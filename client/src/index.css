@@ -91,9 +91,16 @@
   transform: translateY(-2px);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .hero-text {
-    font-size: 2rem;
+    font-size: 1.875rem;
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .hero-text {
+    font-size: 2.25rem;
     line-height: 1.2;
   }
 }

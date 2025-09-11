@@ -311,17 +311,17 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
     
     return (
       <div className="flex items-center">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 text-xs sm:text-sm ${
           isCompleted 
             ? 'bg-primary border-primary text-primary-foreground' 
             : isCurrent 
             ? 'border-primary text-primary bg-primary/10' 
             : 'border-muted-foreground text-muted-foreground'
         }`}>
-          {isCompleted ? <Check className="w-5 h-5" /> : step}
+          {isCompleted ? <Check className="w-3 h-3 sm:w-5 sm:h-5" /> : step}
         </div>
         {step < 4 && (
-          <div className={`w-16 h-0.5 ${
+          <div className={`w-8 sm:w-16 h-0.5 ${
             isCompleted ? 'bg-primary' : 'bg-muted-foreground/20'
           }`} />
         )}
@@ -710,12 +710,12 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" data-testid="modal-create-memorial">
+      <DialogContent className="max-w-3xl max-h-[95vh] w-[95vw] sm:w-full overflow-y-auto" data-testid="modal-create-memorial">
         <DialogHeader className="pb-6">
           <DialogTitle className="text-2xl font-serif font-semibold">Create Memorial</DialogTitle>
           
           {/* Step Indicator */}
-          <div className="flex items-center justify-center space-x-4 pt-4">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-4 pt-4">
             <StepIndicator step={1} currentStep={currentStep} />
             <StepIndicator step={2} currentStep={currentStep} />
             <StepIndicator step={3} currentStep={currentStep} />
