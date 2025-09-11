@@ -32,6 +32,10 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").default("public"), // public, contributor, admin, partner
+  // Note: subscriptionTier and subscriptionStatus are cached from subscriptions table
+  // The subscriptions table is the source of truth - these are updated when subscription changes
+  subscriptionTier: varchar("subscription_tier").default("remember"), // remember, honour, legacy, family_vault
+  subscriptionStatus: varchar("subscription_status").default("active"), // active, trialing, past_due, canceled, in_grace
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -49,6 +53,7 @@ export const memorials = pgTable("memorials", {
   status: varchar("status").default("draft"), // draft, published, archived
   privacy: varchar("privacy").default("public"), // public, private
   submittedBy: varchar("submitted_by").references(() => users.id),
+  familyId: varchar("family_id").references(() => families.id), // For family vault subscriptions
   viewCount: integer("view_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -151,6 +156,72 @@ export const memorialSubscriptions = pgTable("memorial_subscriptions", {
   index("IDX_memorial_subscriptions_email").on(table.email),
 ]);
 
+// Families table for Family Vault subscriptions
+export const families = pgTable("families", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  ownerUserId: varchar("owner_user_id").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Family members table for Family Vault access
+export const familyMembers = pgTable("family_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  familyId: varchar("family_id").references(() => families.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  role: varchar("role").default("member").notNull(), // owner, member
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_family_members_family_id").on(table.familyId),
+  index("IDX_family_members_user_id").on(table.userId),
+  // Ensure unique family membership - no duplicate users in same family
+  index("UNQ_family_member_user").unique().on(table.familyId, table.userId),
+]);
+
+// Subscriptions table for billing management
+export const subscriptions = pgTable("subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  familyId: varchar("family_id").references(() => families.id),
+  provider: varchar("provider").notNull(), // paystack, payfast, netcash
+  providerCustomerId: varchar("provider_customer_id"),
+  providerSubscriptionId: varchar("provider_subscription_id").unique(), // Ensure unique provider subscription IDs
+  plan: varchar("plan").notNull(), // remember, honour, legacy, family_vault
+  interval: varchar("interval").notNull(), // monthly, yearly
+  status: varchar("status").notNull(), // active, trialing, past_due, canceled, in_grace
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  graceUntil: timestamp("grace_until"),
+  trialEnd: timestamp("trial_end"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("IDX_subscriptions_user_id").on(table.userId),
+  index("IDX_subscriptions_family_id").on(table.familyId),
+  index("IDX_subscriptions_provider_subscription_id").on(table.providerSubscriptionId),
+  index("IDX_subscriptions_plan_status").on(table.plan, table.status), // For admin reports
+  // Business rule: exactly one of userId or familyId must be set, but not both
+  sql`CONSTRAINT chk_subscription_subject CHECK ((user_id IS NOT NULL AND family_id IS NULL) OR (user_id IS NULL AND family_id IS NOT NULL))`,
+]);
+
+// Invoices/Payments table for billing history
+export const invoices = pgTable("invoices", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subscriptionId: varchar("subscription_id").references(() => subscriptions.id).notNull(),
+  amount: integer("amount").notNull(), // Amount in cents
+  currency: varchar("currency").default("ZAR").notNull(),
+  status: varchar("status").notNull(), // pending, paid, failed, refunded
+  providerPaymentId: varchar("provider_payment_id"),
+  paidAt: timestamp("paid_at"),
+  rawEvent: jsonb("raw_event"), // Store full webhook payload
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("IDX_invoices_subscription_id").on(table.subscriptionId),
+  index("IDX_invoices_provider_payment_id").on(table.providerPaymentId),
+]);
+
 // Digital Order of Service table - Main program details
 export const digitalOrderOfService = pgTable("digital_order_of_service", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -211,12 +282,65 @@ export const memorialsRelations = relations(memorials, ({ one, many }) => ({
     fields: [memorials.submittedBy],
     references: [users.id],
   }),
+  family: one(families, {
+    fields: [memorials.familyId],
+    references: [families.id],
+  }),
   tributes: many(tributes),
   photos: many(memorialPhotos),
   programs: many(funeralPrograms),
   events: many(memorialEvents),
   subscriptions: many(memorialSubscriptions),
   orderOfService: many(digitalOrderOfService),
+}));
+
+export const familiesRelations = relations(families, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [families.ownerUserId],
+    references: [users.id],
+  }),
+  members: many(familyMembers),
+  memorials: many(memorials),
+  subscriptions: many(subscriptions),
+}));
+
+export const familyMembersRelations = relations(familyMembers, ({ one }) => ({
+  family: one(families, {
+    fields: [familyMembers.familyId],
+    references: [families.id],
+  }),
+  user: one(users, {
+    fields: [familyMembers.userId],
+    references: [users.id],
+  }),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
+  }),
+  family: one(families, {
+    fields: [subscriptions.familyId],
+    references: [families.id],
+  }),
+  invoices: many(invoices),
+}));
+
+export const invoicesRelations = relations(invoices, ({ one }) => ({
+  subscription: one(subscriptions, {
+    fields: [invoices.subscriptionId],
+    references: [subscriptions.id],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  memorials: many(memorials),
+  tributes: many(tributes),
+  partners: many(partners),
+  ownedFamilies: many(families),
+  familyMemberships: many(familyMembers),
+  subscriptions: many(subscriptions),
 }));
 
 export const tributesRelations = relations(tributes, ({ one }) => ({
@@ -382,6 +506,28 @@ export const insertOrderOfServiceEventSchema = createInsertSchema(orderOfService
   createdAt: true,
 });
 
+export const insertFamilySchema = createInsertSchema(families).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertFamilyMemberSchema = createInsertSchema(familyMembers).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -415,3 +561,83 @@ export type DigitalOrderOfService = typeof digitalOrderOfService.$inferSelect;
 
 export type InsertOrderOfServiceEvent = z.infer<typeof insertOrderOfServiceEventSchema>;
 export type OrderOfServiceEvent = typeof orderOfServiceEvents.$inferSelect;
+
+export type InsertFamily = z.infer<typeof insertFamilySchema>;
+export type Family = typeof families.$inferSelect;
+
+export type InsertFamilyMember = z.infer<typeof insertFamilyMemberSchema>;
+export type FamilyMember = typeof familyMembers.$inferSelect;
+
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type Invoice = typeof invoices.$inferSelect;
+
+// Subscription tier types and entitlements
+export type SubscriptionTier = "remember" | "honour" | "legacy" | "family_vault";
+export type SubscriptionInterval = "monthly" | "yearly";
+export type SubscriptionStatus = "active" | "trialing" | "past_due" | "canceled" | "in_grace";
+
+export interface SubscriptionEntitlements {
+  memorialLimit: number | "unlimited";
+  allowGallery: boolean;
+  allowAudioVideo: boolean;
+  allowPdf: boolean;
+  allowEvents: boolean;
+  allowFamilyTree: boolean;
+  allowPrivateLink: boolean;
+  maxPhotos: number | "unlimited";
+}
+
+// Helper function to get entitlements for a subscription tier
+export function getSubscriptionEntitlements(tier: SubscriptionTier): SubscriptionEntitlements {
+  switch (tier) {
+    case "remember":
+      return {
+        memorialLimit: 1,
+        allowGallery: false,
+        allowAudioVideo: false,
+        allowPdf: true,
+        allowEvents: false,
+        allowFamilyTree: false,
+        allowPrivateLink: false,
+        maxPhotos: 1,
+      };
+    case "honour":
+      return {
+        memorialLimit: 3,
+        allowGallery: true,
+        allowAudioVideo: true,
+        allowPdf: true,
+        allowEvents: false,
+        allowFamilyTree: false,
+        allowPrivateLink: true,
+        maxPhotos: 10,
+      };
+    case "legacy":
+      return {
+        memorialLimit: "unlimited",
+        allowGallery: true,
+        allowAudioVideo: true,
+        allowPdf: true,
+        allowEvents: true,
+        allowFamilyTree: true,
+        allowPrivateLink: true,
+        maxPhotos: "unlimited",
+      };
+    case "family_vault":
+      return {
+        memorialLimit: "unlimited",
+        allowGallery: true,
+        allowAudioVideo: true,
+        allowPdf: true,
+        allowEvents: true,
+        allowFamilyTree: true,
+        allowPrivateLink: true,
+        maxPhotos: "unlimited",
+      };
+    default:
+      return getSubscriptionEntitlements("remember");
+  }
+}
