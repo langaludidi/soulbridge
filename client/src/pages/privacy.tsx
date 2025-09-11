@@ -345,8 +345,8 @@ export default function Privacy() {
                     <p><strong>SoulBridge (Pty) Ltd</strong></p>
                     <p>Information Officer: Privacy Team</p>
                     <p>Email: privacy@soulbridge.co.za</p>
-                    <p>Phone: +27 11 123 4567</p>
-                    <p>Address: 123 Memorial Street<br />Johannesburg, Gauteng, 2000<br />South Africa</p>
+                    <p>Phone: 041 019 5019</p>
+                    <p>Address: 14a Pickering Street<br />Newton Park, Port Elizabeth<br />South Africa</p>
                   </div>
                 </div>
                 

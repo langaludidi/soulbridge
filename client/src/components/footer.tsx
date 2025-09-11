@@ -105,7 +105,7 @@ export function Footer() {
               <div className="flex items-center space-x-3">
                 <Phone className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground" data-testid="text-footer-phone">
-                  +27 11 123 4567
+                  041 019 5019
                 </span>
               </div>
               <div className="flex items-center space-x-3">
@@ -118,8 +118,8 @@ export function Footer() {
                 <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
                 <div className="text-sm text-muted-foreground">
                   <p>SoulBridge (Pty) Ltd</p>
-                  <p>123 Memorial Street</p>
-                  <p>Johannesburg, Gauteng 2000</p>
+                  <p>14a Pickering Street</p>
+                  <p>Newton Park, Port Elizabeth</p>
                   <p>South Africa</p>
                 </div>
               </div>

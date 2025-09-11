@@ -365,7 +365,7 @@ export default function Partners() {
               </Link>
             </div>
             <p className="text-sm text-muted-foreground">
-              Questions? Call us at 011 123 4567 or email partners@soulbridge.co.za
+              Questions? Call us at 041 019 5019 or email partners@soulbridge.co.za
             </p>
           </div>
         </section>

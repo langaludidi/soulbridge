@@ -34,11 +34,11 @@ export default function Contact() {
     // Add meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Contact SoulBridge support team. Get help with digital memorials, subscriptions, technical issues. Phone: +27 11 123 4567, Email: support@soulbridge.co.za');
+      metaDescription.setAttribute('content', 'Contact SoulBridge support team. Get help with digital memorials, subscriptions, technical issues. Phone: 041 019 5019, Email: support@soulbridge.co.za');
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'Contact SoulBridge support team. Get help with digital memorials, subscriptions, technical issues. Phone: +27 11 123 4567, Email: support@soulbridge.co.za';
+      meta.content = 'Contact SoulBridge support team. Get help with digital memorials, subscriptions, technical issues. Phone: 041 019 5019, Email: support@soulbridge.co.za';
       document.head.appendChild(meta);
     }
   }, []);
@@ -119,8 +119,8 @@ export default function Contact() {
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground mb-1">Phone Support</h3>
-                        <p className="text-muted-foreground text-sm mb-2">Monday - Friday, 8:00 AM - 6:00 PM SAST</p>
-                        <p className="text-foreground font-medium" data-testid="text-phone-number">+27 11 123 4567</p>
+                        <p className="text-muted-foreground text-sm mb-2">Mon-Fri 9AM-5PM</p>
+                        <p className="text-foreground font-medium" data-testid="text-phone-number">041 019 5019</p>
                       </div>
                     </div>
                   </CardContent>
@@ -151,8 +151,8 @@ export default function Contact() {
                         <h3 className="font-semibold text-foreground mb-1">Office Address</h3>
                         <p className="text-muted-foreground text-sm">
                           SoulBridge (Pty) Ltd<br />
-                          123 Memorial Street<br />
-                          Johannesburg, Gauteng, 2000<br />
+                          14a Pickering Street<br />
+                          Newton Park, Port Elizabeth<br />
                           South Africa
                         </p>
                       </div>
@@ -169,9 +169,9 @@ export default function Contact() {
                       <div>
                         <h3 className="font-semibold text-foreground mb-1">Business Hours</h3>
                         <div className="text-muted-foreground text-sm space-y-1">
-                          <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
-                          <p>Saturday: 9:00 AM - 2:00 PM</p>
-                          <p>Sunday: Closed (Email support available)</p>
+                          <p>Monday - Friday: 9:00 AM - 5:00 PM</p>
+                          <p>Saturday & Sunday: Closed</p>
+                          <p>Email support: Available 24/7</p>
                           <p className="text-xs mt-2">All times are South Africa Standard Time (SAST)</p>
                         </div>
                       </div>
@@ -360,7 +360,7 @@ export default function Contact() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button className="bg-destructive hover:bg-destructive/90" data-testid="button-emergency-call">
               <Phone className="w-4 h-4 mr-2" />
-              Emergency: +27 11 123 4567
+              Emergency: 041 019 5019
             </Button>
             <Button variant="outline" data-testid="button-emergency-email">
               <Mail className="w-4 h-4 mr-2" />

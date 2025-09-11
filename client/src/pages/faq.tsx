@@ -487,7 +487,7 @@ export default function FAQ() {
           <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-lg">
             <h3 className="text-lg font-semibold text-foreground mb-2">Emergency Support</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              Need urgent assistance? Contact our emergency support line at +27 11 123 4567 or email urgent@soulbridge.co.za
+              Need urgent assistance? Contact our emergency support line at 041 019 5019 or email urgent@soulbridge.co.za
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button className="bg-destructive hover:bg-destructive/90" data-testid="button-emergency-call">
