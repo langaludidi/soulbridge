@@ -1,0 +1,59 @@
+# Replit Prompt: NetCash Pay Now Integration for SoulBridge Website
+
+I need help creating a NetCash Pay Now payment integration for my website at https://www.soulbridge.co.za/
+
+## My NetCash Details:
+- Service Key: 5a99a80a-77da-41d8-b161-272af6977889
+- Email: LudidiL@gmail.com
+- Business: Small Business Web Designs (51288687159)
+
+## Required Endpoints:
+I need to create these 4 endpoints on my website:
+
+1. **Accept URL:** `/payment/success` - Success page for completed payments
+2. **Decline URL:** `/payment/declined` - Page for failed/declined payments  
+3. **Notify URL:** `/payment/notify` - Server endpoint to receive NetCash payment notifications
+4. **Redirect URL:** `/payment/complete` - General completion page
+
+## Key Requirements:
+
+### Payment Form
+- Create a payment form that submits to NetCash Pay Now
+- Include fields for: amount, reference, customer email, description
+- Use my service key for authentication
+
+### Notify Endpoint (Most Important)
+- Receive POST data from NetCash when payments are processed
+- Verify payment authenticity using NetCash security protocols
+- Parse payment status, amount, reference number
+- Update database/log successful payments
+- Send confirmation emails to customers
+- Return "OK" response to NetCash
+
+### Success/Decline Pages
+- User-friendly pages showing payment status
+- Display transaction details
+- Provide next steps or retry options
+
+## Technical Specs:
+- Use modern web framework (Express.js, Flask, or similar)
+- Include proper error handling and logging
+- Secure handling of payment data
+- Mobile-responsive design
+- Environment variables for sensitive data
+
+## NetCash Integration Details:
+- NetCash sends POST notifications with payment details
+- Need to validate incoming data for security
+- Handle different payment statuses (completed, failed, pending)
+- Store transaction records securely
+
+Please provide:
+1. Complete code structure
+2. HTML payment form
+3. Server-side endpoint handlers
+4. Database schema for transactions
+5. Basic styling for payment pages
+6. Testing instructions
+
+Make it production-ready with proper security practices for handling payments.
