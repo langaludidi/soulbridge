@@ -39,13 +39,13 @@ export default function PartnersOnboarding() {
   const [activeModel, setActiveModel] = useState<string>("cobrand");
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
-  // Mock data - in real app this would come from API
+  // Partner data - in real app this would come from API
   const [partnerData, setPartnerData] = useState({
     partnershipModel: "cobrand",
     onboardingStatus: "pending",
-    businessName: "Demo Funeral Home",
-    contactName: "John Doe",
-    email: "john@demofunerals.co.za",
+    businessName: user?.name || "",
+    contactName: user?.name || "",
+    email: user?.email || "",
   });
 
   const models: PartnershipModel[] = [
@@ -393,7 +393,7 @@ function StepContent({
               <h4 className="font-semibold mb-2">Your Referral Link</h4>
               <div className="flex items-center space-x-2">
                 <Input
-                  value="https://soulbridge.co.za?ref=DEMO123"
+                  value={`https://soulbridge.co.za?ref=${user?.id?.slice(-6).toUpperCase() || 'REF001'}`}
                   readOnly
                   data-testid="input-referral-link"
                 />

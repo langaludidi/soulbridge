@@ -39,7 +39,7 @@ export default function Home() {
   ];
 
   // Dummy functions for navigation and modal state if not provided elsewhere
-  const navigate = (path: string) => { console.log("Navigating to:", path); };
+  const navigate = (path: string) => { window.location.href = path; };
   const setIsCreateModalOpen = (isOpen: boolean) => { setShowCreateModal(isOpen); };
 
 
