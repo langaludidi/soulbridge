@@ -802,10 +802,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 </Button>
               </div>
 
-            {/* Action Buttons */}
-            {/* This section is replaced by the above Tabs component */}
-
-            {/* Gallery Content Tabs */}
+            {/* Media Content Tabs */}
             <TabsContent value={activeMediaType} className="mt-0">
               {photos.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
@@ -1105,46 +1102,46 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   variant="outline"
                   size="sm"
                   onClick={handleShareWhatsApp}
-                  className="w-full justify-start text-[#25D366] border-[#25D366]/20 hover:bg-[#25D366]/10 min-h-[40px]"
+                  className="w-full justify-start text-[#25D366] border-[#25D366]/20 hover:bg-[#25D366]/10 min-h-[40px] text-xs sm:text-sm"
                   data-testid="button-share-whatsapp-gallery"
                 >
-                  <FaWhatsapp className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Share on WhatsApp</span>
+                  <FaWhatsApp className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">WhatsApp</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleShareFacebook}
-                  className="w-full justify-start text-[#1877F2] border-[#1877F2]/20 hover:bg-[#1877F2]/10 min-h-[40px]"
+                  className="w-full justify-start text-[#1877F2] border-[#1877F2]/20 hover:bg-[#1877F2]/10 min-h-[40px] text-xs sm:text-sm"
                   data-testid="button-share-facebook-gallery"
                 >
                   <Facebook className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Share on Facebook</span>
+                  <span className="truncate">Facebook</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleShareEmail}
-                  className="w-full justify-start text-[#EA4335] border-[#EA4335]/20 hover:bg-[#EA4335]/10 min-h-[40px]"
+                  className="w-full justify-start text-[#EA4335] border-[#EA4335]/20 hover:bg-[#EA4335]/10 min-h-[40px] text-xs sm:text-sm"
                   data-testid="button-share-email-gallery"
                 >
                   <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Share via Email</span>
+                  <span className="truncate">Email</span>
                 </Button>
 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCopyLink}
-                  className="w-full justify-start min-h-[40px]"
+                  className="w-full justify-start min-h-[40px] text-xs sm:text-sm"
                   data-testid="button-copy-link-gallery"
                 >
                   {linkCopied ? (
                     <>
                       <div className="w-4 h-4 text-green-500 mr-2 flex-shrink-0">✓</div>
-                      <span className="truncate">Link Copied!</span>
+                      <span className="truncate">Copied!</span>
                     </>
                   ) : (
                     <>
