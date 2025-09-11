@@ -30,7 +30,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary to-secondary overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -42,7 +42,7 @@ export default function Landing() {
             backgroundPosition: "center"
           }}
         />
-        
+
         <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
           <div className="text-center">
             <h1 className="hero-text text-3xl sm:text-4xl md:text-6xl font-serif font-bold text-white mb-4 sm:mb-6 leading-tight">
@@ -52,34 +52,34 @@ export default function Landing() {
             <p className="text-lg sm:text-xl text-white/90 max-w-3xl mx-auto mb-8 sm:mb-12 px-2">
               Create a beautiful online memorial to celebrate life and connect loved ones forever.
             </p>
-            
+
             {/* Search and Create Section */}
             <div className="max-w-4xl mx-auto bg-card rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 lg:p-10">
-              <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-                <div className="space-y-4 sm:space-y-5">
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground">Search Memorials</h3>
-                  <div className="space-y-3 sm:space-y-4">
+              <div className="grid gap-8 md:grid-cols-2 md:gap-12">
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-foreground text-center md:text-left">Search Memorials</h3>
+                  <div className="space-y-4">
                     <Input
                       type="text"
                       placeholder="Enter name or location"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-11 sm:h-12 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base"
+                      className="h-12 px-4 py-3 text-base w-full"
                       data-testid="input-search-memorials"
                     />
                     <Link href={`/browse${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`}>
-                      <Button className="w-full h-11 sm:h-12 text-sm sm:text-base" data-testid="button-search-memorials">
+                      <Button className="w-full h-12 text-base" data-testid="button-search-memorials">
                         Search Memorials
                       </Button>
                     </Link>
                   </div>
                 </div>
-                
-                <div className="space-y-4 sm:space-y-5">
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground">Create Memorial</h3>
-                  <div className="space-y-3 sm:space-y-4">
+
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-foreground text-center md:text-left">Create Memorial</h3>
+                  <div className="space-y-4">
                     <Select value={selectedProvince} onValueChange={setSelectedProvince}>
-                      <SelectTrigger className="h-11 sm:h-12 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base" data-testid="select-province">
+                      <SelectTrigger className="h-12 px-4 py-3 text-base w-full" data-testid="select-province">
                         <SelectValue placeholder="Select Province" />
                       </SelectTrigger>
                       <SelectContent>
@@ -95,8 +95,7 @@ export default function Landing() {
                       </SelectContent>
                     </Select>
                     <Button 
-                      variant="secondary" 
-                      className="w-full h-11 sm:h-12 text-sm sm:text-base"
+                      className="w-full h-12 text-base"
                       onClick={() => setShowCreateModal(true)}
                       data-testid="button-create-memorial"
                     >
@@ -238,7 +237,7 @@ export default function Landing() {
               Celebrating the lives and legacies of those who have touched our hearts
             </p>
           </div>
-          
+
           {recentMemorials.length > 0 ? (
             <div className="space-y-16">
               {/* Featured Memorial Stories Carousel */}
@@ -323,7 +322,7 @@ export default function Landing() {
               </Button>
             </div>
           )}
-          
+
           {recentMemorials.length > 0 && (
             <div className="text-center mt-12">
               <Link href="/browse">
@@ -342,7 +341,7 @@ export default function Landing() {
           <div className="text-center mb-8 sm:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-foreground mb-4 px-2">How We Help You Honor Their Life</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
@@ -353,7 +352,7 @@ export default function Landing() {
               <h3 className="text-base sm:text-lg font-semibold mb-2">Digital Memorials</h3>
               <p className="text-muted-foreground text-xs sm:text-sm">Create lasting online tributes with photos, stories, and memories</p>
             </div>
-            
+
             <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,7 +362,7 @@ export default function Landing() {
               <h3 className="text-base sm:text-lg font-semibold mb-2">Funeral Programs</h3>
               <p className="text-muted-foreground text-xs sm:text-sm">Design, upload, and print beautiful funeral programs easily</p>
             </div>
-            
+
             <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +372,7 @@ export default function Landing() {
               <h3 className="text-base sm:text-lg font-semibold mb-2">Partner Directory</h3>
               <p className="text-muted-foreground text-xs sm:text-sm">Connect with trusted funeral homes, florists, and caterers</p>
             </div>
-            
+
             <div className="text-center p-4 sm:p-6 bg-card rounded-xl shadow-sm">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <svg className="w-6 h-6 sm:w-8 sm:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,7 +395,7 @@ export default function Landing() {
               Connect with verified funeral service providers who understand South African traditions
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-card rounded-xl shadow-sm p-6 text-center">
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -408,7 +407,7 @@ export default function Landing() {
               <p className="text-muted-foreground text-sm mb-2">Cape Town, Western Cape</p>
               <p className="text-muted-foreground text-xs">Traditional and modern funeral services</p>
             </div>
-            
+
             <div className="bg-card rounded-xl shadow-sm p-6 text-center">
               <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,7 +418,7 @@ export default function Landing() {
               <p className="text-muted-foreground text-sm mb-2">Johannesburg, Gauteng</p>
               <p className="text-muted-foreground text-xs">Traditional funeral flower arrangements</p>
             </div>
-            
+
             <div className="bg-card rounded-xl shadow-sm p-6 text-center">
               <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -431,7 +430,7 @@ export default function Landing() {
               <p className="text-muted-foreground text-xs">Traditional and contemporary catering</p>
             </div>
           </div>
-          
+
           <div className="text-center mt-12">
             <Link href="/partners">
               <Button variant="secondary" data-testid="button-view-all-partners">
@@ -480,7 +479,7 @@ export default function Landing() {
                 A digital home for the living to honour the departed. Helping South African families celebrate life with dignity, design, and deep humanity.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Create & Share</h4>
               <ul className="space-y-2 text-sm text-background/80">
@@ -490,7 +489,7 @@ export default function Landing() {
                 <li><a href="#" className="hover:text-background transition-colors">Upload Photos</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Find & Connect</h4>
               <ul className="space-y-2 text-sm text-background/80">
@@ -500,7 +499,7 @@ export default function Landing() {
                 <li><a href="#" className="hover:text-background transition-colors">Community Support</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-background/80">
@@ -511,9 +510,9 @@ export default function Landing() {
               </ul>
             </div>
           </div>
-          
+
           <hr className="border-background/20 my-8" />
-          
+
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-background/80">
             <p>&copy; 2024 Soulbridge. All rights reserved.</p>
             <p>Made with ❤️ for South African families</p>
