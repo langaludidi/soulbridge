@@ -50,9 +50,12 @@ export const users = pgTable("users", {
 export const memorials = pgTable("memorials", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   firstName: varchar("first_name").notNull(),
+  middleName: varchar("middle_name"), // Middle name / nickname
   lastName: varchar("last_name").notNull(),
   dateOfBirth: timestamp("date_of_birth").notNull(),
   dateOfPassing: timestamp("date_of_passing").notNull(),
+  dateOfFuneral: timestamp("date_of_funeral"), // Date of funeral service
+  funeralAddress: text("funeral_address"), // Address/place of funeral
   province: varchar("province").notNull(),
   profilePhotoUrl: varchar("profile_photo_url"),
   memorialMessage: text("memorial_message"),

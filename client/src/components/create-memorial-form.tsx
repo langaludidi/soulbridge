@@ -38,6 +38,8 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
     designation: "",
     dateOfBirth: "",
     dateOfPassing: "",
+    dateOfFuneral: "",
+    funeralAddress: "",
     province: "",
     city: "",
     country: "South Africa",
@@ -193,6 +195,8 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
       designation: "",
       dateOfBirth: "",
       dateOfPassing: "",
+      dateOfFuneral: "",
+      funeralAddress: "",
       province: "",
       city: "",
       country: "South Africa",
@@ -511,12 +515,12 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="middleName">Middle Name(s)</Label>
+                  <Label htmlFor="middleName">Middle Name / Nickname</Label>
                   <Input
                     id="middleName"
                     value={formData.middleName}
                     onChange={(e) => setFormData(prev => ({ ...prev, middleName: e.target.value }))}
-                    placeholder="Enter middle name(s) (optional)"
+                    placeholder="Enter middle name or nickname (optional)"
                     data-testid="input-middle-name"
                   />
                 </div>
@@ -588,6 +592,30 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
                       value={formData.dateOfPassing}
                       onChange={(e) => setFormData(prev => ({ ...prev, dateOfPassing: e.target.value }))}
                       data-testid="input-date-passing"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfFuneral">Date of Funeral</Label>
+                    <Input
+                      id="dateOfFuneral"
+                      type="date"
+                      value={formData.dateOfFuneral}
+                      onChange={(e) => setFormData(prev => ({ ...prev, dateOfFuneral: e.target.value }))}
+                      placeholder="Select funeral date"
+                      data-testid="input-date-funeral"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="funeralAddress">Place of Funeral</Label>
+                    <Input
+                      id="funeralAddress"
+                      value={formData.funeralAddress}
+                      onChange={(e) => setFormData(prev => ({ ...prev, funeralAddress: e.target.value }))}
+                      placeholder="Church, funeral home, or venue"
+                      data-testid="input-funeral-address"
                     />
                   </div>
                 </div>
