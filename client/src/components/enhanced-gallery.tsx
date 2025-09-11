@@ -53,6 +53,7 @@ import {
   HelpCircle,
   Bell,
   BellOff,
+  Plus // Imported Plus icon
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -129,7 +130,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
           console.warn('Could not set cover photo:', error);
         }
       }
-      
+
       queryClient.invalidateQueries({ queryKey: ["/api/memorials", memorialId, "photos"] });
       setUploadModalOpen(false);
       setUploadForm({ 
@@ -222,16 +223,16 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       if (!isAuthenticated && subscriptionEmail) {
         params.append('email', subscriptionEmail.trim());
       }
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-      
+
       try {
         const response = await fetch(`/api/memorials/${memorialId}/subscription?${params}`, {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.message || `Server error: ${response.status}`);
@@ -271,7 +272,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     onError: (error: any) => {
       let errorMessage = "Failed to subscribe. Please try again.";
       let errorTitle = "Subscription failed";
-      
+
       if (error?.response?.status === 409) {
         errorMessage = "You're already subscribed to this memorial with this email address.";
         errorTitle = "Already subscribed";
@@ -287,7 +288,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       } else {
         errorMessage = error?.response?.data?.message || error?.message || errorMessage;
       }
-      
+
       toast({
         title: errorTitle,
         description: errorMessage,
@@ -320,7 +321,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     onError: (error: any) => {
       let errorMessage = "Failed to unsubscribe. Please try again.";
       let errorTitle = "Unsubscribe failed";
-      
+
       if (error?.response?.status === 404) {
         errorMessage = "No active subscription found with this email address.";
         errorTitle = "Not subscribed";
@@ -336,7 +337,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       } else {
         errorMessage = error?.response?.data?.message || error?.message || errorMessage;
       }
-      
+
       toast({
         title: errorTitle,
         description: errorMessage,
@@ -350,10 +351,10 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     if (!photoId || viewedPhotosInSession.has(photoId)) {
       return; // Already viewed in this session, don't increment again
     }
-    
+
     // Mark as viewed in current session
     setViewedPhotosInSession(prev => new Set(prev).add(photoId));
-    
+
     // Increment view count on server
     incrementPhotoViewMutation.mutate(photoId);
   };
@@ -396,7 +397,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
 
   const handleEmailSubscribe = () => {
     const email = subscriptionEmail.trim();
-    
+
     if (!email) {
       toast({
         title: "Email required",
@@ -405,7 +406,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       });
       return;
     }
-    
+
     // Enhanced email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -416,7 +417,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       });
       return;
     }
-    
+
     // Check for common email typos
     const commonTypos = /@(gmai\.com|gmial\.com|yahooo\.com|hotmial\.com)$/i;
     if (commonTypos.test(email)) {
@@ -427,7 +428,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
       });
       return;
     }
-    
+
     subscribeMutation.mutate({ 
       email: email, 
       subscriptionType: "all_updates" 
@@ -452,12 +453,12 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const nextPhotoSlideshow = () => {
     const newIndex = (currentPhotoIndex + 1) % photos.length;
     setCurrentPhotoIndex(newIndex);
-    
+
     // Track photo view when navigating
     if (photos[newIndex]?.id) {
       trackPhotoView(photos[newIndex].id);
     }
-    
+
     // Reset timer if playing
     if (slideshowPlaying) {
       startSlideshowTimer();
@@ -467,12 +468,12 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const prevPhotoSlideshow = () => {
     const newIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
     setCurrentPhotoIndex(newIndex);
-    
+
     // Track photo view when navigating
     if (photos[newIndex]?.id) {
       trackPhotoView(photos[newIndex].id);
     }
-    
+
     // Reset timer if playing
     if (slideshowPlaying) {
       startSlideshowTimer();
@@ -485,7 +486,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     } else {
       const newIndex = (currentPhotoIndex + 1) % photos.length;
       setCurrentPhotoIndex(newIndex);
-      
+
       // Track photo view when navigating to new photo (with session deduplication)
       if (photos[newIndex]?.id) {
         trackPhotoView(photos[newIndex].id);
@@ -499,7 +500,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     } else {
       const newIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
       setCurrentPhotoIndex(newIndex);
-      
+
       // Track photo view when navigating to new photo (with session deduplication)
       if (photos[newIndex]?.id) {
         trackPhotoView(photos[newIndex].id);
@@ -536,7 +537,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const openLightbox = (index: number) => {
     setCurrentPhotoIndex(index);
     setLightboxOpen(true);
-    
+
     // Track photo view when lightbox opens (with session deduplication)
     if (photos[index]?.id) {
       trackPhotoView(photos[index].id);
@@ -546,7 +547,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const handleUploadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadForm.photoUrl.trim()) return;
-    
+
     uploadPhotoMutation.mutate({
       photoUrl: uploadForm.photoUrl.trim(),
       caption: uploadForm.caption.trim() || undefined,
@@ -562,7 +563,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactForm.message.trim() || !contactForm.subject) return;
-    
+
     submitContactMutation.mutate({
       subject: contactForm.subject,
       message: contactForm.message.trim(),
@@ -633,7 +634,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragActive(false);
-    
+
     // Note: In a real implementation, you'd handle file uploads here
     // For now, we'll just show the upload modal
     setUploadModalOpen(true);
@@ -650,7 +651,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
     } else {
       clearSlideshowTimer();
     }
-    
+
     return () => {
       clearSlideshowTimer();
     };
@@ -660,7 +661,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!lightboxOpen) return;
-      
+
       switch (event.code) {
         case 'ArrowRight':
         case 'ArrowDown':
@@ -730,210 +731,71 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
         <div className="lg:col-span-3 p-6">
           {/* Media Type Tabs */}
           <Tabs value={activeMediaType} onValueChange={(value) => setActiveMediaType(value as MediaType)} className="w-full">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <h3 className="text-xl font-semibold flex items-center space-x-2">
-                  {(() => {
-                    const IconComponent = getMediaTypeIcon(activeMediaType);
-                    return <IconComponent className="w-5 h-5 text-primary" />;
-                  })()}
-                  <span>{getMediaTypeLabel(activeMediaType)} Gallery</span>
-                </h3>
-                <Badge variant="secondary" className="text-sm">
-                  {photos.length} {photos.length === 1 ? getMediaTypeLabel(activeMediaType) : `${getMediaTypeLabel(activeMediaType)}s`}
-                </Badge>
+            <div className="space-y-3 mb-6">
+                <div className="flex bg-muted rounded-lg p-1">
+                  <button
+                    onClick={() => setActiveMediaType('photo')}
+                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      activeMediaType === 'photo' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    data-testid="tab-photos"
+                  >
+                    Photos
+                    {photosCount > 0 && (
+                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                        {photosCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setActiveMediaType('video')}
+                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      activeMediaType === 'video' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    data-testid="tab-videos"
+                  >
+                    Videos
+                    {videosCount > 0 && (
+                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                        {videosCount}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setActiveMediaType('audio')}
+                    className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                      activeMediaType === 'audio' 
+                        ? 'bg-background text-foreground shadow-sm' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                    data-testid="tab-audio"
+                  >
+                    Audio
+                    {audiosCount > 0 && (
+                      <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full">
+                        {audiosCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                <Button
+                  onClick={() => setUploadModalOpen(true)}
+                  className="w-full sm:w-auto"
+                  size="lg"
+                  data-testid={`button-add-${activeMediaType}`}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Add {getMediaTypeLabel(activeMediaType)}
+                </Button>
               </div>
-              
-              <TabsList className="grid w-auto grid-cols-3">
-                <TabsTrigger 
-                  value="photo" 
-                  className="flex items-center space-x-1" 
-                  data-testid="tab-photos"
-                  onClick={() => setActiveMediaType('photo')}
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  <span>Photos</span>
-                  {photosCount > 0 && <Badge variant="secondary" className="ml-1 text-xs">{photosCount}</Badge>}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="video" 
-                  className="flex items-center space-x-1" 
-                  data-testid="tab-videos"
-                  onClick={() => setActiveMediaType('video')}
-                >
-                  <Video className="w-4 h-4" />
-                  <span>Videos</span>
-                  {videosCount > 0 && <Badge variant="secondary" className="ml-1 text-xs">{videosCount}</Badge>}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="audio" 
-                  className="flex items-center space-x-1" 
-                  data-testid="tab-audio"
-                  onClick={() => setActiveMediaType('audio')}
-                >
-                  <Music className="w-4 h-4" />
-                  <span>Audio</span>
-                  {audiosCount > 0 && <Badge variant="secondary" className="ml-1 text-xs">{audiosCount}</Badge>}
-                </TabsTrigger>
-              </TabsList>
-            </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-2">
-                {photos.length > 0 && activeMediaType === 'photo' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={startSlideshow}
-                    className="flex items-center space-x-2"
-                    data-testid="button-start-slideshow"
-                  >
-                    <Play className="w-4 h-4" />
-                    <span>Start Slideshow</span>
-                  </Button>
-                )}
-              </div>
-              
-              <Dialog open={uploadModalOpen} onOpenChange={setUploadModalOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="flex items-center space-x-2"
-                    data-testid={`button-add-${activeMediaType}`}
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Add {getMediaTypeLabel(activeMediaType)}</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Upload {getMediaTypeLabel(activeMediaType)}</DialogTitle>
-                    <DialogDescription>
-                      Add a meaningful {activeMediaType} to this memorial gallery. Share precious memories with family and friends.
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <form onSubmit={handleUploadSubmit} className="space-y-4">
-                    {/* Media Type Selection */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Media Type</label>
-                      <div className="flex space-x-2">
-                        {(['photo', 'video', 'audio'] as const).map((type) => {
-                          const IconComponent = getMediaTypeIcon(type);
-                          return (
-                            <Button
-                              key={type}
-                              type="button"
-                              variant={uploadForm.mediaType === type ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setUploadForm(prev => ({ ...prev, mediaType: type as MediaType }))}
-                              className="flex items-center space-x-1"
-                              data-testid={`button-media-type-${type}`}
-                            >
-                              <IconComponent className="w-4 h-4" />
-                              <span>{getMediaTypeLabel(type)}</span>
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Drag and Drop Area */}
-                    <div
-                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                        dragActive 
-                          ? "border-primary bg-primary/5" 
-                          : "border-muted-foreground/25 hover:border-muted-foreground/50"
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      data-testid={`dropzone-${activeMediaType}`}
-                    >
-                      <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Drag and drop {uploadForm.mediaType}s here, or paste URL below
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {uploadForm.mediaType === 'photo' && 'Supports JPG, PNG, GIF up to 10MB'}
-                        {uploadForm.mediaType === 'video' && 'Supports MP4, AVI, MOV up to 100MB'}
-                        {uploadForm.mediaType === 'audio' && 'Supports MP3, WAV, M4A up to 25MB'}
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-medium">{getMediaTypeLabel(uploadForm.mediaType)} URL</label>
-                        <Input
-                          type="url"
-                          placeholder={`https://example.com/${uploadForm.mediaType === 'photo' ? 'photo.jpg' : uploadForm.mediaType === 'video' ? 'video.mp4' : 'audio.mp3'}`}
-                          value={uploadForm.photoUrl}
-                          onChange={(e) => setUploadForm(prev => ({ ...prev, photoUrl: e.target.value }))}
-                          required
-                          data-testid={`input-${uploadForm.mediaType}-url`}
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium">Caption (optional)</label>
-                        <Textarea
-                          placeholder={`Add a caption for this ${uploadForm.mediaType}...`}
-                          value={uploadForm.caption}
-                          onChange={(e) => setUploadForm(prev => ({ ...prev, caption: e.target.value }))}
-                          rows={2}
-                          data-testid={`input-${uploadForm.mediaType}-caption`}
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium">Your Name (optional)</label>
-                        <Input
-                          type="text"
-                          placeholder="Who is uploading this?"
-                          value={uploadForm.uploaderName}
-                          onChange={(e) => setUploadForm(prev => ({ ...prev, uploaderName: e.target.value }))}
-                          data-testid="input-uploader-name"
-                        />
-                      </div>
-
-                      {uploadForm.mediaType === 'photo' && (
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="cover-photo"
-                            checked={uploadForm.isCoverPhoto}
-                            onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isCoverPhoto: !!checked }))}
-                            data-testid="checkbox-cover-photo"
-                          />
-                          <label htmlFor="cover-photo" className="text-sm font-medium cursor-pointer">
-                            Set as cover photo
-                          </label>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex justify-end space-x-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setUploadModalOpen(false)}
-                        data-testid="button-cancel-upload"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={uploadPhotoMutation.isPending || !uploadForm.photoUrl.trim()}
-                        data-testid="button-submit-upload"
-                      >
-                        {uploadPhotoMutation.isPending ? "Uploading..." : `Upload ${getMediaTypeLabel(uploadForm.mediaType)}`}
-                      </Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+            {/* This section is replaced by the above Tabs component */}
 
             {/* Gallery Content Tabs */}
             <TabsContent value={activeMediaType} className="mt-0">
@@ -954,7 +816,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                           loading="lazy"
                         />
                       )}
-                      
+
                       {activeMediaType === 'video' && (
                         <div className="w-full h-full bg-gray-900 flex items-center justify-center">
                           <Video className="w-12 h-12 text-white/80" />
@@ -963,13 +825,13 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                           </div>
                         </div>
                       )}
-                      
+
                       {activeMediaType === 'audio' && (
                         <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                           <Music className="w-12 h-12 text-white" />
                         </div>
                       )}
-                      
+
                       {/* Cover Photo Badge */}
                       {photo.isCoverPhoto && activeMediaType === 'photo' && (
                         <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
@@ -977,7 +839,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                           <span>Cover</span>
                         </div>
                       )}
-                      
+
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -1000,7 +862,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Media Info Overlay */}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="text-white text-xs space-y-1">
@@ -1030,31 +892,32 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 </div>
               ) : (
                 /* Empty State */
-                <div className="text-center py-12">
+                <div className="text-center py-12 px-4">
                   <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                     {(() => {
                       const IconComponent = getMediaTypeIcon(activeMediaType);
                       return <IconComponent className="w-8 h-8 text-muted-foreground" />;
                     })()}
                   </div>
-                  <h4 className="text-lg font-medium mb-2">No {activeMediaType}s yet</h4>
-                  <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
+                  <h4 className="text-lg font-medium text-foreground mb-2">No {activeMediaType}s yet</h4>
+                  <p className="text-muted-foreground mb-8 max-w-sm mx-auto text-sm sm:text-base">
                     Share precious memories by uploading {activeMediaType}s to this memorial gallery.
                   </p>
                   <Button
                     onClick={() => setUploadModalOpen(true)}
-                    className="flex items-center space-x-2"
+                    size="lg"
+                    className="w-full sm:w-auto"
                     data-testid={`button-upload-first-${activeMediaType}`}
                   >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload First {getMediaTypeLabel(activeMediaType)}</span>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload First {getMediaTypeLabel(activeMediaType)}
                   </Button>
                 </div>
               )}
             </TabsContent>
           </Tabs>
         </div>
-        
+
         {/* Gallery Sidebar */}
         <div className="lg:col-span-1 bg-muted/30 p-6 space-y-6">
           {/* Memorial Views Section - Prominent display inspired by ForeverMissed */}
@@ -1097,13 +960,13 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                     // 2. memorial.submittedBy if it's a display name (not UUID)
                     // 3. Most active contributor (person with most uploads)
                     // 4. Default to "Family Administrator" as last resort
-                    
+
                     // Priority 1: Use proper administrator name from backend join
                     const memorialWithAdmin = memorial as any;
                     if (memorialWithAdmin.administratorName?.trim()) {
                       return memorialWithAdmin.administratorName.trim();
                     }
-                    
+
                     // Priority 2: Check if submittedBy contains actual display name (not just UUID)
                     if (memorial.submittedBy) {
                       // If submittedBy looks like a display name (contains spaces/chars), use it
@@ -1112,11 +975,11 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                         return memorial.submittedBy;
                       }
                     }
-                    
+
                     // Priority 3: Find most active contributor (person with most uploads)
                     if (allPhotos?.length > 0) {
                       const uploaderCounts = new Map<string, number>();
-                      
+
                       // Count uploads per person
                       allPhotos
                         .filter(photo => photo.uploaderName?.trim())
@@ -1124,25 +987,25 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                           const name = photo.uploaderName!.trim();
                           uploaderCounts.set(name, (uploaderCounts.get(name) || 0) + 1);
                         });
-                      
+
                       // Find the person with most uploads (most active contributor)
                       if (uploaderCounts.size > 0) {
                         let mostActiveContributor = '';
                         let maxUploads = 0;
-                        
+
                         uploaderCounts.forEach((count, name) => {
                           if (count > maxUploads) {
                             maxUploads = count;
                             mostActiveContributor = name;
                           }
                         });
-                        
+
                         if (mostActiveContributor) {
                           return mostActiveContributor;
                         }
                       }
                     }
-                    
+
                     // Priority 4: Final fallback - use a default administrator name
                     return "Family Administrator";
                   })()}
@@ -1228,7 +1091,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               <p className="text-sm text-muted-foreground mb-4">
                 Share {memorial.firstName}'s memorial with family and friends
               </p>
-              
+
               <div className="grid gap-2">
                 <Button
                   variant="outline"
@@ -1240,7 +1103,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <FaWhatsapp className="w-4 h-4 mr-2" />
                   Share on WhatsApp
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -1251,7 +1114,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <Facebook className="w-4 h-4 mr-2" />
                   Share on Facebook
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -1262,7 +1125,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   <Mail className="w-4 h-4 mr-2" />
                   Share via Email
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -1296,7 +1159,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               <p className="text-sm text-muted-foreground mb-4">
                 Invite others to view and contribute to {memorial.firstName}'s memorial
               </p>
-              
+
               <Button
                 onClick={() => setInvitationModalOpen(true)}
                 className="w-full"
@@ -1305,7 +1168,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <UserPlus className="w-4 h-4 mr-2" />
                 Invite Now
               </Button>
-              
+
               <div className="bg-muted/50 rounded-lg p-3">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Heart className="w-4 h-4 text-primary" />
@@ -1331,7 +1194,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               <p className="text-sm text-muted-foreground mb-4">
                 Stay updated when new photos, videos, or tributes are added to {memorial.firstName}'s memorial
               </p>
-              
+
               {/* Subscription status */}
               <div className="bg-muted/50 rounded-lg p-3">
                 <div className="flex items-center space-x-2 text-sm">
@@ -1362,7 +1225,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 )}
               </div>
-              
+
               {/* Email input for guest users */}
               {!isAuthenticated && showEmailInput && (
                 <div className="space-y-2">
@@ -1402,7 +1265,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 </div>
               )}
-              
+
               {/* Show current subscription email for guests */}
               {!isAuthenticated && !showEmailInput && subscriptionStatus?.isSubscribed && subscriptionEmail && (
                 <div className="bg-green-50 dark:bg-green-950/20 rounded-lg p-3 border border-green-200 dark:border-green-800">
@@ -1423,7 +1286,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 </div>
               )}
-              
+
               {/* Subscribe/Unsubscribe button */}
               {!showEmailInput && (
                 <Button
@@ -1447,7 +1310,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   )}
                 </Button>
               )}
-              
+
               {/* Guest user notices */}
               {!isAuthenticated && !showEmailInput && !subscriptionStatus?.isSubscribed && (
                 <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
@@ -1459,7 +1322,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 </div>
               )}
-              
+
               {/* Guest unsubscribe notice */}
               {!isAuthenticated && !showEmailInput && subscriptionStatus?.isSubscribed && !subscriptionEmail.trim() && (
                 <div className="bg-orange-50 dark:bg-orange-950/20 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
@@ -1471,11 +1334,11 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 </div>
               )}
-              
+
               <div className="bg-muted/50 rounded-lg p-3">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 00-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                   </svg>
                   <span>You'll be notified about:</span>
                 </div>
@@ -1497,9 +1360,9 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
             </h4>
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground mb-4">
-                Help us improve by sharing your thoughts about this memorial page
+                Help us improve by sharing your thoughts about {memorial.firstName}'s memorial page
               </p>
-              
+
               <Button
                 onClick={() => setContactModalOpen(true)}
                 variant="outline"
@@ -1509,7 +1372,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <HelpCircle className="w-4 h-4 mr-2" />
                 Contact Us
               </Button>
-              
+
               <div className="bg-muted/50 rounded-lg p-3">
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Shield className="w-4 h-4 text-primary" />
@@ -1624,7 +1487,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                       <Play className="w-5 h-5" />
                     )}
                   </button>
-                  
+
                   {/* Stop Slideshow Button */}
                   <button
                     onClick={stopSlideshow}
@@ -1633,7 +1496,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   >
                     <Square className="w-5 h-5" />
                   </button>
-                  
+
                   {/* Skip Controls */}
                   <button
                     onClick={prevPhotoSlideshow}
@@ -1642,7 +1505,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   >
                     <SkipBack className="w-5 h-5" />
                   </button>
-                  
+
                   <button
                     onClick={nextPhotoSlideshow}
                     className="text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full backdrop-blur-sm"
@@ -1668,7 +1531,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Progress Bar */}
                   <div className="mt-2 w-64 bg-white/20 rounded-full h-1 overflow-hidden">
                     <div 
@@ -1678,7 +1541,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 </div>
               )}
-              
+
               {/* Navigation Buttons */}
               {photos.length > 1 && (
                 <>
@@ -1698,7 +1561,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </button>
                 </>
               )}
-              
+
               {/* Main Media */}
               <div className="flex items-center justify-center min-h-[60vh] p-4">
                 {activeMediaType === 'photo' && (
@@ -1738,7 +1601,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   </div>
                 )}
               </div>
-              
+
               {/* Media Info */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
                 <div className="text-white space-y-2">
@@ -1802,7 +1665,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
               We value your feedback! Share your thoughts about {memorial.firstName}'s memorial page or suggest improvements.
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleContactSubmit} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">What can we help you with?</label>
@@ -1818,7 +1681,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 <option value="content_concern">Content Concern</option>
               </select>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Your Message *</label>
               <Textarea
@@ -1830,7 +1693,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 data-testid="textarea-contact-message"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Your Email (optional)</label>
               <Input
@@ -1844,7 +1707,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                 Leave your email if you'd like us to respond to your message
               </p>
             </div>
-            
+
             <div className="flex space-x-2 pt-2">
               <Button
                 type="button"

@@ -96,14 +96,14 @@ export function Navigation() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="md:hidden flex items-center space-x-3">
             {isAuthenticated ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 {user?.profileImageUrl && (
                   <img 
                     src={user.profileImageUrl} 
                     alt={`${user.firstName} ${user.lastName}`}
-                    className="w-6 h-6 rounded-full object-cover"
+                    className="w-7 h-7 rounded-full object-cover"
                     data-testid="img-user-profile-mobile"
                   />
                 )}
@@ -111,7 +111,7 @@ export function Navigation() {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-1"
+                  className="p-2 h-9 w-9"
                   data-testid="button-mobile-menu"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,12 +120,12 @@ export function Navigation() {
                 </Button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <Button 
                   size="sm"
                   onClick={() => window.location.href = "/api/login"}
                   data-testid="button-login-mobile"
-                  className="text-xs px-3"
+                  className="text-sm px-4 h-9"
                 >
                   Sign In
                 </Button>
@@ -133,7 +133,7 @@ export function Navigation() {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-1"
+                  className="p-2 h-9 w-9"
                   data-testid="button-mobile-menu-guest"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,10 +148,10 @@ export function Navigation() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-card">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="px-3 pt-3 pb-4 space-y-2">
               <Link href="/" data-testid="link-nav-home-mobile">
                 <span 
-                  className={`block px-3 py-2 text-base font-medium transition-colors cursor-pointer rounded-md ${
+                  className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
                     location === "/" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -161,7 +161,7 @@ export function Navigation() {
               </Link>
               <Link href="/browse" data-testid="link-nav-browse-mobile">
                 <span 
-                  className={`block px-3 py-2 text-base font-medium transition-colors cursor-pointer rounded-md ${
+                  className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
                     location === "/browse" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -171,7 +171,7 @@ export function Navigation() {
               </Link>
               <Link href="/partners" data-testid="link-nav-partners-mobile">
                 <span 
-                  className={`block px-3 py-2 text-base font-medium transition-colors cursor-pointer rounded-md ${
+                  className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
                     location === "/partners" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -182,7 +182,7 @@ export function Navigation() {
               {isAuthenticated && (
                 <Link href="/create" data-testid="link-nav-create-mobile">
                   <span 
-                    className={`block px-3 py-2 text-base font-medium transition-colors cursor-pointer rounded-md ${
+                    className={`block px-4 py-3 text-base font-medium transition-colors cursor-pointer rounded-lg ${
                       location === "/create" ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-muted/50"
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
@@ -192,8 +192,8 @@ export function Navigation() {
                 </Link>
               )}
               {isAuthenticated && (
-                <div className="border-t border-border pt-2 mt-2">
-                  <div className="px-3 py-2">
+                <div className="border-t border-border pt-3 mt-3">
+                  <div className="px-4 py-2 mb-3">
                     <span className="text-sm text-muted-foreground" data-testid="text-user-name-mobile">
                       {user?.firstName} {user?.lastName}
                     </span>
@@ -203,7 +203,7 @@ export function Navigation() {
                     size="sm" 
                     onClick={() => window.location.href = "/api/logout"}
                     data-testid="button-logout-mobile"
-                    className="ml-3 mb-2"
+                    className="ml-4 mb-2 h-9"
                   >
                     Sign Out
                   </Button>
