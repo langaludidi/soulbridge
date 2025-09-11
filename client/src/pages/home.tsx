@@ -154,6 +154,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+        </div>
       </section>
 
       {/* How It Works */}
@@ -173,7 +174,7 @@ export default function Home() {
           <div className="relative">
             {/* Connection Line */}
             <div className="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30"></div>
-            
+
             <div className="grid gap-12 md:grid-cols-3 relative">
               <div className="text-center space-y-6 relative">
                 <div className="relative inline-block">
@@ -222,6 +223,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
+        </div>
       </section>
 
       {/* Features Section */}
@@ -257,6 +259,7 @@ export default function Home() {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -305,6 +308,7 @@ export default function Home() {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </section>
 
