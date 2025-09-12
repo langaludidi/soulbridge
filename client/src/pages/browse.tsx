@@ -40,21 +40,21 @@ export default function Browse() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen section-bg-primary">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+          <h1 className="h1 mb-4">
             Browse Memorials
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="lead text-muted-foreground max-w-2xl mx-auto">
             Discover and honor the memories of loved ones from across South Africa
           </p>
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-card rounded-xl shadow-sm p-8 mb-8">
+        <div className="section-elevated rounded-xl p-8 mb-8">
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
               <Input
@@ -92,12 +92,12 @@ export default function Browse() {
         {isLoading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card rounded-xl shadow-sm overflow-hidden">
-                <div className="h-64 bg-muted animate-pulse"></div>
+              <div key={i} className="section-elevated rounded-xl overflow-hidden">
+                <div className="h-64 section-bg-muted animate-pulse"></div>
                 <div className="p-6 space-y-3">
-                  <div className="h-4 bg-muted rounded animate-pulse"></div>
-                  <div className="h-3 bg-muted rounded animate-pulse w-2/3"></div>
-                  <div className="h-3 bg-muted rounded animate-pulse w-1/2"></div>
+                  <div className="h-4 section-bg-muted rounded animate-pulse"></div>
+                  <div className="h-3 section-bg-muted rounded animate-pulse w-2/3"></div>
+                  <div className="h-3 section-bg-muted rounded animate-pulse w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -105,7 +105,7 @@ export default function Browse() {
         ) : filteredMemorials.length > 0 ? (
           <>
             <div className="flex items-center justify-between mb-6">
-              <p className="text-muted-foreground" data-testid="text-results-count">
+              <p className="body text-muted-foreground" data-testid="text-results-count">
                 {filteredMemorials.length} memorial{filteredMemorials.length !== 1 ? 's' : ''} found
               </p>
               {(searchQuery || (selectedProvince && selectedProvince !== "all")) && (
@@ -129,13 +129,13 @@ export default function Browse() {
           </>
         ) : (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 section-bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">No memorials found</h3>
-            <p className="text-muted-foreground mb-4">
+            <h3 className="h3 mb-2">No memorials found</h3>
+            <p className="body text-muted-foreground mb-4">
               {searchQuery || (selectedProvince && selectedProvince !== "all")
                 ? "Try adjusting your search criteria or browse all memorials." 
                 : "There are no memorials available at the moment."}
