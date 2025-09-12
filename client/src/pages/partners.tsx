@@ -104,7 +104,7 @@ export default function Partners() {
             {partnerTypes.map((type, index) => (
               <div key={index} className="section-elevated rounded-xl p-8 text-center group hover:shadow-md transition-all duration-300">
                 <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-gradient-to-br ${type.gradient}`}>
-                  <type.icon className="w-10 h-10 text-white" />
+                  <span className="text-4xl text-white">{type.icon}</span>
                 </div>
                 <h3 className="h3 mb-3">{type.title}</h3>
                 <p className="body text-muted-foreground mb-4">{type.description}</p>
@@ -277,7 +277,7 @@ export default function Partners() {
             {benefits.map((benefit, index) => (
               <div key={index} className="section-elevated rounded-xl p-8 text-center h-full hover:shadow-md transition-shadow">
                 <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mx-auto mb-6">
-                  <benefit.icon className="w-8 h-8 text-white" />
+                  <span className="text-3xl text-white">{benefit.icon}</span>
                 </div>
                 <h3 className="h3 mb-4">{benefit.title}</h3>
                 <p className="body text-muted-foreground">{benefit.description}</p>
