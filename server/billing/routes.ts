@@ -11,6 +11,7 @@ import type { BillingProvider } from './types';
 import { PLAN_PRICING } from './types';
 import { getSubscriptionEntitlements } from '@shared/schema';
 import type { AuthenticatedRequestStrict, AuthenticatedRequest } from '../middleware/auth';
+import { logger } from '../utils/logger';
 
 export const billingRouter = Router();
 
@@ -139,6 +140,41 @@ const checkoutSessionSchema = z.object({
   plan: z.enum(['honour', 'legacy', 'family_vault']),
   interval: z.enum(['monthly', 'yearly']),
   provider: z.enum(['paystack', 'netcash']).default('paystack')
+});
+
+// Simplified checkout endpoint for PaymentModal compatibility
+billingRouter.post('/checkout', isAuthenticated, async (req, res) => {
+  try {
+    const { plan, interval, provider: providerName } = checkoutSessionSchema.parse(req.body);
+    const authReq = req as AuthenticatedRequestStrict;
+    const userId = authReq.user.claims.sub;
+    
+    const provider = providers[providerName];
+    if (!provider) {
+      return res.status(400).json({ error: `Provider ${providerName} not supported` });
+    }
+    
+    const result = await provider.createCheckoutSession({
+      plan,
+      interval,
+      userId,
+    });
+    
+    res.json(result);
+  } catch (error: any) {
+    logger.error('Error creating checkout session', { error: error.message, userId: (req as any).user?.claims?.sub });
+    
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ 
+        error: 'Invalid request data',
+        details: error.errors 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: error.message || 'Failed to create checkout session'
+    });
+  }
 });
 
 billingRouter.post('/checkout-session', isAuthenticated, async (req, res) => {

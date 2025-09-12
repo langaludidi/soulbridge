@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Check, Star, Users, Heart, Crown, Shield, ArrowRight, CreditCard, Building2 } from "lucide-react";
+import PaymentModal from "@/components/PaymentModal";
 
 interface PlanFeatures {
   memorialLimit: string;
@@ -125,6 +126,8 @@ export default function PricingPage() {
   const { toast } = useToast();
   const [selectedInterval, setSelectedInterval] = useState<"monthly" | "yearly">("monthly");
   const [selectedProvider, setSelectedProvider] = useState<"paystack" | "netcash">("paystack");
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   
   // Get current user subscription
   const { data: subscription } = useQuery({
@@ -199,7 +202,46 @@ export default function PricingPage() {
       return;
     }
 
-    checkoutMutation.mutate(planId);
+    const plan = plans.find(p => p.id === planId);
+    if (plan) {
+      // Show PaymentModal for better UX, fallback to direct API call
+      const modalPlan = {
+        id: plan.id,
+        name: plan.name,
+        price: selectedInterval === "yearly" ? Math.round(plan.price * 12 * 0.8) / 12 : plan.price,
+        interval: selectedInterval,
+        description: plan.description,
+        features: [
+          plan.features.memorialLimit,
+          plan.features.allowGallery ? "Gallery enabled" : "Basic gallery",
+          plan.features.allowAudioVideo ? "Audio/Video supported" : "Text only",
+          plan.features.allowPdf ? "PDF export" : "Online viewing",
+          plan.features.maxPhotos
+        ]
+      };
+      
+      setSelectedPlan(modalPlan);
+      setPaymentModalOpen(true);
+    } else {
+      // Fallback to direct API call
+      checkoutMutation.mutate(planId);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: "Payment Successful!",
+      description: "Your subscription has been activated. Redirecting...",
+      variant: "default"
+    });
+    
+    // Refresh subscription data
+    queryClient.invalidateQueries({ queryKey: ["/api/billing/subscription"] });
+    
+    // Redirect to dashboard after short delay
+    setTimeout(() => {
+      setLocation("/dashboard");
+    }, 2000);
   };
 
   const getButtonText = (plan: SubscriptionPlan) => {
@@ -553,6 +595,16 @@ export default function PricingPage() {
           )}
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {selectedPlan && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          plan={selectedPlan}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }
