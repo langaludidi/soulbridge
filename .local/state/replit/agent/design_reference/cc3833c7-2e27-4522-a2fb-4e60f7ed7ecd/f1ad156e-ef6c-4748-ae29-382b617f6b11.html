@@ -1,0 +1,851 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorial Gardens - Where Life Stories Live On</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                    chart: {
+                        "1": "var(--chart-1)",
+                        "2": "var(--chart-2)",
+                        "3": "var(--chart-3)",
+                        "4": "var(--chart-4)",
+                        "5": "var(--chart-5)",
+                    }
+                },
+                fontFamily: {
+                    sans: ["Inter", "sans-serif"],
+                    serif: ["Playfair Display", "serif"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(210 20% 98%);
+            --foreground: hsl(210 40% 8%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(210 40% 8%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(210 40% 8%);
+            --primary: hsl(210 40% 12%);
+            --primary-foreground: hsl(0 0% 98%);
+            --secondary: hsl(210 40% 96%);
+            --secondary-foreground: hsl(210 40% 12%);
+            --muted: hsl(210 40% 96%);
+            --muted-foreground: hsl(210 25% 45%);
+            --accent: hsl(43 74% 66%);
+            --accent-foreground: hsl(210 40% 8%);
+            --destructive: hsl(0 84% 60%);
+            --destructive-foreground: hsl(0 0% 98%);
+            --border: hsl(210 40% 90%);
+            --input: hsl(210 40% 90%);
+            --ring: hsl(210 40% 12%);
+            --radius: 0.75rem;
+            --chart-1: hsl(220 70% 50%);
+            --chart-2: hsl(160 60% 45%);
+            --chart-3: hsl(30 80% 55%);
+            --chart-4: hsl(280 65% 60%);
+            --chart-5: hsl(340 75% 55%);
+        }
+
+        .dark {
+            --background: hsl(210 40% 7%);
+            --foreground: hsl(0 0% 98%);
+            --card: hsl(210 40% 10%);
+            --card-foreground: hsl(0 0% 98%);
+            --popover: hsl(210 40% 10%);
+            --popover-foreground: hsl(0 0% 98%);
+            --primary: hsl(0 0% 98%);
+            --primary-foreground: hsl(210 40% 8%);
+            --secondary: hsl(210 40% 15%);
+            --secondary-foreground: hsl(0 0% 98%);
+            --muted: hsl(210 40% 15%);
+            --muted-foreground: hsl(210 25% 65%);
+            --accent: hsl(43 74% 66%);
+            --accent-foreground: hsl(210 40% 8%);
+            --destructive: hsl(0 62% 30%);
+            --destructive-foreground: hsl(0 0% 98%);
+            --border: hsl(210 40% 20%);
+            --input: hsl(210 40% 20%);
+            --ring: hsl(212 72% 59%);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .memorial-card {
+            transition: all 0.3s ease;
+        }
+
+        .memorial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+        }
+
+        .tribute-item {
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .tribute-item:hover {
+            background: var(--muted);
+        }
+
+        /* Lightbox styles */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground font-sans antialiased">
+    <!-- Navigation -->
+    <nav class="bg-card border-b border-border sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-dove text-accent text-2xl"></i>
+                    <h1 class="text-xl font-serif font-semibold text-primary">Memorial Gardens</h1>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-muted-foreground hover:text-primary transition-colors">Home</a>
+                    <a href="#search" class="nav-link text-muted-foreground hover:text-primary transition-colors">Find Memorial</a>
+                    <a href="#create" class="nav-link text-muted-foreground hover:text-primary transition-colors">Create Memorial</a>
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+
+                <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden py-4 border-t border-border">
+                <div class="flex flex-col space-y-4">
+                    <a href="#home" class="text-muted-foreground hover:text-primary transition-colors">Home</a>
+                    <a href="#search" class="text-muted-foreground hover:text-primary transition-colors">Find Memorial</a>
+                    <a href="#create" class="text-muted-foreground hover:text-primary transition-colors">Create Memorial</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Landing Page Section -->
+        <section id="landing-page" class="min-h-screen">
+            <!-- Hero Section -->
+            <div class="relative bg-gradient-to-br from-primary/5 to-accent/10 py-24">
+                <!-- Beautiful memorial landscape background -->
+                <div class="absolute inset-0 opacity-20">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080" alt="Peaceful landscape" class="w-full h-full object-cover">
+                </div>
+                
+                <div class="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h1 class="text-4xl md:text-6xl font-serif font-semibold text-primary mb-6 fade-in">
+                        Where Life Stories<br>
+                        <span class="text-accent">Live On</span>
+                    </h1>
+                    <p class="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto fade-in">
+                        Honor, remember, and celebrate the lives of those we love with beautiful memorial pages that preserve their legacy for generations.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-12 fade-in">
+                        <button onclick="showCreateMemorial()" class="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                            Create Memorial
+                        </button>
+                        <div class="relative">
+                            <input type="text" placeholder="Search memorials..." class="bg-card border border-border rounded-lg px-4 py-3 pl-10 w-80 focus:outline-none focus:ring-2 focus:ring-ring">
+                            <i class="fas fa-search absolute left-3 top-4 text-muted-foreground"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Services -->
+            <div class="py-16 bg-card">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-serif font-semibold text-center text-primary mb-12">How We Help You Honor Their Life</h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center p-6 rounded-xl bg-secondary hover:bg-muted transition-colors memorial-card">
+                            <div class="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-heart text-accent text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Memorial Pages</h3>
+                            <p class="text-muted-foreground">Beautiful, lasting online spaces where family & friends can share memories and celebrate a life well-lived.</p>
+                        </div>
+
+                        <div class="text-center p-6 rounded-xl bg-secondary hover:bg-muted transition-colors memorial-card">
+                            <div class="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-camera text-accent text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Photo Galleries</h3>
+                            <p class="text-muted-foreground">Preserve precious memories with beautiful photo galleries that tell the story of their remarkable journey.</p>
+                        </div>
+
+                        <div class="text-center p-6 rounded-xl bg-secondary hover:bg-muted transition-colors memorial-card">
+                            <div class="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-feather text-accent text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Share Tributes</h3>
+                            <p class="text-muted-foreground">Allow loved ones to leave heartfelt messages, stories, and tributes that honor their memory forever.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Memorials -->
+            <div class="py-16 bg-background">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center mb-12">
+                        <h2 class="text-3xl font-serif font-semibold text-primary">Recent Memorials</h2>
+                        <button class="text-accent hover:text-accent/80 transition-colors font-medium">View All</button>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Memorial Card 1 -->
+                        <div class="memorial-card bg-card rounded-xl shadow-md overflow-hidden cursor-pointer" onclick="showMemorialPage('tandiwe')">
+                            <!-- Portrait of elderly African woman with kind eyes and gentle smile -->
+                            <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Tandiwe Olga Tini" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-serif font-semibold mb-2">Tandiwe Olga Tini</h3>
+                                <p class="text-muted-foreground text-sm mb-3">July 13, 1955 - May 11, 2025</p>
+                                <p class="text-sm text-muted-foreground mb-4">She lived with grace, served with love, and left quietly, leaving behind a legacy of strength and kindness.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-muted-foreground">22 photos • 6 tributes</span>
+                                    <span class="text-xs text-accent">View Memorial →</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Memorial Card 2 -->
+                        <div class="memorial-card bg-card rounded-xl shadow-md overflow-hidden cursor-pointer">
+                            <!-- Portrait of middle-aged man in military uniform with proud expression -->
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Robert James Mitchell" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-serif font-semibold mb-2">Robert James Mitchell</h3>
+                                <p class="text-muted-foreground text-sm mb-3">March 22, 1942 - January 8, 2025</p>
+                                <p class="text-sm text-muted-foreground mb-4">Devoted father, proud veteran, and community leader who touched countless lives with his generous spirit.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-muted-foreground">35 photos • 12 tributes</span>
+                                    <span class="text-xs text-accent">View Memorial →</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Memorial Card 3 -->
+                        <div class="memorial-card bg-card rounded-xl shadow-md overflow-hidden cursor-pointer">
+                            <!-- Portrait of young woman with bright smile and flowers in background -->
+                            <img src="https://pixabay.com/get/g1880b140f768d40260ca2843de68035eec25813a796246c2e7ebb62b79be2b0210278cde659fa64251144b87db91c4d06d900c8e404ffe8a5519521a00b2db04_1280.jpg" alt="Sarah Elizabeth Chen" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-serif font-semibold mb-2">Sarah Elizabeth Chen</h3>
+                                <p class="text-muted-foreground text-sm mb-3">August 14, 1995 - December 19, 2024</p>
+                                <p class="text-sm text-muted-foreground mb-4">Beloved teacher, artist, and friend whose vibrant spirit and creativity inspired everyone around her.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-muted-foreground">18 photos • 8 tributes</span>
+                                    <span class="text-xs text-accent">View Memorial →</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="py-16 bg-gradient-to-r from-primary to-primary/80">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 class="text-3xl font-serif font-semibold text-primary-foreground mb-6">Create a Beautiful Memorial Today</h2>
+                    <p class="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
+                        Honor your loved one with a lasting tribute that celebrates their life and preserves their memory for future generations.
+                    </p>
+                    <button onclick="showCreateMemorial()" class="bg-accent text-accent-foreground px-8 py-3 rounded-lg hover:bg-accent/90 transition-colors font-medium">
+                        Get Started
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Memorial Page Section -->
+        <section id="memorial-page" class="hidden min-h-screen">
+            <!-- Memorial Header -->
+            <div class="relative bg-gradient-to-br from-primary/10 to-accent/5 py-16">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <button onclick="showLandingPage()" class="mb-6 text-muted-foreground hover:text-primary transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                    
+                    <div class="flex flex-col lg:flex-row items-start space-y-6 lg:space-y-0 lg:space-x-8">
+                        <div class="flex-shrink-0">
+                            <!-- Portrait of Tandiwe Olga Tini - elderly African woman with warm, kind expression -->
+                            <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=400" alt="Tandiwe Olga Tini" class="w-64 h-80 object-cover rounded-xl shadow-lg">
+                        </div>
+                        
+                        <div class="flex-grow">
+                            <h1 class="text-4xl font-serif font-semibold text-primary mb-4">Tandiwe Olga Tini</h1>
+                            <p class="text-xl text-muted-foreground mb-6">1955 - 2025</p>
+                            
+                            <div class="bg-card p-6 rounded-xl shadow-sm mb-6">
+                                <p class="text-lg leading-relaxed text-foreground mb-4">
+                                    She lived with grace, served with love, and left quietly, leaving behind a legacy of strength and kindness.
+                                </p>
+                                
+                                <div class="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                                    <div>
+                                        <strong class="text-foreground">69 years old</strong>
+                                    </div>
+                                    <div>
+                                        <strong class="text-foreground">Born:</strong> July 13, 1955<br>
+                                        Libode, Eastern Cape, South Africa
+                                    </div>
+                                    <div>
+                                        <strong class="text-foreground">Passed:</strong> May 11, 2025<br>
+                                        South Africa
+                                    </div>
+                                </div>
+                            </div>
+
+                            <blockquote class="bg-accent/10 border-l-4 border-accent p-4 rounded-r-lg italic">
+                                <p class="text-primary font-serif">"Do not let your hearts be troubled. You believe in God; believe also in me… I go to prepare a place for you."</p>
+                                <footer class="text-sm text-muted-foreground mt-2">— John 14:1–3 (NIV)</footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memorial Navigation -->
+            <div class="bg-card border-b border-border sticky top-16 z-40">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <nav class="flex space-x-8 overflow-x-auto py-4">
+                        <button onclick="showTab('about')" class="memorial-tab active whitespace-nowrap py-2 px-4 rounded-lg transition-colors">
+                            About
+                        </button>
+                        <button onclick="showTab('tributes')" class="memorial-tab whitespace-nowrap py-2 px-4 rounded-lg transition-colors">
+                            Tributes (6)
+                        </button>
+                        <button onclick="showTab('gallery')" class="memorial-tab whitespace-nowrap py-2 px-4 rounded-lg transition-colors">
+                            Gallery (22)
+                        </button>
+                        <button onclick="showTab('life')" class="memorial-tab whitespace-nowrap py-2 px-4 rounded-lg transition-colors">
+                            Life Story
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Memorial Content -->
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2">
+                        <!-- About Tab -->
+                        <div id="about-tab" class="tab-content">
+                            <div class="bg-card p-6 rounded-xl shadow-sm mb-8">
+                                <h2 class="text-2xl font-serif font-semibold mb-4 text-primary">About Tandiwe</h2>
+                                <p class="text-foreground leading-relaxed mb-4">
+                                    In loving memory of Tandiwe Olga "MaFaku" Tini — a cherished mother, grandmother, and guiding light to all who knew her. Her warmth, wisdom, and unwavering spirit will live on in our hearts forever.
+                                </p>
+                                <p class="text-foreground leading-relaxed">
+                                    Tandiwe was born on 13 July 1955 in eMagcakini Village, Libode, to the late MaHadi Mbeki and her late husband. After the passing of her father, her mother returned with the children to her own village, where Tandiwe was raised in the warmth of her extended family.
+                                </p>
+                            </div>
+
+                            <!-- Recent Tributes Preview -->
+                            <div class="bg-card p-6 rounded-xl shadow-sm">
+                                <h3 class="text-xl font-semibold mb-4 text-primary">Recent Tributes</h3>
+                                <div class="space-y-4">
+                                    <div class="tribute-item p-4 rounded-lg">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-user text-accent"></i>
+                                            </div>
+                                            <div class="flex-grow">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <h4 class="font-medium text-foreground">Khulile Tini</h4>
+                                                    <span class="text-xs text-muted-foreground">Thursday, Jun 26</span>
+                                                </div>
+                                                <p class="text-sm text-muted-foreground">
+                                                    Never thought it would hurt as much as it does Faku. Kodwa ke akukhonto siyayazi uba you wanted nothing more that to be reunited nomnganakho and hopefully that is where you are now.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tribute-item p-4 rounded-lg">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-10 h-10 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-user text-accent"></i>
+                                            </div>
+                                            <div class="flex-grow">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <h4 class="font-medium text-foreground">Sis Kay Ndamase</h4>
+                                                    <span class="text-xs text-muted-foreground">Thursday, May 15</span>
+                                                </div>
+                                                <p class="text-sm text-muted-foreground">
+                                                    Fondly known by her brothers as Sis Nomkhenisi. She will be dearly missed by all of us, her wisdom, her firmness in what's right, her love for the entire family will forever be cherished.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tributes Tab -->
+                        <div id="tributes-tab" class="tab-content hidden">
+                            <div class="bg-card p-6 rounded-xl shadow-sm mb-6">
+                                <h2 class="text-2xl font-serif font-semibold mb-6 text-primary">Leave a Tribute</h2>
+                                <form class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-foreground mb-2">Your Name</label>
+                                        <input type="text" data-mock="true" placeholder="Enter your name" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-foreground mb-2">Your Message</label>
+                                        <textarea data-mock="true" placeholder="Share your memories and thoughts..." rows="4" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"></textarea>
+                                    </div>
+                                    <div class="flex space-x-4">
+                                        <button type="button" class="flex items-center space-x-2 px-4 py-2 bg-accent/20 text-accent rounded-lg hover:bg-accent/30 transition-colors">
+                                            <i class="fas fa-seedling"></i>
+                                            <span>Lay a Flower</span>
+                                        </button>
+                                        <button type="button" class="flex items-center space-x-2 px-4 py-2 bg-accent/20 text-accent rounded-lg hover:bg-accent/30 transition-colors">
+                                            <i class="fas fa-candle-holder"></i>
+                                            <span>Light a Candle</span>
+                                        </button>
+                                    </div>
+                                    <button type="submit" class="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                                        Publish Tribute
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="bg-card p-6 rounded-xl shadow-sm">
+                                <h3 class="text-xl font-semibold mb-6 text-primary">All Tributes</h3>
+                                <div class="space-y-6" data-mock="true">
+                                    <!-- Existing tribute items with enhanced styling -->
+                                    <div class="tribute-item p-4 rounded-lg border border-border">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-user text-accent"></i>
+                                            </div>
+                                            <div class="flex-grow">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <h4 class="font-medium text-foreground">Sibathathu Cungcu</h4>
+                                                    <span class="text-xs text-muted-foreground">Thursday, May 15</span>
+                                                </div>
+                                                <p class="text-sm text-muted-foreground mb-3">
+                                                    Ohw Momkhulu Ntombi. Rest now Thahla, I love you forever and always ntombi the past 5 years I got to know you better. Good night sthandwa Sam see you in the morning ❤️❤️
+                                                </p>
+                                                <div class="flex items-center space-x-4 text-xs text-muted-foreground">
+                                                    <button class="hover:text-accent transition-colors">Share</button>
+                                                    <span>•</span>
+                                                    <span class="flex items-center space-x-1">
+                                                        <i class="fas fa-candle-holder text-accent"></i>
+                                                        <span>Candle lit</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tribute-item p-4 rounded-lg border border-border">
+                                        <div class="flex items-start space-x-3">
+                                            <div class="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-user text-accent"></i>
+                                            </div>
+                                            <div class="flex-grow">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <h4 class="font-medium text-foreground">Luke Ludidi</h4>
+                                                    <span class="text-xs text-muted-foreground">Tuesday, May 13</span>
+                                                </div>
+                                                <p class="text-sm text-muted-foreground mb-3">
+                                                    Gone too soon indeed Ma. May your dear soul rest in peace and rise in glory. To the family ndithi thuthuzelekani nihlale nisazi ukuba ukubulaleka kwenu akulambathi enkosini. He will console you and wipe the tears on your faces and give you His comfort. ❤️
+                                                </p>
+                                                <div class="flex items-center space-x-4 text-xs text-muted-foreground">
+                                                    <button class="hover:text-accent transition-colors">Share</button>
+                                                    <span>•</span>
+                                                    <span class="flex items-center space-x-1">
+                                                        <i class="fas fa-seedling text-accent"></i>
+                                                        <span>Flower laid</span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gallery Tab -->
+                        <div id="gallery-tab" class="tab-content hidden">
+                            <div class="bg-card p-6 rounded-xl shadow-sm">
+                                <h2 class="text-2xl font-serif font-semibold mb-6 text-primary">Photo Gallery</h2>
+                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-mock="true">
+                                    <!-- Family gathering at a celebration with traditional African decorations -->
+                                    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" alt="Family celebration" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Church service with congregation singing hymns -->
+                                    <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" alt="Church service" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Graduation ceremony with family proud moment -->
+                                    <img src="https://pixabay.com/get/g9eb1db0e63d80b070857045db20e99473c56e24f879cc13d740ee2d0ede78c74cb11254f5de530b86031588a48edd5d2a60c327fc53c938ab18f915f941c7297_1280.jpg" alt="Graduation day" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Grandmother reading stories to grandchildren -->
+                                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" alt="Reading to grandchildren" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Wedding photo with traditional attire -->
+                                    <img src="https://pixabay.com/get/g642dfeee9eafb1b4cc4c88cde0e1fc91cc8a961b77b6b4b2c7b07e62744bf1fefef6fd7c4f0806b797236c2fbff32e53cb0397183c9319f0f652d687cfea6e8e_1280.jpg" alt="Wedding celebration" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Community garden work showing service -->
+                                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" alt="Community service" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Easter Sunday service with flowers -->
+                                    <img src="https://images.unsplash.com/photo-1502691876148-a84978e59af8?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" alt="Easter service" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                    
+                                    <!-- Family barbecue gathering in backyard -->
+                                    <img src="https://images.unsplash.com/photo-1543353071-873f17a7a088?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300" alt="Family gathering" class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                                </div>
+                                
+                                <div class="mt-6 text-center">
+                                    <button class="text-accent hover:text-accent/80 transition-colors font-medium">
+                                        Load More Photos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Life Story Tab -->
+                        <div id="life-tab" class="tab-content hidden">
+                            <div class="bg-card p-6 rounded-xl shadow-sm">
+                                <h2 class="text-2xl font-serif font-semibold mb-6 text-primary">Life Story</h2>
+                                <div class="prose prose-lg max-w-none text-foreground">
+                                    <p class="mb-6">
+                                        Tandiwe was born on 13 July 1955 in eMagcakini Village, Libode, to the late MaHadi Mbeki and her late husband. After the passing of her father, her mother returned with the children to her own village, where Tandiwe was raised in the warmth of her extended family.
+                                    </p>
+                                    
+                                    <h3 class="text-xl font-semibold text-primary mt-8 mb-4">Early Life and Education</h3>
+                                    <p class="mb-6">
+                                        Growing up in the Eastern Cape, Tandiwe learned the values of community, respect, and hard work from an early age. Her education was a priority, and she excelled in her studies, always showing a keen interest in helping others and serving her community.
+                                    </p>
+                                    
+                                    <h3 class="text-xl font-semibold text-primary mt-8 mb-4">Family and Marriage</h3>
+                                    <p class="mb-6">
+                                        Tandiwe married her beloved husband Tshawe "Bro Mxo" Tini, and together they built a loving family. She was a devoted mother to her sons Maki and Kulile, instilling in them the same values of love, respect, and service that had guided her throughout her life.
+                                    </p>
+                                    
+                                    <h3 class="text-xl font-semibold text-primary mt-8 mb-4">Legacy of Love</h3>
+                                    <p class="mb-6">
+                                        Tandiwe's final message to the Ludidi family was filled with gratitude and love: "To the Ludidi family ndiyabulela kakhulu bakhozi bam. nindomelezile ngala msg, ethembeni kuzoba rite bakhozi bam." Her words continue to comfort those she left behind.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-1">
+                        <!-- Memorial Stats -->
+                        <div class="bg-card p-6 rounded-xl shadow-sm mb-6">
+                            <h3 class="text-lg font-semibold text-primary mb-4">Memorial Stats</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">Photos</span>
+                                    <span class="font-medium">22</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">Tributes</span>
+                                    <span class="font-medium">6</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">Views</span>
+                                    <span class="font-medium">595</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">Flowers</span>
+                                    <span class="font-medium">3</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-muted-foreground">Candles</span>
+                                    <span class="font-medium">2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Photos -->
+                        <div class="bg-card p-6 rounded-xl shadow-sm mb-6">
+                            <h3 class="text-lg font-semibold text-primary mb-4">Recent Photos</h3>
+                            <div class="grid grid-cols-3 gap-2">
+                                <!-- Elderly woman at church service with peaceful expression -->
+                                <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" alt="Recent photo 1" class="w-full h-16 object-cover rounded-lg cursor-pointer" onclick="openLightbox(this.src)">
+                                
+                                <!-- Family Christmas gathering with multiple generations -->
+                                <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" alt="Recent photo 2" class="w-full h-16 object-cover rounded-lg cursor-pointer" onclick="openLightbox(this.src)">
+                                
+                                <!-- Woman in traditional African dress at celebration -->
+                                <img src="https://pixabay.com/get/g0ee269855a3c452bd90c5e4e60752b29f28fd0e72771224cbdb2d8218c73602416eb889ae7984c68bf7ba8173a22a5e7c17013fb8ce2bf382cf9946924b2f23e_1280.jpg" alt="Recent photo 3" class="w-full h-16 object-cover rounded-lg cursor-pointer" onclick="openLightbox(this.src)">
+                            </div>
+                            <button onclick="showTab('gallery')" class="w-full mt-4 text-accent hover:text-accent/80 transition-colors text-sm font-medium">
+                                View All Photos
+                            </button>
+                        </div>
+
+                        <!-- Share Memorial -->
+                        <div class="bg-card p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-semibold text-primary mb-4">Share Memorial</h3>
+                            <div class="flex space-x-3">
+                                <button class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                    <i class="fab fa-facebook-f mr-2"></i>
+                                    Facebook
+                                </button>
+                                <button class="flex-1 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-muted transition-colors text-sm">
+                                    <i class="fas fa-link mr-2"></i>
+                                    Copy Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <img id="lightbox-img" src="" alt="">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white text-2xl">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-primary-foreground py-12 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-dove text-accent text-xl"></i>
+                        <h3 class="text-lg font-serif font-semibold">Memorial Gardens</h3>
+                    </div>
+                    <p class="text-primary-foreground/80 text-sm">
+                        Creating beautiful, lasting memorials that honor and preserve the memories of those we love.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Create Memorial</h4>
+                    <ul class="space-y-2 text-sm text-primary-foreground/80">
+                        <li><a href="#" class="hover:text-accent transition-colors">Create Memorial</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Memorial Templates</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">How It Works</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Find Memorial</h4>
+                    <ul class="space-y-2 text-sm text-primary-foreground/80">
+                        <li><a href="#" class="hover:text-accent transition-colors">Search Memorials</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Recent Memorials</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Featured Memorials</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-primary-foreground/80">
+                        <li><a href="#" class="hover:text-accent transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
+                <p class="text-primary-foreground/60 text-sm">
+                    &copy; 2025 Memorial Gardens. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation functions
+        function showLandingPage() {
+            document.getElementById('landing-page').classList.remove('hidden');
+            document.getElementById('memorial-page').classList.add('hidden');
+        }
+
+        function showMemorialPage(memorial) {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('memorial-page').classList.remove('hidden');
+            // TODO: Load specific memorial data based on memorial parameter
+        }
+
+        function showCreateMemorial() {
+            // TODO: Implement memorial creation flow
+            alert('Memorial creation feature coming soon!');
+        }
+
+        // Memorial page tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.add('hidden'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.memorial-tab');
+            tabButtons.forEach(button => {
+                button.classList.remove('active', 'bg-accent', 'text-accent-foreground');
+                button.classList.add('text-muted-foreground', 'hover:text-primary', 'hover:bg-secondary');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Add active class to clicked tab button
+            event.target.classList.add('active', 'bg-accent', 'text-accent-foreground');
+            event.target.classList.remove('text-muted-foreground', 'hover:text-primary', 'hover:bg-secondary');
+        }
+
+        // Lightbox functionality
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            // TODO: Save preference to localStorage
+        }
+
+        // Initialize tab styles on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTab = document.querySelector('.memorial-tab.active');
+            if (activeTab) {
+                activeTab.classList.add('bg-accent', 'text-accent-foreground');
+                activeTab.classList.remove('text-muted-foreground');
+            }
+
+            // Add event listeners for navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href');
+                    if (target === '#home') {
+                        showLandingPage();
+                    }
+                    // TODO: Handle other navigation items
+                });
+            });
+
+            // Close lightbox on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeLightbox();
+                }
+            });
+
+            // Close lightbox on background click
+            document.getElementById('lightbox').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeLightbox();
+                }
+            });
+        });
+
+        // Form submission handlers
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // TODO: Implement form submission logic
+            alert('Form submission functionality will be implemented with backend integration');
+        });
+    </script>
+</body>
+</html>

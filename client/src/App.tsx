@@ -33,6 +33,33 @@ import PaymentSuccess from "@/pages/payment-success";
 import PaymentDeclined from "@/pages/payment-declined";
 import PaymentComplete from "@/pages/payment-complete";
 
+// Route configuration to eliminate duplication
+const routes = [
+  { path: "/dashboard", component: DashboardPage },
+  { path: "/create", component: CreatePage },
+  { path: "/memorial/:id", component: Memorial },
+  { path: "/browse", component: Browse },
+  { path: "/partners", component: Partners },
+  { path: "/partners/directory", component: PartnersDirectory },
+  { path: "/partners/signup", component: PartnersSignup },
+  { path: "/partners/onboarding", component: PartnersOnboarding },
+  { path: "/partner-dashboard", component: PartnerDashboard },
+  { path: "/about", component: About },
+  { path: "/packages", component: PackagesPage },
+  { path: "/pricing", component: PricingPage },
+  { path: "/order-of-service/:id", component: OrderOfService },
+  { path: "/order-of-service/:id/edit", component: OrderOfServiceEdit },
+  { path: "/create-memorial-order-of-service/:memorialId", component: CreateMemorialOrderOfService },
+  { path: "/terms", component: Terms },
+  { path: "/privacy", component: Privacy },
+  { path: "/contact", component: Contact },
+  { path: "/faq", component: FAQ },
+  { path: "/writing-guide", component: WritingGuide },
+  { path: "/payment/success", component: PaymentSuccess },
+  { path: "/payment/declined", component: PaymentDeclined },
+  { path: "/payment/complete", component: PaymentComplete },
+];
+
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -40,63 +67,16 @@ function Router() {
     <>
       <Navigation />
       <Switch>
-      {isLoading || !isAuthenticated ? (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/dashboard" component={DashboardPage} />
-          <Route path="/create" component={CreatePage} />
-          <Route path="/memorial/:id" component={Memorial} />
-          <Route path="/browse" component={Browse} />
-          <Route path="/partners" component={Partners} />
-          <Route path="/partners/directory" component={PartnersDirectory} />
-          <Route path="/partners/signup" component={PartnersSignup} />
-          <Route path="/partners/onboarding" component={PartnersOnboarding} />
-          <Route path="/partner-dashboard" component={PartnerDashboard} />
-          <Route path="/about" component={About} />
-          <Route path="/packages" component={PackagesPage} />
-          <Route path="/pricing" component={PricingPage} />
-          <Route path="/order-of-service/:id" component={OrderOfService} />
-          <Route path="/order-of-service/:id/edit" component={OrderOfServiceEdit} />
-          <Route path="/create-memorial-order-of-service/:memorialId" component={CreateMemorialOrderOfService} />
-          <Route path="/terms" component={Terms} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/faq" component={FAQ} />
-          <Route path="/writing-guide" component={WritingGuide} />
-          <Route path="/payment/success" component={PaymentSuccess} />
-          <Route path="/payment/declined" component={PaymentDeclined} />
-          <Route path="/payment/complete" component={PaymentComplete} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/dashboard" component={DashboardPage} />
-          <Route path="/create" component={CreatePage} />
-          <Route path="/memorial/:id" component={Memorial} />
-          <Route path="/browse" component={Browse} />
-          <Route path="/partners" component={Partners} />
-          <Route path="/partners/directory" component={PartnersDirectory} />
-          <Route path="/partners/signup" component={PartnersSignup} />
-          <Route path="/partners/onboarding" component={PartnersOnboarding} />
-          <Route path="/partner-dashboard" component={PartnerDashboard} />
-          <Route path="/about" component={About} />
-          <Route path="/packages" component={PackagesPage} />
-          <Route path="/pricing" component={PricingPage} />
-          <Route path="/order-of-service/:id" component={OrderOfService} />
-          <Route path="/order-of-service/:id/edit" component={OrderOfServiceEdit} />
-          <Route path="/create-memorial-order-of-service/:memorialId" component={CreateMemorialOrderOfService} />
-          <Route path="/terms" component={Terms} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/faq" component={FAQ} />
-          <Route path="/writing-guide" component={WritingGuide} />
-          <Route path="/payment/success" component={PaymentSuccess} />
-          <Route path="/payment/declined" component={PaymentDeclined} />
-          <Route path="/payment/complete" component={PaymentComplete} />
-        </>
-      )}
-      <Route component={NotFound} />
-    </Switch>
+        {/* Home route changes based on auth status */}
+        <Route path="/" component={isLoading || !isAuthenticated ? Landing : Home} />
+        
+        {/* All other routes are the same regardless of auth status */}
+        {routes.map(({ path, component }) => (
+          <Route key={path} path={path} component={component} />
+        ))}
+        
+        <Route component={NotFound} />
+      </Switch>
     </>
   );
 }

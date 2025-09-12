@@ -7,6 +7,8 @@ import { resolveBrandingContext, getBrandingResponse, getPartnerIdFromContext, t
 import { type AuthenticatedRequest } from "./middleware/auth";
 import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema, insertPartnerLeadSchema } from "@shared/schema";
 import { billingRouter } from "./billing/routes";
+import { logger } from "./utils/logger";
+import { pool } from "./db";
 import fs from "fs";
 import path from "path";
 
@@ -64,6 +66,33 @@ function generateMemorialHTML(memorial: any, request: any): string {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint (before auth)
+  app.get('/api/health', async (req, res) => {
+    try {
+      // Quick database connectivity check
+      const healthCheck = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+        uptime: Math.floor(process.uptime()),
+        database: 'connected', // We'll test this below
+      };
+
+      // Test database connection with a quick query
+      await pool.query('SELECT 1');
+      
+      res.status(200).json(healthCheck);
+    } catch (error) {
+      logger.error('Health check failed', { error: error.message });
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'Database connection failed'
+      });
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
   
@@ -93,8 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const html = generateMemorialHTML(memorial, req);
       
       res.status(200).set({ "Content-Type": "text/html" }).send(html);
-    } catch (error) {
-      console.error("Error serving memorial page:", error);
+    } catch (error: any) {
+      logger.error("Error serving memorial page", { error: error.message, memorialId: req.params.id });
       // Fallback to letting vite handle it
       next();
     }
@@ -105,8 +134,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const brandingResponse = getBrandingResponse(req.brandContext);
       res.json(brandingResponse);
-    } catch (error) {
-      console.error("Error fetching branding context:", error);
+    } catch (error: any) {
+      logger.error("Error fetching branding context", { error: error.message });
       res.status(500).json({ message: "Failed to fetch branding context" });
     }
   });
@@ -117,8 +146,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
+    } catch (error: any) {
+      logger.error("Error fetching user", { error: error.message, userId: req.user.claims.sub });
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
@@ -161,8 +190,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       res.json(usageStats);
-    } catch (error) {
-      console.error("Error fetching user usage:", error);
+    } catch (error: any) {
+      const userId = req.user.claims.sub;
+      logger.error("Error fetching user usage", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch usage statistics" });
     }
   });
@@ -182,8 +212,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.json(memorials);
-    } catch (error) {
-      console.error("Error fetching memorials:", error);
+    } catch (error: any) {
+      logger.error("Error fetching memorials", { error: error.message, query: req.query });
       res.status(500).json({ message: "Failed to fetch memorials" });
     }
   });
@@ -196,8 +226,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(memorial);
-    } catch (error) {
-      console.error("Error fetching memorial:", error);
+    } catch (error: any) {
+      logger.error("Error fetching memorial", { error: error.message, memorialId: req.params.id });
       res.status(500).json({ message: "Failed to fetch memorial" });
     }
   });
@@ -212,8 +242,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await storage.incrementMemorialViews(req.params.id);
       res.status(200).json({ success: true });
-    } catch (error) {
-      console.error("Error incrementing memorial views:", error);
+    } catch (error: any) {
+      logger.error("Error incrementing memorial views", { error: error.message, memorialId: req.params.id });
       res.status(500).json({ message: "Failed to update view count" });
     }
   });
@@ -238,8 +268,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(memorial);
-    } catch (error) {
-      console.error("Error creating memorial:", error);
+    } catch (error: any) {
+      logger.error("Error creating memorial", { error: error.message, userId: req.user?.claims.sub });
       res.status(500).json({ message: "Failed to create memorial" });
     }
   });
@@ -249,8 +279,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const tributes = await storage.getTributesByMemorial(req.params.memorialId);
       res.json(tributes);
-    } catch (error) {
-      console.error("Error fetching tributes:", error);
+    } catch (error: any) {
+      logger.error("Error fetching tributes", { error: error.message, memorialId: req.params.memorialId });
       res.status(500).json({ message: "Failed to fetch tributes" });
     }
   });
@@ -272,8 +302,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       res.status(201).json(tribute);
-    } catch (error) {
-      console.error("Error creating tribute:", error);
+    } catch (error: any) {
+      logger.error("Error creating tribute", { error: error.message, memorialId: req.params.memorialId });
       res.status(500).json({ message: "Failed to create tribute" });
     }
   });
@@ -289,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       res.json(partners);
     } catch (error) {
-      console.error("Error fetching partners:", error);
+      logger.error("Error fetching partners", { error: error.message, query: req.query });
       res.status(500).json({ message: "Failed to fetch partners" });
     }
   });
@@ -307,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(partner);
     } catch (error) {
-      console.error("Error creating partner:", error);
+      logger.error("Error creating partner", { error: error.message, userId: req.user.claims.sub });
       res.status(500).json({ message: "Failed to create partner" });
     }
   });
@@ -332,7 +362,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(lead);
     } catch (error) {
-      console.error("Error creating partner lead:", error);
+      logger.error("Error creating partner lead", { error: error.message });
       res.status(500).json({ message: "Failed to create partner lead" });
     }
   });
@@ -355,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(leads);
     } catch (error) {
-      console.error("Error fetching partner leads:", error);
+      logger.error("Error fetching partner leads", { error: error.message, userId: req.user.claims.sub });
       res.status(500).json({ message: "Failed to fetch partner leads" });
     }
   });
@@ -390,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updatedLead);
     } catch (error) {
-      console.error("Error updating partner lead:", error);
+      logger.error("Error updating partner lead", { error: error.message, leadId: req.params.id });
       res.status(500).json({ message: "Failed to update partner lead" });
     }
   });
@@ -419,7 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...dashboardData,
       });
     } catch (error) {
-      console.error("Error fetching partner dashboard:", error);
+      logger.error("Error fetching partner dashboard", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch partner dashboard" });
     }
   });
@@ -439,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         logoUrl: partner.logoUrl,
       });
     } catch (error) {
-      console.error("Error fetching partner branding:", error);
+      logger.error("Error fetching partner branding", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch branding configuration" });
     }
   });
@@ -466,7 +496,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         logoUrl: updatedPartner?.logoUrl,
       });
     } catch (error) {
-      console.error("Error updating partner branding:", error);
+      logger.error("Error updating partner branding", { error: error.message, userId });
       res.status(500).json({ message: "Failed to update branding configuration" });
     }
   });
@@ -489,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(domains);
     } catch (error) {
-      console.error("Error fetching partner domains:", error);
+      logger.error("Error fetching partner domains", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch domains" });
     }
   });
@@ -537,7 +567,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(newDomain);
     } catch (error) {
-      console.error("Error creating partner domain:", error);
+      logger.error("Error creating partner domain", { error: error.message, userId });
       res.status(500).json({ message: "Failed to create domain" });
     }
   });
@@ -556,7 +586,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(members);
     } catch (error) {
-      console.error("Error fetching partner members:", error);
+      logger.error("Error fetching partner members", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch partner members" });
     }
   });
@@ -603,7 +633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(newMember);
     } catch (error) {
-      console.error("Error creating partner member:", error);
+      logger.error("Error creating partner member", { error: error.message, userId });
       res.status(500).json({ message: "Failed to add partner member" });
     }
   });
@@ -622,7 +652,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(referrals);
     } catch (error) {
-      console.error("Error fetching partner referrals:", error);
+      logger.error("Error fetching partner referrals", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch partner referrals" });
     }
   });
@@ -640,7 +670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(payouts);
     } catch (error) {
-      console.error("Error fetching partner payouts:", error);
+      logger.error("Error fetching partner payouts", { error: error.message, userId });
       res.status(500).json({ message: "Failed to fetch partner payouts" });
     }
   });
@@ -681,11 +711,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Log invitation for demo (in production, you'd send actual emails)
-      console.log(`[INVITATION] Sending invitation for ${memorial.firstName} ${memorial.lastName}`);
-      console.log(`[INVITATION] Inviter: ${inviterName || 'Anonymous'}`);
-      console.log(`[INVITATION] Recipients: ${emails.join(', ')}`);
-      console.log(`[INVITATION] Message: ${message}`);
-      console.log(`[INVITATION] Memorial URL: ${req.protocol}://${req.get('host')}/memorial/${memorialId}`);
+      logger.info("Memorial invitation sent", {
+        memorialName: `${memorial.firstName} ${memorial.lastName}`,
+        inviter: inviterName || 'Anonymous',
+        recipientCount: emails.length,
+        memorialId,
+        memorialUrl: `${req.protocol}://${req.get('host')}/memorial/${memorialId}`
+      });
       
       // Simulate email sending delay
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -696,7 +728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         emailsSent: emails.length
       });
     } catch (error) {
-      console.error("Error sending invitations:", error);
+      logger.error("Error sending invitations", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to send invitations" });
     }
   });
@@ -711,7 +743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       res.json(photos);
     } catch (error) {
-      console.error("Error fetching memorial photos:", error);
+      logger.error("Error fetching memorial photos", { error: error.message, memorialId: req.params.memorialId });
       res.status(500).json({ message: "Failed to fetch memorial photos" });
     }
   });
@@ -722,7 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.setCoverPhoto(req.params.memorialId, req.params.photoId);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error setting cover photo:", error);
+      logger.error("Error setting cover photo", { error: error.message, memorialId: req.params.memorialId, photoId: req.params.photoId });
       res.status(500).json({ message: "Failed to set cover photo" });
     }
   });
@@ -733,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.incrementPhotoViews(req.params.photoId);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error incrementing photo views:", error);
+      logger.error("Error incrementing photo views", { error: error.message, photoId: req.params.photoId });
       res.status(500).json({ message: "Failed to increment photo views" });
     }
   });
@@ -755,7 +787,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(photo);
     } catch (error) {
-      console.error("Error uploading memorial photo:", error);
+      logger.error("Error uploading memorial photo", { error: error.message, memorialId: req.params.memorialId });
       res.status(500).json({ message: "Failed to upload memorial photo" });
     }
   });
@@ -766,7 +798,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const programs = await storage.getFuneralPrograms(req.params.memorialId);
       res.json(programs);
     } catch (error) {
-      console.error("Error fetching funeral programs:", error);
+      logger.error("Error fetching funeral programs", { error: error.message, memorialId: req.params.memorialId });
       res.status(500).json({ message: "Failed to fetch funeral programs" });
     }
   });
@@ -777,7 +809,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const events = await storage.getMemorialEvents(req.params.memorialId);
       res.json(events);
     } catch (error) {
-      console.error("Error fetching memorial events:", error);
+      logger.error("Error fetching memorial events", { error: error.message, memorialId: req.params.memorialId });
       res.status(500).json({ message: "Failed to fetch memorial events" });
     }
   });
@@ -809,13 +841,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Log contact submission for demo (in production, you'd store in database)
-      console.log(`[CONTACT] New contact submission:`);
-      console.log(`[CONTACT] Subject: ${contactData.subject}`);
-      console.log(`[CONTACT] Message: ${contactData.message}`);
-      console.log(`[CONTACT] Email: ${contactData.email || 'Not provided'}`);
-      console.log(`[CONTACT] Memorial ID: ${contactData.memorialId || 'None'}`);
-      console.log(`[CONTACT] User ID: ${userId || 'Anonymous'}`);
-      console.log(`[CONTACT] Timestamp: ${new Date().toISOString()}`);
+      logger.info("New contact submission received", {
+        subject: contactData.subject,
+        hasEmail: !!contactData.email,
+        memorialId: contactData.memorialId || 'None',
+        userId: userId || 'Anonymous'
+      });
       
       // Simulate processing delay
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -826,7 +857,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         submissionId: `submission_${Date.now()}`
       });
     } catch (error) {
-      console.error("Error submitting contact form:", error);
+      logger.error("Error submitting contact form", { error: error.message });
       res.status(500).json({ message: "Failed to submit contact form. Please try again." });
     }
   });
@@ -853,7 +884,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requiresAuth: !userId && !email, // Guest users need to provide email or authenticate
       });
     } catch (error) {
-      console.error("Error checking subscription status:", error);
+      logger.error("Error checking subscription status", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to check subscription status" });
     }
   });
@@ -920,7 +951,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subscription
       });
     } catch (error) {
-      console.error("Error creating subscription:", error);
+      logger.error("Error creating subscription", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to create subscription" });
     }
   });
@@ -951,7 +982,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Successfully unsubscribed from memorial updates"
       });
     } catch (error) {
-      console.error("Error deleting subscription:", error);
+      logger.error("Error deleting subscription", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to unsubscribe" });
     }
   });
@@ -967,7 +998,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const memorials = await storage.getMemorials({ status: req.query.status as string });
       res.json(memorials);
     } catch (error) {
-      console.error("Error fetching admin memorials:", error);
+      logger.error("Error fetching admin memorials", { error: error.message, userId: req.user.claims.sub });
       res.status(500).json({ message: "Failed to fetch memorials" });
     }
   });
@@ -982,7 +1013,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const memorial = await storage.updateMemorial(req.params.id, req.body);
       res.json(memorial);
     } catch (error) {
-      console.error("Error updating memorial:", error);
+      logger.error("Error updating memorial", { error: error.message, memorialId: req.params.id });
       res.status(500).json({ message: "Failed to update memorial" });
     }
   });
@@ -1011,7 +1042,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         events
       });
     } catch (error) {
-      console.error("Error fetching Order of Service:", error);
+      logger.error("Error fetching Order of Service", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to fetch Order of Service" });
     }
   });
@@ -1033,7 +1064,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         events
       });
     } catch (error) {
-      console.error("Error fetching Order of Service:", error);
+      logger.error("Error fetching Order of Service", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to fetch Order of Service" });
     }
   });
@@ -1074,7 +1105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(orderOfService);
     } catch (error) {
-      console.error("Error creating Order of Service:", error);
+      logger.error("Error creating Order of Service", { error: error.message, memorialId });
       res.status(500).json({ message: "Failed to create Order of Service" });
     }
   });
@@ -1106,7 +1137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updated);
     } catch (error) {
-      console.error("Error updating Order of Service:", error);
+      logger.error("Error updating Order of Service", { error: error.message, id });
       res.status(500).json({ message: "Failed to update Order of Service" });
     }
   });
@@ -1132,7 +1163,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true, message: "Order of Service deleted successfully" });
     } catch (error) {
-      console.error("Error deleting Order of Service:", error);
+      logger.error("Error deleting Order of Service", { error: error.message, id });
       res.status(500).json({ message: "Failed to delete Order of Service" });
     }
   });
@@ -1142,7 +1173,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.incrementOrderOfServiceViews(req.params.id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error incrementing Order of Service views:", error);
+      logger.error("Error incrementing Order of Service views", { error: error.message, id: req.params.id });
       res.status(500).json({ message: "Failed to increment views" });
     }
   });
@@ -1152,7 +1183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.incrementOrderOfServiceDownloads(req.params.id);
       res.json({ success: true });
     } catch (error) {
-      console.error("Error incrementing Order of Service downloads:", error);
+      logger.error("Error incrementing Order of Service downloads", { error: error.message, id: req.params.id });
       res.status(500).json({ message: "Failed to increment downloads" });
     }
   });
@@ -1171,7 +1202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const events = await storage.getOrderOfServiceEvents(orderOfServiceId);
       res.json(events);
     } catch (error) {
-      console.error("Error fetching Order of Service events:", error);
+      logger.error("Error fetching Order of Service events", { error: error.message, orderOfServiceId });
       res.status(500).json({ message: "Failed to fetch events" });
     }
   });
@@ -1202,7 +1233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(event);
     } catch (error) {
-      console.error("Error creating Order of Service event:", error);
+      logger.error("Error creating Order of Service event", { error: error.message, orderOfServiceId });
       res.status(500).json({ message: "Failed to create event" });
     }
   });
@@ -1240,7 +1271,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(updated);
     } catch (error) {
-      console.error("Error updating Order of Service event:", error);
+      logger.error("Error updating Order of Service event", { error: error.message, id });
       res.status(500).json({ message: "Failed to update event" });
     }
   });
@@ -1257,7 +1288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true, message: "Event deleted successfully" });
     } catch (error) {
-      console.error("Error deleting Order of Service event:", error);
+      logger.error("Error deleting Order of Service event", { error: error.message, id });
       res.status(500).json({ message: "Failed to delete event" });
     }
   });
@@ -1287,7 +1318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true, message: "Events reordered successfully" });
     } catch (error) {
-      console.error("Error reordering Order of Service events:", error);
+      logger.error("Error reordering Order of Service events", { error: error.message, orderOfServiceId });
       res.status(500).json({ message: "Failed to reorder events" });
     }
   });

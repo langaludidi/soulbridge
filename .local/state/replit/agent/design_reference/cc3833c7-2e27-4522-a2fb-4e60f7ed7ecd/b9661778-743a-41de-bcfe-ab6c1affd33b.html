@@ -1,0 +1,878 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soulbridge - Digital Memorial Platform for South African Families</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["var(--font-sans)"],
+                    serif: ["var(--font-serif)"],
+                    mono: ["var(--font-mono)"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(33 100% 96%);
+            --foreground: hsl(217 33% 17%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(217 33% 17%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(217 33% 17%);
+            --primary: hsl(25 95% 39%);
+            --primary-foreground: hsl(33 100% 96%);
+            --secondary: hsl(28 8% 52%);
+            --secondary-foreground: hsl(33 100% 96%);
+            --muted: hsl(30 20% 85%);
+            --muted-foreground: hsl(25 8% 45%);
+            --accent: hsl(84 81% 44%);
+            --accent-foreground: hsl(33 100% 96%);
+            --destructive: hsl(0 84% 60%);
+            --destructive-foreground: hsl(33 100% 96%);
+            --border: hsl(30 20% 82%);
+            --input: hsl(30 20% 82%);
+            --ring: hsl(25 95% 39%);
+            --radius: 0.75rem;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-serif: 'Crimson Text', Georgia, serif;
+            --font-mono: 'JetBrains Mono', Consolas, monospace;
+        }
+        
+        .dark {
+            --background: hsl(25 20% 8%);
+            --foreground: hsl(33 100% 96%);
+            --card: hsl(25 20% 12%);
+            --card-foreground: hsl(33 100% 96%);
+            --popover: hsl(25 20% 12%);
+            --popover-foreground: hsl(33 100% 96%);
+            --primary: hsl(25 95% 45%);
+            --primary-foreground: hsl(25 20% 8%);
+            --secondary: hsl(28 8% 25%);
+            --secondary-foreground: hsl(33 100% 96%);
+            --muted: hsl(25 20% 15%);
+            --muted-foreground: hsl(30 20% 65%);
+            --accent: hsl(84 81% 35%);
+            --accent-foreground: hsl(25 20% 8%);
+            --destructive: hsl(0 62% 50%);
+            --destructive-foreground: hsl(33 100% 96%);
+            --border: hsl(25 20% 18%);
+            --input: hsl(25 20% 18%);
+            --ring: hsl(25 95% 45%);
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-background text-foreground font-sans antialiased">
+    <!-- @COMPONENT: Navigation -->
+    <nav class="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary font-serif">Soulbridge</h1>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-6">
+                            <a href="#" class="text-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">Memorials</a>
+                            <a href="#" class="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">Partners</a>
+                            <a href="#" class="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">Programs</a>
+                            <a href="#" class="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">How It Works</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6 space-x-4">
+                        <button class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Sign In
+                        </button>
+                        <button class="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Create Memorial
+                        </button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-muted-foreground hover:text-primary">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: Navigation -->
+
+    <!-- @COMPONENT: Hero Section -->
+    <section class="relative bg-gradient-to-br from-background via-card to-muted py-20 lg:py-32">
+        <!-- Beautiful South African landscape as background -->
+        <div class="absolute inset-0 bg-gradient-to-r from-background/95 to-background/80"></div>
+        <!-- Rolling hills landscape of South Africa with golden hour lighting -->
+        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('https://pixabay.com/get/g699dcc0c02f76f917ef049562f807fe03f8c14e2fd564d36a9c6db21ae4b9971e009e011a4e8ba104802c13b14a03c68f737422f3ccb9dc8db322f6db149aeef_1280.jpg');"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+                Where life stories
+                <span class="text-primary block font-serif italic">live on</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+                A dignified digital space to remember, honour, and celebrate life — especially for South African families navigating grief, tradition, and community connection.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+                <button class="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-lg text-lg font-semibold transition-all transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-heart mr-2"></i>
+                    Create Memorial
+                </button>
+                <span class="text-muted-foreground font-medium">OR</span>
+                <div class="flex-1 max-w-md">
+                    <div class="relative">
+                        <input type="text" placeholder="Search for a loved one..." class="w-full bg-card border border-border rounded-lg px-4 py-4 text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-ring focus:border-transparent transition-all" data-mock="true">
+                        <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-accent text-accent-foreground px-4 py-2 rounded-md hover:bg-accent/90 transition-colors">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-primary mb-2" data-bind="stats.memorials">12,847</div>
+                    <div class="text-muted-foreground">Lives Remembered</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-primary mb-2" data-bind="stats.tributes">58,291</div>
+                    <div class="text-muted-foreground">Tributes Shared</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-primary mb-2" data-bind="stats.families">9,432</div>
+                    <div class="text-muted-foreground">Families Served</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Hero Section -->
+
+    <!-- @COMPONENT: Services Overview -->
+    <section class="py-20 bg-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif">We help you honour their life</h2>
+                <p class="text-xl text-muted-foreground max-w-2xl mx-auto">Comprehensive memorial services designed with South African families in mind</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Memorial Creation -->
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-heart text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-foreground mb-3">Memorial Creation</h3>
+                    <p class="text-muted-foreground mb-4">A lasting online space where family & friends share memories of a loved one.</p>
+                    <button class="text-primary hover:text-primary/80 font-medium">Get Started <i class="fas fa-arrow-right ml-1"></i></button>
+                </div>
+
+                <!-- Funeral Programs -->
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-file-text text-accent text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-foreground mb-3">Funeral Programs</h3>
+                    <p class="text-muted-foreground mb-4">Upload, download, and print dignified programs with traditional designs.</p>
+                    <button class="text-primary hover:text-primary/80 font-medium">Learn More <i class="fas fa-arrow-right ml-1"></i></button>
+                </div>
+
+                <!-- Partner Services -->
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-handshake text-secondary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-foreground mb-3">Partner Services</h3>
+                    <p class="text-muted-foreground mb-4">Connect with trusted funeral homes, florists, and caterers in your area.</p>
+                    <button class="text-primary hover:text-primary/80 font-medium">Find Partners <i class="fas fa-arrow-right ml-1"></i></button>
+                </div>
+
+                <!-- Digital Tributes -->
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <!-- Traditional funeral flowers arrangement -->
+                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-seedling text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-foreground mb-3">Digital Tributes</h3>
+                    <p class="text-muted-foreground mb-4">Send flowers, light candles, and share memories from anywhere in the world.</p>
+                    <button class="text-primary hover:text-primary/80 font-medium">Send Tribute <i class="fas fa-arrow-right ml-1"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Services Overview -->
+
+    <!-- @COMPONENT: Featured Memorials -->
+    <section class="py-20 bg-background">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif">Recent Memorials</h2>
+                <p class="text-xl text-muted-foreground">Celebrating lives and preserving legacies</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- @MAP: featuredMemorials.map(memorial => ( -->
+                <!-- Memorial Card 1 -->
+                <div class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all">
+                    <!-- Elderly South African woman smiling warmly in traditional dress -->
+                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Memorial portrait" class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-2" data-bind="memorial.name">Nomsa Patience Mbeki</h3>
+                        <p class="text-muted-foreground mb-2" data-bind="memorial.dates">1948 - 2024</p>
+                        <p class="text-muted-foreground mb-4" data-bind="memorial.location">Johannesburg, Gauteng</p>
+                        <p class="text-foreground mb-4 font-serif italic" data-mock="true">"A loving mother and grandmother who touched the hearts of everyone she met with her wisdom and kindness."</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground" data-bind="memorial.tributeCount">47 tributes</span>
+                            <button class="text-primary hover:text-primary/80 font-medium">View Memorial <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memorial Card 2 -->
+                <div class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all">
+                    <!-- Middle-aged South African man in formal attire smiling -->
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" alt="Memorial portrait" class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-2" data-bind="memorial.name">Thabo James Molefe</h3>
+                        <p class="text-muted-foreground mb-2" data-bind="memorial.dates">1965 - 2024</p>
+                        <p class="text-muted-foreground mb-4" data-bind="memorial.location">Cape Town, Western Cape</p>
+                        <p class="text-foreground mb-4 font-serif italic" data-mock="true">"A dedicated teacher and community leader who inspired countless students to reach their potential."</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground" data-bind="memorial.tributeCount">89 tributes</span>
+                            <button class="text-primary hover:text-primary/80 font-medium">View Memorial <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memorial Card 3 -->
+                <div class="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all">
+                    <!-- Young South African woman with bright smile -->
+                    <img src="https://pixabay.com/get/g4e020a1126cbca40b0a2bf31c2f999ae81abe48a8b273340751d88235d825882bd734b339acaebf55fdaef93a3abc9616770d05f8458d034b0e927c899f2f95b_1280.jpg" alt="Memorial portrait" class="w-full h-48 object-cover" data-mock-image="true">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-foreground mb-2" data-bind="memorial.name">Lerato Sarah Dlamini</h3>
+                        <p class="text-muted-foreground mb-2" data-bind="memorial.dates">1985 - 2024</p>
+                        <p class="text-muted-foreground mb-4" data-bind="memorial.location">Durban, KwaZulu-Natal</p>
+                        <p class="text-foreground mb-4 font-serif italic" data-mock="true">"A passionate nurse who dedicated her life to caring for others with compassion and grace."</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground" data-bind="memorial.tributeCount">134 tributes</span>
+                            <button class="text-primary hover:text-primary/80 font-medium">View Memorial <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+
+            <div class="text-center mt-12">
+                <button class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-8 py-3 rounded-lg font-medium transition-colors">
+                    View All Memorials
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Featured Memorials -->
+
+    <!-- @COMPONENT: Memorial Page (Single Memorial View) -->
+    <section id="memorial-page" class="py-20 bg-muted hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Memorial Header -->
+            <div class="bg-card border border-border rounded-xl p-8 mb-8">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Memorial Photo -->
+                    <div class="lg:w-80 flex-shrink-0">
+                        <!-- Elderly South African woman with kind eyes and traditional headwrap -->
+                        <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" alt="Tandiwe Olga Tini" class="w-full h-80 object-cover rounded-lg shadow-lg" data-mock-image="true">
+                        
+                        <!-- Action Buttons -->
+                        <div class="grid grid-cols-3 gap-2 mt-4">
+                            <button class="bg-accent text-accent-foreground p-3 rounded-lg hover:bg-accent/90 transition-colors text-center">
+                                <i class="fas fa-seedling block text-lg mb-1"></i>
+                                <span class="text-xs">Lay Flower</span>
+                            </button>
+                            <button class="bg-primary text-primary-foreground p-3 rounded-lg hover:bg-primary/90 transition-colors text-center">
+                                <i class="fas fa-candle-holder block text-lg mb-1"></i>
+                                <span class="text-xs">Light Candle</span>
+                            </button>
+                            <button class="bg-secondary text-secondary-foreground p-3 rounded-lg hover:bg-secondary/90 transition-colors text-center">
+                                <i class="fas fa-heart block text-lg mb-1"></i>
+                                <span class="text-xs">Leave Note</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Memorial Details -->
+                    <div class="flex-1">
+                        <h1 class="text-4xl font-bold text-foreground mb-2 font-serif" data-bind="memorial.fullName">Tandiwe Olga "MaFaku" Tini</h1>
+                        <p class="text-2xl text-muted-foreground mb-6" data-bind="memorial.lifespan">1955 - 2025</p>
+                        
+                        <div class="prose prose-lg max-w-none text-foreground mb-6">
+                            <p class="font-serif italic text-lg leading-relaxed" data-mock="true">
+                                She lived with grace, served with love, and left quietly, leaving behind a legacy of strength and kindness.
+                            </p>
+                        </div>
+
+                        <!-- Life Details -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <span class="text-sm text-muted-foreground">Age</span>
+                                <p class="text-foreground font-medium" data-bind="memorial.age">69 years old</p>
+                            </div>
+                            <div>
+                                <span class="text-sm text-muted-foreground">Born</span>
+                                <p class="text-foreground font-medium" data-bind="memorial.birthDetails">July 13, 1955 in Libode, Eastern Cape</p>
+                            </div>
+                            <div>
+                                <span class="text-sm text-muted-foreground">Passed</span>
+                                <p class="text-foreground font-medium" data-bind="memorial.deathDetails">May 11, 2025 in South Africa</p>
+                            </div>
+                            <div>
+                                <span class="text-sm text-muted-foreground">Views</span>
+                                <p class="text-foreground font-medium" data-bind="memorial.viewCount">595 views</p>
+                            </div>
+                        </div>
+
+                        <!-- Scripture Quote -->
+                        <div class="bg-background border border-border rounded-lg p-4">
+                            <p class="font-serif italic text-foreground mb-2" data-mock="true">
+                                "Do not let your hearts be troubled. You believe in God; believe also in me… I go to prepare a place for you."
+                            </p>
+                            <p class="text-sm text-muted-foreground" data-mock="true">— John 14:1–3 (NIV)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="bg-card border border-border rounded-xl mb-8">
+                <div class="flex overflow-x-auto">
+                    <button class="px-6 py-4 text-primary border-b-2 border-primary font-medium whitespace-nowrap">About</button>
+                    <button class="px-6 py-4 text-muted-foreground hover:text-foreground font-medium whitespace-nowrap">Tributes</button>
+                    <button class="px-6 py-4 text-muted-foreground hover:text-foreground font-medium whitespace-nowrap">Life Story</button>
+                    <button class="px-6 py-4 text-muted-foreground hover:text-foreground font-medium whitespace-nowrap">Gallery</button>
+                    <button class="px-6 py-4 text-muted-foreground hover:text-foreground font-medium whitespace-nowrap">Stories</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Content -->
+                <div class="lg:col-span-2">
+                    <!-- About Section -->
+                    <div class="bg-card border border-border rounded-xl p-6 mb-8">
+                        <h2 class="text-2xl font-bold text-foreground mb-4 font-serif">About Tandiwe</h2>
+                        <div class="prose prose-lg max-w-none text-foreground">
+                            <p data-mock="true">
+                                In loving memory of Tandiwe Olga "MaFaku" Tini — a cherished mother, grandmother, and guiding light to all who knew her. Her warmth, wisdom, and unwavering spirit will live on in our hearts forever.
+                            </p>
+                            <p data-mock="true">
+                                Tandiwe was born on 13 July 1955 in eMagcakini Village, Libode, to the late MaHadi Mbeki and her late husband. After the passing of her father, her mother returned with the children to her own village, where Tandiwe was raised in the warmth of community and tradition.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Tributes -->
+                    <div class="bg-card border border-border rounded-xl p-6">
+                        <h2 class="text-2xl font-bold text-foreground mb-6 font-serif">Recent Tributes</h2>
+                        
+                        <!-- @MAP: tributes.map(tribute => ( -->
+                        <div class="space-y-6">
+                            <div class="border-b border-border pb-6 last:border-b-0 last:pb-0">
+                                <div class="flex items-start space-x-4">
+                                    <!-- Tribute author avatar -->
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-primary font-medium" data-bind="tribute.authorInitials">KT</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h4 class="font-medium text-foreground" data-bind="tribute.authorName">Khulile Tini</h4>
+                                            <span class="text-sm text-muted-foreground" data-bind="tribute.date">Thursday, Jun 26</span>
+                                        </div>
+                                        <p class="text-foreground" data-mock="true">
+                                            Never thought it would hurt as much as it does Faku. Kodwa ke akukhonto siyayazi uba you wanted nothing more that to be reunited nomnganakho and hopefully that is where you are now.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-b border-border pb-6 last:border-b-0 last:pb-0">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-primary font-medium" data-bind="tribute.authorInitials">SC</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h4 class="font-medium text-foreground" data-bind="tribute.authorName">Sibathathu Cungcu</h4>
+                                            <span class="text-sm text-muted-foreground" data-bind="tribute.date">Thursday, May 15</span>
+                                        </div>
+                                        <p class="text-foreground" data-mock="true">
+                                            Ohw Momkhulu Ntombi. Rest now Thahla, I love you forever and always ntombi the pass 5years I got to know you better. Good nyt sthandwa Sam see you in the morning ❤️❤️
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-b border-border pb-6 last:border-b-0 last:pb-0">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-primary font-medium" data-bind="tribute.authorInitials">KN</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <h4 class="font-medium text-foreground" data-bind="tribute.authorName">Sis Kay Ndamase</h4>
+                                            <span class="text-sm text-muted-foreground" data-bind="tribute.date">Thursday, May 15</span>
+                                        </div>
+                                        <p class="text-foreground" data-mock="true">
+                                            Fondly known by her brothers as Sis Nomkhenisi. She will be dearly missed by all of us, her wisdom, her firmness in what's right, her love for the entire family will forever be cherished.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+
+                        <!-- Leave Tribute Form -->
+                        <div class="mt-8 pt-6 border-t border-border">
+                            <h3 class="text-lg font-semibold text-foreground mb-4">Leave a Tribute</h3>
+                            <textarea placeholder="Share your memories..." class="w-full bg-background border border-border rounded-lg p-4 text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-ring focus:border-transparent resize-none h-32" data-mock="true"></textarea>
+                            <div class="flex justify-between items-center mt-4">
+                                <div class="text-sm text-muted-foreground">Share memories with the family</div>
+                                <button class="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded-lg font-medium transition-colors">
+                                    Publish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Photo Gallery Preview -->
+                    <div class="bg-card border border-border rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-foreground mb-4">Photo Gallery</h3>
+                        <div class="grid grid-cols-3 gap-2 mb-4">
+                            <!-- Family photo with multiple generations -->
+                            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" alt="Family photo" class="w-full h-20 object-cover rounded-lg" data-mock-image="true">
+                            <!-- Wedding or celebration photo -->
+                            <img src="https://pixabay.com/get/g31d21a173b74ec928b14357ac49eed388cd4f125d9904c7cf8d5121854c425d14c81a66ad971cae1124f35b174247ae63f4f1914678c706f6fec6ceb3f77e6da_1280.jpg" alt="Celebration photo" class="w-full h-20 object-cover rounded-lg" data-mock-image="true">
+                            <!-- Church or community gathering -->
+                            <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" alt="Community photo" class="w-full h-20 object-cover rounded-lg" data-mock-image="true">
+                        </div>
+                        <button class="text-primary hover:text-primary/80 font-medium">View all 22 photos <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+
+                    <!-- Memorial Statistics -->
+                    <div class="bg-card border border-border rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-foreground mb-4">Memorial Activity</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Total Views</span>
+                                <span class="text-foreground font-medium" data-bind="memorial.stats.views">595</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Tributes</span>
+                                <span class="text-foreground font-medium" data-bind="memorial.stats.tributes">47</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Photos</span>
+                                <span class="text-foreground font-medium" data-bind="memorial.stats.photos">22</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-muted-foreground">Stories</span>
+                                <span class="text-foreground font-medium" data-bind="memorial.stats.stories">3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share Memorial -->
+                    <div class="bg-card border border-border rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-foreground mb-4">Share Memorial</h3>
+                        <div class="space-y-3">
+                            <button class="w-full bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+                                <i class="fab fa-facebook mr-2"></i>Share on Facebook
+                            </button>
+                            <button class="w-full bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+                                <i class="fab fa-whatsapp mr-2"></i>Share on WhatsApp
+                            </button>
+                            <button class="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-copy mr-2"></i>Copy Link
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Administrator Info -->
+                    <div class="bg-card border border-border rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-foreground mb-4">Memorial Administrator</h3>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                <span class="text-primary font-medium" data-bind="admin.initials">LL</span>
+                            </div>
+                            <div>
+                                <p class="font-medium text-foreground" data-bind="admin.name">Langa Ludidi</p>
+                                <p class="text-sm text-muted-foreground">Family Member</p>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-background border border-border text-foreground hover:bg-muted px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>Contact Administrator
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Memorial Page -->
+
+    <!-- @COMPONENT: Partner Directory -->
+    <section class="py-20 bg-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif">Trusted Partners</h2>
+                <p class="text-xl text-muted-foreground max-w-2xl mx-auto">Connect with respectful, culturally-aware service providers across South Africa</p>
+            </div>
+
+            <!-- Partner Categories -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <button class="bg-primary text-primary-foreground px-4 py-3 rounded-lg font-medium transition-colors">
+                    All Partners
+                </button>
+                <button class="bg-background text-foreground hover:bg-muted px-4 py-3 rounded-lg font-medium transition-colors">
+                    Funeral Homes
+                </button>
+                <button class="bg-background text-foreground hover:bg-muted px-4 py-3 rounded-lg font-medium transition-colors">
+                    Florists
+                </button>
+                <button class="bg-background text-foreground hover:bg-muted px-4 py-3 rounded-lg font-medium transition-colors">
+                    Caterers
+                </button>
+            </div>
+
+            <!-- Partner Search -->
+            <div class="max-w-2xl mx-auto mb-12">
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <input type="text" placeholder="Search by city or province..." class="w-full bg-background border border-border rounded-lg px-4 py-3 text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-ring focus:border-transparent" data-mock="true">
+                    </div>
+                    <button class="bg-accent text-accent-foreground px-6 py-3 rounded-lg hover:bg-accent/90 font-medium transition-colors">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- Partner Listings -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- @MAP: partners.map(partner => ( -->
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-home text-primary text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-foreground mb-1" data-bind="partner.name">Ubuntu Funeral Services</h3>
+                            <p class="text-sm text-accent mb-2" data-bind="partner.type">Funeral Home</p>
+                            <p class="text-sm text-muted-foreground mb-3" data-bind="partner.location">Johannesburg, Gauteng</p>
+                            <p class="text-sm text-foreground mb-4" data-mock="true">Compassionate funeral services with respect for all South African traditions and customs.</p>
+                            <div class="flex items-center space-x-4">
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-phone mr-1"></i>Call
+                                </button>
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-envelope mr-1"></i>Email
+                                </button>
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Website
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-seedling text-accent text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-foreground mb-1" data-bind="partner.name">Peaceful Petals Florist</h3>
+                            <p class="text-sm text-accent mb-2" data-bind="partner.type">Florist</p>
+                            <p class="text-sm text-muted-foreground mb-3" data-bind="partner.location">Cape Town, Western Cape</p>
+                            <p class="text-sm text-foreground mb-4" data-mock="true">Beautiful sympathy arrangements and traditional funeral flowers with same-day delivery.</p>
+                            <div class="flex items-center space-x-4">
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-phone mr-1"></i>Call
+                                </button>
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-envelope mr-1"></i>Email
+                                </button>
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Website
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-background border border-border rounded-xl p-6 hover:shadow-lg transition-all">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-utensils text-secondary text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-foreground mb-1" data-bind="partner.name">Heritage Catering</h3>
+                            <p class="text-sm text-accent mb-2" data-bind="partner.type">Caterer</p>
+                            <p class="text-sm text-muted-foreground mb-3" data-bind="partner.location">Durban, KwaZulu-Natal</p>
+                            <p class="text-sm text-foreground mb-4" data-mock="true">Traditional and contemporary catering for funeral receptions and memorial gatherings.</p>
+                            <div class="flex items-center space-x-4">
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-phone mr-1"></i>Call
+                                </button>
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-envelope mr-1"></i>Email
+                                </button>
+                                <button class="text-primary hover:text-primary/80 text-sm font-medium">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Website
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+
+            <div class="text-center mt-12">
+                <button class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-8 py-3 rounded-lg font-medium transition-colors mr-4">
+                    View All Partners
+                </button>
+                <button class="bg-accent text-accent-foreground hover:bg-accent/90 px-8 py-3 rounded-lg font-medium transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Become a Partner
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Partner Directory -->
+
+    <!-- @COMPONENT: Cultural Sensitivity Section -->
+    <section class="py-20 bg-gradient-to-br from-background to-muted">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <!-- Traditional South African memorial candles arrangement -->
+                    <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" alt="Memorial candles" class="w-full h-96 object-cover rounded-xl shadow-lg" data-mock-image="true">
+                </div>
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-foreground mb-6 font-serif">Respectful. Cultural. Dignified.</h2>
+                    <p class="text-lg text-muted-foreground mb-6 leading-relaxed">
+                        In South Africa, death is not just an event — it's a communal ritual involving traditions, faith, extended family, and neighbourhoods. Soulbridge honors these sacred customs.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-heart text-primary text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-foreground mb-1">Cultural Awareness</h3>
+                                <p class="text-muted-foreground">Every tradition and custom is respected and honored with care</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-shield-alt text-primary text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-foreground mb-1">Privacy & Dignity</h3>
+                                <p class="text-muted-foreground">Protected spaces for families to grieve with moderation and care</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-users text-primary text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-foreground mb-1">Community Connection</h3>
+                                <p class="text-muted-foreground">Bringing families and communities together in times of loss</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button class="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-3 rounded-lg font-medium transition-colors">
+                            Learn More About Our Mission
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Cultural Sensitivity Section -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-card border-t border-border py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Brand -->
+                <div>
+                    <h3 class="text-2xl font-bold text-primary mb-4 font-serif">Soulbridge</h3>
+                    <p class="text-muted-foreground mb-6 leading-relaxed">
+                        A digital home for the living to honour the departed. Celebrating life with dignity, design, and deep humanity.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-muted-foreground hover:text-primary transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Create Memorial -->
+                <div>
+                    <h4 class="font-semibold text-foreground mb-4">Create Memorial</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Start a Memorial</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Upload Funeral Program</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Memorial Templates</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">How to Write Obituary</a></li>
+                    </ul>
+                </div>
+
+                <!-- Find Memorial -->
+                <div>
+                    <h4 class="font-semibold text-foreground mb-4">Find Memorial</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Search by Province</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Browse by City</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Recent Memorials</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Partner Directory</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="font-semibold text-foreground mb-4">Support</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Help Center</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-muted-foreground hover:text-primary transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-border mt-12 pt-8 text-center">
+                <p class="text-muted-foreground">
+                    © 2024 Soulbridge. All rights reserved. | "Every life deserves to be remembered well."
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        (function() {
+            // TODO: Implement memorial search functionality
+            // TODO: Implement form submissions with proper validation
+            // TODO: Implement partner directory filtering
+            // TODO: Implement memorial page navigation
+            // TODO: Implement tribute submission workflow
+            // TODO: Implement file upload for funeral programs
+            // TODO: Implement user authentication system
+            // TODO: Implement admin moderation workflow
+            
+            // Basic interaction handling for demo purposes
+            document.addEventListener('DOMContentLoaded', function() {
+                // Memorial page toggle (demo only)
+                const memorialCards = document.querySelectorAll('[data-bind="memorial.name"]');
+                const landingPage = document.querySelector('main') || document.body;
+                const memorialPage = document.getElementById('memorial-page');
+                
+                if (memorialCards.length > 0 && memorialPage) {
+                    memorialCards.forEach(card => {
+                        card.closest('.bg-card')?.addEventListener('click', function() {
+                            landingPage.classList.add('hidden');
+                            memorialPage.classList.remove('hidden');
+                            window.scrollTo(0, 0);
+                        });
+                    });
+                }
+                
+                // Simple form interactions (demo only)
+                const searchInputs = document.querySelectorAll('input[type="text"]');
+                searchInputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.classList.add('ring-2', 'ring-ring');
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        this.classList.remove('ring-2', 'ring-ring');
+                    });
+                });
+                
+                // Button hover effects enhancement
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.addEventListener('mouseenter', function() {
+                        if (!this.disabled) {
+                            this.style.transform = 'translateY(-1px)';
+                        }
+                    });
+                    
+                    button.addEventListener('mouseleave', function() {
+                        this.style.transform = 'translateY(0)';
+                    });
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
