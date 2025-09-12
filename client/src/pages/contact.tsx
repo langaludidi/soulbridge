@@ -75,19 +75,19 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen section-bg-primary">
       
       {/* Hero Section */}
-      <section className="py-16 sm:py-20 bg-gradient-to-br from-primary/10 to-secondary/10">
+      <section className="py-16 sm:py-20 section-bg-accent">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-6">
+            <h1 className="h1 mb-6">
               Contact Us
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="lead text-muted-foreground max-w-2xl mx-auto">
               We're here to help you honour your loved ones with dignity and care
             </p>
-            <p className="text-sm text-muted-foreground mt-4">
+            <p className="body text-muted-foreground mt-4">
               Our support team typically responds within 24 hours
             </p>
           </div>
@@ -95,21 +95,21 @@ export default function Contact() {
       </section>
 
       {/* Contact Information */}
-      <section className="py-16 bg-background">
+      <section className="py-16 section-bg-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
             {/* Contact Details */}
             <div className="lg:col-span-1 space-y-8">
               <div>
-                <h2 className="text-2xl font-serif font-bold text-foreground mb-6">Get in Touch</h2>
-                <p className="text-muted-foreground leading-relaxed mb-8">
+                <h2 className="h2 mb-6">Get in Touch</h2>
+                <p className="body text-muted-foreground leading-relaxed mb-8">
                   Our dedicated support team understands the sensitivity of memorial services and is committed to providing compassionate, professional assistance.
                 </p>
               </div>
 
               {/* Contact Methods */}
               <div className="space-y-6">
-                <Card>
+                <Card className="section-elevated">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -124,7 +124,7 @@ export default function Contact() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="section-elevated">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center">
@@ -139,7 +139,7 @@ export default function Contact() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="section-elevated">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
@@ -158,7 +158,7 @@ export default function Contact() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="section-elevated">
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -181,9 +181,9 @@ export default function Contact() {
 
             {/* Contact Form */}
             <div className="lg:col-span-2">
-              <Card>
+              <Card className="section-elevated">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-serif">Send Us a Message</CardTitle>
+                  <CardTitle className="h2">Send Us a Message</CardTitle>
                   <CardDescription>
                     Fill out the form below and we'll get back to you as soon as possible
                   </CardDescription>
@@ -274,19 +274,19 @@ export default function Contact() {
       </section>
 
       {/* Quick Help Section */}
-      <section className="py-16 bg-muted/30 dark:bg-muted/10">
+      <section className="py-16 section-bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-foreground mb-4">
+            <h2 className="h2 mb-4">
               Quick Help
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="body text-muted-foreground max-w-2xl mx-auto">
               Looking for immediate assistance? These resources might help you find answers faster
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="section-elevated text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <HelpCircle className="w-8 h-8 text-primary" />
@@ -303,7 +303,7 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="section-elevated text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <MessageCircle className="w-8 h-8 text-secondary" />
@@ -320,7 +320,7 @@ export default function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow">
+            <Card className="section-elevated text-center hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShieldCheck className="w-8 h-8 text-accent" />
@@ -348,10 +348,10 @@ export default function Contact() {
       </section>
 
       {/* Emergency Contact */}
-      <section className="py-12 bg-destructive/5 dark:bg-destructive/10">
+      <section className="py-12 section-bg-tertiary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h3 className="text-xl font-semibold text-foreground mb-4">Emergency Memorial Support</h3>
-          <p className="text-muted-foreground mb-6">
+          <h3 className="h3 mb-4">Emergency Memorial Support</h3>
+          <p className="body text-muted-foreground mb-6">
             If you need urgent assistance with memorial content or have an immediate concern, 
             please call our emergency line or email us directly.
           </p>
