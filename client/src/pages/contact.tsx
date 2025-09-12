@@ -29,7 +29,7 @@ export default function Contact() {
 
   useEffect(() => {
     document.title = "Contact Us - SoulBridge Memorial Platform";
-    
+
     // Add meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -76,10 +76,10 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen section-bg-primary">
-      
+
       {/* Hero Section */}
-      <section className="py-16 sm:py-20 section-bg-accent">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24 section-bg-accent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="h1 mb-6">
               Contact Us
@@ -198,10 +198,10 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Email Address (Optional)</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="email" 
-                                placeholder="Enter your email address" 
-                                {...field} 
+                              <Input
+                                type="email"
+                                placeholder="Enter your email address"
+                                {...field}
                                 data-testid="input-email"
                               />
                             </FormControl>
@@ -217,9 +217,9 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Subject *</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Brief description of your inquiry" 
-                                {...field} 
+                              <Input
+                                placeholder="Brief description of your inquiry"
+                                {...field}
                                 data-testid="input-subject"
                               />
                             </FormControl>
@@ -236,10 +236,10 @@ export default function Contact() {
                           <FormItem>
                             <FormLabel>Message *</FormLabel>
                             <FormControl>
-                              <Textarea 
-                                placeholder="Please provide details about your inquiry..." 
-                                className="min-h-[120px]" 
-                                {...field} 
+                              <Textarea
+                                placeholder="Please provide details about your inquiry..."
+                                className="min-h-[120px]"
+                                {...field}
                                 data-testid="textarea-message"
                               />
                             </FormControl>
@@ -251,14 +251,14 @@ export default function Contact() {
                       <div className="bg-muted/50 dark:bg-muted/20 p-4 rounded-lg">
                         <p className="text-sm text-muted-foreground">
                           <ShieldCheck className="w-4 h-4 inline mr-2" />
-                          Your information is protected and will only be used to respond to your inquiry. 
+                          Your information is protected and will only be used to respond to your inquiry.
                           Read our <Link href="/privacy"><span className="text-primary hover:underline cursor-pointer">Privacy Policy</span></Link> for more details.
                         </p>
                       </div>
 
-                      <Button 
-                        type="submit" 
-                        className="w-full" 
+                      <Button
+                        type="submit"
+                        className="w-full"
                         disabled={contactMutation.isPending}
                         data-testid="button-send-message"
                       >
@@ -274,13 +274,13 @@ export default function Contact() {
       </section>
 
       {/* Quick Help Section */}
-      <section className="py-16 section-bg-secondary">
+      <section className="py-16 sm:py-20 section-bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="h2 mb-4">
               Quick Help
             </h2>
-            <p className="body text-muted-foreground max-w-2xl mx-auto">
+            <p className="body text-muted-foreground">
               Looking for immediate assistance? These resources might help you find answers faster
             </p>
           </div>
@@ -352,7 +352,7 @@ export default function Contact() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h3 className="h3 mb-4">Emergency Memorial Support</h3>
           <p className="body text-muted-foreground mb-6">
-            If you need urgent assistance with memorial content or have an immediate concern, 
+            If you need urgent assistance with memorial content or have an immediate concern,
             please call our emergency line or email us directly.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
