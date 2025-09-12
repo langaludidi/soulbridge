@@ -85,6 +85,20 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
+  
+  // Enhanced authentication security middleware
+  const { 
+    sessionSecurityMiddleware, 
+    tokenSecurityMiddleware, 
+    concurrentSessionProtection,
+    loginAttemptMiddleware,
+    trackLoginAttempt,
+  } = await import('./middleware/auth-security');
+  
+  // Apply security middleware to authenticated routes
+  app.use(sessionSecurityMiddleware);
+  app.use(tokenSecurityMiddleware);
+  app.use(concurrentSessionProtection(3)); // Max 3 concurrent sessions
 
   const config = await getOidcConfig();
 

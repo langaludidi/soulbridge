@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -6,32 +7,38 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Footer } from "@/components/footer";
 import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import NotFound from "@/pages/not-found";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+
+// Core pages loaded immediately
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
-import Memorial from "@/pages/memorial";
-import Browse from "@/pages/browse";
-import Partners from "@/pages/partners";
-import PartnersDirectory from "@/pages/partners-directory";
-import PartnersSignup from "@/pages/partners-signup";
-import PartnersOnboarding from "@/pages/partners-onboarding";
-import PartnerDashboard from "@/pages/partner-dashboard";
-import OrderOfService from "@/pages/order-of-service";
-import OrderOfServiceEdit from "@/pages/order-of-service-edit";
-import CreateMemorialOrderOfService from "@/pages/create-memorial-order-of-service";
-import CreatePage from "@/pages/create";
-import About from "@/pages/about";
-import PricingPage from "@/pages/pricing";
-import PackagesPage from "@/pages/packages";
-import DashboardPage from "@/pages/dashboard";
-import Terms from "@/pages/terms";
-import Privacy from "@/pages/privacy";
-import Contact from "@/pages/contact";
-import FAQ from "@/pages/faq";
-import WritingGuide from "@/pages/writing-guide";
-import PaymentSuccess from "@/pages/payment-success";
-import PaymentDeclined from "@/pages/payment-declined";
-import PaymentComplete from "@/pages/payment-complete";
+import NotFound from "@/pages/not-found";
+
+// Lazy load other pages for better performance
+const Memorial = lazy(() => import("@/pages/memorial"));
+const Browse = lazy(() => import("@/pages/browse"));
+const Partners = lazy(() => import("@/pages/partners"));
+const PartnersDirectory = lazy(() => import("@/pages/partners-directory"));
+const PartnersSignup = lazy(() => import("@/pages/partners-signup"));
+const PartnersOnboarding = lazy(() => import("@/pages/partners-onboarding"));
+const PartnerDashboard = lazy(() => import("@/pages/partner-dashboard"));
+const OrderOfService = lazy(() => import("@/pages/order-of-service"));
+const OrderOfServiceEdit = lazy(() => import("@/pages/order-of-service-edit"));
+const CreateMemorialOrderOfService = lazy(() => import("@/pages/create-memorial-order-of-service"));
+const CreatePage = lazy(() => import("@/pages/create"));
+const About = lazy(() => import("@/pages/about"));
+const PricingPage = lazy(() => import("@/pages/pricing"));
+const PackagesPage = lazy(() => import("@/pages/packages"));
+const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const Terms = lazy(() => import("@/pages/terms"));
+const Privacy = lazy(() => import("@/pages/privacy"));
+const Contact = lazy(() => import("@/pages/contact"));
+const FAQ = lazy(() => import("@/pages/faq"));
+const WritingGuide = lazy(() => import("@/pages/writing-guide"));
+const PaymentSuccess = lazy(() => import("@/pages/payment-success"));
+const PaymentDeclined = lazy(() => import("@/pages/payment-declined"));
+const PaymentComplete = lazy(() => import("@/pages/payment-complete"));
 
 // Route configuration to eliminate duplication
 const routes = [
@@ -66,34 +73,38 @@ function Router() {
   return (
     <>
       <Navigation />
-      <Switch>
-        {/* Home route changes based on auth status */}
-        <Route path="/" component={isLoading || !isAuthenticated ? Landing : Home} />
-        
-        {/* All other routes are the same regardless of auth status */}
-        {routes.map(({ path, component }) => (
-          <Route key={path} path={path} component={component} />
-        ))}
-        
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Switch>
+          {/* Home route changes based on auth status */}
+          <Route path="/" component={isLoading || !isAuthenticated ? Landing : Home} />
+          
+          {/* All other routes are the same regardless of auth status */}
+          {routes.map(({ path, component }) => (
+            <Route key={path} path={path} component={component} />
+          ))}
+          
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
     </>
   );
 }
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="flex flex-col min-h-screen">
-          <div className="flex-1">
-            <Router />
+    <ErrorBoundary showDetails={true}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div className="flex flex-col min-h-screen">
+            <div className="flex-1">
+              <Router />
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

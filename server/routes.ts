@@ -7,10 +7,35 @@ import { resolveBrandingContext, getBrandingResponse, getPartnerIdFromContext, t
 import { type AuthenticatedRequest } from "./middleware/auth";
 import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema, insertPartnerLeadSchema } from "@shared/schema";
 import { billingRouter } from "./billing/routes";
+import { securityRouter } from "./routes/security";
 import { logger } from "./utils/logger";
 import { pool } from "./db";
 import fs from "fs";
 import path from "path";
+
+// Enhanced security and validation imports
+import { 
+  validateMemorialCreation,
+  validateContactForm,
+  validateTributeCreation,
+  validatePartnerRegistration,
+  validateOrderOfService,
+  validatePaginationParams,
+  validateSearchParams,
+  validateUUIDParam,
+  handleValidationErrors,
+} from "./middleware/validation";
+import { 
+  createSecureUpload,
+  postUploadSecurityCheck,
+  fileAccessControl,
+} from "./middleware/file-security";
+import {
+  logSecurityEvent,
+  analyzeRequest,
+  SecurityEventType,
+  SecuritySeverity,
+} from "./utils/security-monitor";
 
 // Combined type for authenticated requests with branding context
 type AuthenticatedBrandedRequest = AuthenticatedRequest & BrandedRequest;
@@ -98,6 +123,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Apply branding middleware to all routes
   app.use(resolveBrandingContext);
+
+  // Security analysis middleware - analyze all requests for threats
+  app.use((req, res, next) => {
+    const analysis = analyzeRequest(req);
+    
+    if (analysis.isSuspicious && analysis.riskScore > 75) {
+      // Block highly suspicious requests
+      logSecurityEvent(
+        SecurityEventType.SUSPICIOUS_ACTIVITY,
+        SecuritySeverity.HIGH,
+        `Highly suspicious request blocked: ${analysis.reasons.join(', ')}`,
+        req,
+        { analysis },
+        true,
+        'request_blocked'
+      );
+      
+      return res.status(403).json({
+        error: 'Request blocked due to security policy',
+        reference: Date.now().toString(36),
+      });
+    } else if (analysis.isSuspicious) {
+      // Log suspicious but allow
+      logSecurityEvent(
+        SecurityEventType.SUSPICIOUS_ACTIVITY,
+        SecuritySeverity.MEDIUM,
+        `Suspicious request detected: ${analysis.reasons.join(', ')}`,
+        req,
+        { analysis },
+        false,
+        'logged_only'
+      );
+    }
+    
+    next();
+  });
+
+  // Security dashboard and management routes
+  app.use('/api/security', securityRouter);
 
   // Memorial page route with OpenGraph meta tags for social media crawlers
   app.get('/memorial/:id', async (req, res, next) => {
@@ -198,9 +262,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Memorial routes
-  app.get('/api/memorials', async (req, res) => {
+  app.get('/api/memorials', validatePaginationParams, async (req, res) => {
     try {
-      const { province, status, includeDrafts } = req.query;
+      const { province, status, includeDrafts, page = 1, limit = 20 } = req.query;
       
       // Only allow draft access for authenticated users
       const defaultStatus = status as string || "published";
@@ -218,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/memorials/:id', async (req, res) => {
+  app.get('/api/memorials/:id', validateUUIDParam('id'), async (req, res) => {
     try {
       const memorial = await storage.getMemorialWithAdmin(req.params.id);
       if (!memorial) {
@@ -248,7 +312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/memorials', isAuthenticated, enforceMemorialLimits, async (req: any, res) => {
+  app.post('/api/memorials', isAuthenticated, validateMemorialCreation, enforceMemorialLimits, async (req: any, res) => {
     try {
       const memorialData = insertMemorialSchema.parse(req.body);
       const userId = req.user?.claims.sub;
