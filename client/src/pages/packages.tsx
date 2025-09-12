@@ -111,41 +111,44 @@ const packages: Package[] = [
 
 export default function PackagesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen section-bg-primary">
       {/* Header Section */}
-      <div className="container mx-auto px-4 pt-16 pb-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Memorial Packages
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Choose the perfect package to honor your loved ones. From simple remembrance to comprehensive family heritage preservation.
-          </p>
-          <div className="flex justify-center">
-            <Badge variant="secondary" className="text-sm px-4 py-2">
-              Trusted by South African families nationwide
-            </Badge>
+      <section className="section-padding section-bg-secondary">
+        <div className="container-max">
+          <div className="container-content text-center">
+            <h1 className="mb-6">
+              Memorial Packages
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              Choose the perfect package to honor your loved ones. From simple remembrance to comprehensive family heritage preservation.
+            </p>
+            <div className="flex justify-center">
+              <Badge variant="secondary" className="text-sm px-4 py-2">
+                Trusted by South African families nationwide
+              </Badge>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Packages Grid */}
-      <div className="container mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {packages.map((pkg) => (
-            <Card 
-              key={pkg.id} 
-              className={`relative overflow-hidden transition-all duration-300 hover:shadow-xl ${
-                pkg.popular 
-                  ? "border-2 border-green-500 shadow-lg scale-105" 
-                  : "border-gray-200 hover:border-green-300"
-              }`}
-              data-testid={`package-${pkg.id}`}
-            >
+      <section className="section-padding section-bg-primary">
+        <div className="container-max">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {packages.map((pkg) => (
+              <Card 
+                key={pkg.id} 
+                className={`relative overflow-hidden smooth-hover group ${
+                  pkg.popular 
+                    ? "border-2 border-primary shadow-lg scale-105 section-elevated" 
+                    : "section-elevated hover:border-primary/30"
+                }`}
+                data-testid={`package-${pkg.id}`}
+              >
               {/* Popular Badge */}
               {pkg.popular && (
                 <div className="absolute -top-2 -right-2 z-10">
-                  <Badge className="bg-primary text-white px-3 py-1 text-xs font-semibold">
+                  <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold">
                     <Star className="w-3 h-3 mr-1" />
                     Most Popular
                   </Badge>
@@ -162,24 +165,26 @@ export default function PackagesPage() {
               )}
 
               <CardHeader className="text-center pb-4">
-                <div className="flex justify-center mb-3">
-                  <div className={`p-3 rounded-full ${
-                    pkg.popular ? "bg-primary/10 text-primary" : "bg-muted/20 text-muted-foreground"
+                <div className="flex justify-center mb-6">
+                  <div className={`p-4 rounded-xl transition-colors duration-300 ${
+                    pkg.popular 
+                      ? "bg-gradient-to-br from-primary/10 to-primary/20 text-primary group-hover:bg-primary/20" 
+                      : "bg-muted/10 text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
                   }`}>
                     {pkg.icon}
                   </div>
                 </div>
-                <CardTitle className="text-2xl font-bold text-foreground mb-2">
+                <CardTitle className="h2 mb-4">
                   {pkg.name}
                 </CardTitle>
-                <div className="text-center">
-                  <div className="flex items-center justify-center mb-2">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center">
                     {pkg.price === 0 ? (
-                      <span className="text-3xl font-bold text-foreground">Free</span>
+                      <span className="text-3xl font-bold text-primary">Free</span>
                     ) : (
                       <>
                         <span className="text-sm text-muted-foreground mr-1">R</span>
-                        <span className="text-3xl font-bold text-foreground">{pkg.price}</span>
+                        <span className="text-3xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">{pkg.price}</span>
                         <span className="text-sm text-muted-foreground ml-1">/{pkg.interval}</span>
                       </>
                     )}
@@ -221,10 +226,10 @@ export default function PackagesPage() {
 
                 <Button 
                   asChild
-                  className={`w-full ${
+                  className={`w-full transition-all duration-300 ${
                     pkg.popular 
-                      ? "bg-primary hover:bg-green-700 text-white" 
-                      : "bg-gray-900 hover:bg-gray-800 text-white"
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl" 
+                      : "bg-foreground hover:bg-primary text-background hover:text-primary-foreground"
                   }`}
                   data-testid={`button-select-${pkg.id}`}
                 >
@@ -235,17 +240,20 @@ export default function PackagesPage() {
               </CardContent>
             </Card>
           ))}
+          </div>
         </div>
+      </section>
 
-        {/* CTA Section */}
-        <div className="text-center mt-16 max-w-2xl mx-auto">
-          <h3 className="text-2xl font-bold text-foreground mb-4">
+      {/* CTA Section */}
+      <section className="section-padding section-bg-tertiary">
+        <div className="container-content text-center">
+          <h3 className="h2 mb-6">
             Need Help Choosing?
           </h3>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
             Our team understands the importance of honoring your loved ones. We're here to help you find the perfect memorial solution for your family.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="button-group justify-center">
             <Button variant="outline" size="lg" asChild data-testid="button-contact-support">
               <Link href="/about">Contact Support</Link>
             </Button>
@@ -254,7 +262,7 @@ export default function PackagesPage() {
             </Button>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
