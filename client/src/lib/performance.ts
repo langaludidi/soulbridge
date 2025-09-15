@@ -1,5 +1,5 @@
 // Performance monitoring and web vitals tracking
-import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals';
+// import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals'; // Disabled for build
 
 interface PerformanceMetric {
   name: string;

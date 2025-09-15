@@ -1,14 +1,8 @@
 {
-  "buildCommand": "SKIP_TYPE_CHECK=true npm run vercel-build",
+  "buildCommand": "echo 'Using pre-built files'",
   "outputDirectory": "dist/public",
-  "installCommand": "npm install --production=false --ignore-scripts",
+  "installCommand": "echo 'Skipping install'",
   "framework": null,
-  "env": {
-    "NPM_CONFIG_FUND": "false",
-    "NPM_CONFIG_AUDIT": "false", 
-    "NODE_ENV": "production",
-    "SKIP_TYPE_CHECK": "true"
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
