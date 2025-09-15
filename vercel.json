@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npm ci --production=false --omit=optional && npm run vercel-build",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": "dist/public",
-  "installCommand": "npm ci --production=false --omit=optional",
+  "installCommand": "npm install --production=false",
   "framework": null,
   "env": {
     "NPM_CONFIG_FUND": "false",
