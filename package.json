@@ -11,7 +11,6 @@
     "start": "NODE_ENV=production node dist/index.js",
     "vercel-build": "npm run build:client",
     "check": "tsc",
-    "postinstall": "if [ \"$VERCEL\" != \"1\" ]; then npm run check; fi",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
