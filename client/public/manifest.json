@@ -1,65 +1,16 @@
 {
-  "name": "SoulBridge - Memorial Platform",
+  "name": "SoulBridge - Digital Memorial Platform",
   "short_name": "SoulBridge",
   "description": "Create beautiful, lasting memorials to honor and remember loved ones",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "theme_color": "#3b82f6",
   "background_color": "#ffffff",
-  "categories": ["lifestyle", "social"],
-  "lang": "en-US",
-  "scope": "/",
-  "id": "/",
+  "theme_color": "#3b82f6",
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "16x16 32x32 48x48",
-      "type": "image/x-icon",
-      "purpose": "any maskable"
+      "src": "/SoulBridge-Favicon_1757600710068.png",
+      "sizes": "192x192",
+      "type": "image/png"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop.jpg",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshots/mobile.jpg", 
-      "sizes": "390x844",
-      "type": "image/jpeg",
-      "form_factor": "narrow"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Create Memorial",
-      "short_name": "Create",
-      "description": "Create a new memorial",
-      "url": "/create",
-      "icons": [
-        {
-          "src": "/favicon.ico",
-          "sizes": "32x32",
-          "type": "image/x-icon"
-        }
-      ]
-    },
-    {
-      "name": "Browse Memorials",
-      "short_name": "Browse", 
-      "description": "Browse existing memorials",
-      "url": "/browse",
-      "icons": [
-        {
-          "src": "/favicon.ico",
-          "sizes": "32x32",
-          "type": "image/x-icon"
-        }
-      ]
-    }
-  ],
-  "prefer_related_applications": false
+  ]
 }

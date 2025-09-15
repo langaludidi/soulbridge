@@ -27,7 +27,25 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(import.meta.dirname, "client", "index.html"),
+      },
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+          forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
+          query: ['@tanstack/react-query'],
+          utils: ['clsx', 'class-variance-authority', 'tailwind-merge'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+    target: 'es2020',
+    minify: 'esbuild',
   },
+  publicDir: path.resolve(import.meta.dirname, "client", "public"),
   server: {
     fs: {
       strict: true,
