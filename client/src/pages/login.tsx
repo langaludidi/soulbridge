@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Heart, Home, Users, Phone } from "lucide-react";
 
 export default function Login() {
-  // Updated: 2025-09-15 - Login page for static deployment
+  // Updated: 2025-09-15 13:10 - Force Vercel deployment from correct commit d3b5f32
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
