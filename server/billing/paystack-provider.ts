@@ -27,13 +27,32 @@ export class PaystackProvider implements BillingProvider {
   private initializeKeys() {
     if (this.secretKey) return;
     
-    this.secretKey = process.env.PAYSTACK_SECRET_KEY || '';
-    this.publicKey = process.env.PAYSTACK_PUBLIC_KEY || '';
-    this.webhookSecret = process.env.PAYSTACK_SECRET_KEY || ''; // Use same key as Paystack documentation suggests
+    const isDevelopment = process.env.NODE_ENV === 'development';
     
-    if (!this.secretKey) {
-      throw new Error('Paystack integration not available - PAYSTACK_SECRET_KEY environment variable is required');
+    if (isDevelopment) {
+      // Use development keys for local testing - these can be placeholder values
+      this.secretKey = process.env.PAYSTACK_SECRET_KEY_DEV || '';
+      this.publicKey = process.env.PAYSTACK_PUBLIC_KEY_DEV || '';
+      this.webhookSecret = process.env.PAYSTACK_SECRET_KEY_DEV || '';
+      
+      if (!this.secretKey || this.secretKey.includes('placeholder')) {
+        console.warn('Paystack development keys not configured. Paystack payments will not work in development.');
+        throw new Error('Paystack not available in development mode - use NetCash for local testing');
+      }
+    } else {
+      // Use live keys for production
+      this.secretKey = process.env.PAYSTACK_SECRET_KEY || '';
+      this.publicKey = process.env.PAYSTACK_PUBLIC_KEY || '';
+      this.webhookSecret = process.env.PAYSTACK_WEBHOOK_SECRET || this.secretKey;
+      
+      if (!this.secretKey || !this.secretKey.startsWith('sk_live_')) {
+        throw new Error('Paystack live keys not configured for production - PAYSTACK_SECRET_KEY required');
+      }
     }
+    
+    console.log(`Paystack provider initialized for ${isDevelopment ? 'development' : 'production'}`);
+    console.log(`- Using ${isDevelopment ? 'test' : 'live'} keys`);
+    console.log(`- Secret key: ${this.secretKey?.substring(0, 12)}...`);
   }
   
   async createCheckoutSession(request: CheckoutSessionRequest): Promise<CheckoutSessionResponse> {
@@ -137,9 +156,9 @@ export class PaystackProvider implements BillingProvider {
       throw new Error('Invalid webhook signature');
     }
     
-    let event: any;
+    let event: WebhookEvent;
     try {
-      event = JSON.parse(payload);
+      event = JSON.parse(payload) as WebhookEvent;
     } catch (error) {
       throw new Error('Invalid webhook payload');
     }

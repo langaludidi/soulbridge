@@ -16,6 +16,7 @@ import {
   Loader2 
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import type { PaymentTransaction } from "@shared/types";
 
 export default function PaymentComplete() {
   const [, setLocation] = useLocation();
@@ -31,13 +32,13 @@ export default function PaymentComplete() {
   }, []);
 
   // Poll for transaction status
-  const { data: transactionData, isLoading, refetch } = useQuery({
+  const { data: transactionData, isLoading, refetch } = useQuery<PaymentTransaction>({
     queryKey: ['/api/billing/transaction', reference],
     enabled: !!reference,
     refetchInterval: (data) => {
       // Stop polling if transaction is completed or failed, or after 10 checks
       if (!data || checkCount >= 10) return false;
-      if ((data as any)?.status === 'completed' || (data as any)?.status === 'failed') return false;
+      if (data?.status === 'completed' || data?.status === 'failed') return false;
       return 3000; // Poll every 3 seconds
     }
   });
@@ -75,7 +76,7 @@ export default function PaymentComplete() {
     if (isLoading && checkCount === 0) return 'loading';
     if (!transactionData) return 'unknown';
     
-    switch ((transactionData as any)?.status) {
+    switch (transactionData?.status) {
       case 'completed': return 'success';
       case 'failed': return 'failed';
       case 'pending': return 'pending';
@@ -238,7 +239,7 @@ export default function PaymentComplete() {
             <div className="flex justify-between">
               <span className="text-gray-600">Amount:</span>
               <span className="font-semibold" data-testid="text-amount">
-                {(transactionData as any)?.amount ? `R${(transactionData as any).amount}` : 'Processing...'}
+                {transactionData?.amount ? `R${transactionData.amount}` : 'Processing...'}
               </span>
             </div>
             <div className="flex justify-between">

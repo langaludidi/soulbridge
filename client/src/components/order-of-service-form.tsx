@@ -134,7 +134,7 @@ export function OrderOfServiceForm({
         // Convert empty strings to null for backend
         coverPhotoUrl: data.coverPhotoUrl || null,
         tributeQuote: data.tributeQuote || null,
-        serviceDate: data.serviceDate || null,
+        serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
         serviceTime: data.serviceTime || null,
         venue: data.venue || null,
         officiant: data.officiant || null
@@ -165,7 +165,7 @@ export function OrderOfServiceForm({
         // Convert empty strings to null for backend
         coverPhotoUrl: data.coverPhotoUrl || null,
         tributeQuote: data.tributeQuote || null,
-        serviceDate: data.serviceDate || null,
+        serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
         serviceTime: data.serviceTime || null,
         venue: data.venue || null,
         officiant: data.officiant || null

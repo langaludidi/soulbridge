@@ -122,7 +122,8 @@ export const createRateLimiter = (options: {
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: options.skipSuccessfulRequests || false,
-    keyGenerator: options.keyGenerator || ((req) => req.ip || 'unknown'),
+    // Remove custom keyGenerator to use the default IPv6-safe one
+    ...(options.keyGenerator && { keyGenerator: options.keyGenerator }),
     handler: (req: Request, res: Response) => {
       logger.warn(`Rate limit exceeded for IP: ${req.ip}`, {
         path: req.path,
@@ -142,7 +143,7 @@ export const createRateLimiter = (options: {
 export const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 10, // Allow 10 requests per 15 minutes at full speed
-  delayMs: 500, // Add 500ms delay after delayAfter is reached
+  delayMs: () => 500, // Add 500ms delay after delayAfter is reached (function format for v2)
   maxDelayMs: 20000, // Maximum delay of 20 seconds
 });
 

@@ -46,7 +46,7 @@ interface PaymentConfig {
 
 export function PaymentModal({ isOpen, onClose, plan, onSuccess }: PaymentModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>('paystack');
+  const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>('netcash');
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -67,13 +67,13 @@ export function PaymentModal({ isOpen, onClose, plan, onSuccess }: PaymentModalP
     setIsLoading(true);
 
     try {
-      const response = await apiRequest('POST', `/api/billing/checkout`, {
+      const response = await apiRequest('POST', `/api/billing/checkout-session`, {
         plan: plan.id,
         interval: plan.interval,
         provider
       });
 
-      const data = response;
+      const data = await response.json();
 
       if (provider === 'paystack') {
         // Set up Paystack configuration for react-paystack

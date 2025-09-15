@@ -8,12 +8,16 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 // Validate required environment variables
 const requiredEnvVars = {
-  REPLIT_DOMAINS: process.env.REPLIT_DOMAINS,
   SESSION_SECRET: process.env.SESSION_SECRET,
   DATABASE_URL: process.env.DATABASE_URL,
-  REPL_ID: process.env.REPL_ID,
+  ...(isProduction && {
+    REPLIT_DOMAINS: process.env.REPLIT_DOMAINS,
+    REPL_ID: process.env.REPL_ID,
+  }),
 };
 
 const missingVars = Object.entries(requiredEnvVars)
@@ -27,9 +31,10 @@ if (missingVars.length > 0) {
 
 const getOidcConfig = memoize(
   async () => {
+    if (!isProduction) return null;
     return await client.discovery(
       new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      requiredEnvVars.REPL_ID!
+      process.env.REPL_ID!
     );
   },
   { maxAge: 3600 * 1000 }
@@ -39,13 +44,13 @@ export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
-    conString: requiredEnvVars.DATABASE_URL!,
+    conString: process.env.DATABASE_URL!,
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
   });
   return session({
-    secret: requiredEnvVars.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
@@ -85,76 +90,111 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
-  
-  // Enhanced authentication security middleware
-  const { 
-    sessionSecurityMiddleware, 
-    tokenSecurityMiddleware, 
-    concurrentSessionProtection,
-    loginAttemptMiddleware,
-    trackLoginAttempt,
-  } = await import('./middleware/auth-security');
-  
-  // Apply security middleware to authenticated routes
-  app.use(sessionSecurityMiddleware);
-  app.use(tokenSecurityMiddleware);
-  app.use(concurrentSessionProtection(3)); // Max 3 concurrent sessions
 
-  const config = await getOidcConfig();
+  if (isProduction) {
+    // Enhanced authentication security middleware
+    const { 
+      sessionSecurityMiddleware, 
+      tokenSecurityMiddleware, 
+      concurrentSessionProtection,
+      loginAttemptMiddleware,
+      trackLoginAttempt,
+    } = await import('./middleware/auth-security');
+    
+    // Apply security middleware to authenticated routes
+    app.use(sessionSecurityMiddleware);
+    app.use(tokenSecurityMiddleware);
+    app.use(concurrentSessionProtection(3)); // Max 3 concurrent sessions
 
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
-  };
+    const config = await getOidcConfig();
+    if (!config) {
+      console.error("OIDC config could not be fetched. Production auth will not work.");
+      return;
+    }
 
-  for (const domain of requiredEnvVars.REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
-      },
-      verify,
-    );
-    passport.use(strategy);
-  }
+    const verify: VerifyFunction = async (
+      tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
+      verified: passport.AuthenticateCallback
+    ) => {
+      const user = {};
+      updateUserSession(user, tokens);
+      await upsertUser(tokens.claims());
+      verified(null, user);
+    };
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
-
-  app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
-  });
-
-  app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
-  });
-
-  app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: requiredEnvVars.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
+    for (const domain of process.env.REPLIT_DOMAINS!.split(",")) {
+      const strategy = new Strategy(
+        {
+          name: `replitauth:${domain}`,
+          config,
+          scope: "openid email profile offline_access",
+          callbackURL: `https://${domain}/api/callback`,
+        },
+        verify,
       );
+      passport.use(strategy);
+    }
+
+    passport.serializeUser((user: Express.User, cb) => cb(null, user));
+    passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+
+    app.get("/api/login", (req, res, next) => {
+      passport.authenticate(`replitauth:${req.hostname}`, {
+        prompt: "login consent",
+        scope: ["openid", "email", "profile", "offline_access"],
+      })(req, res, next);
     });
-  });
+
+    app.get("/api/callback", (req, res, next) => {
+      passport.authenticate(`replitauth:${req.hostname}`, {
+        successReturnToOrRedirect: "/",
+        failureRedirect: "/api/login",
+      })(req, res, next);
+    });
+
+    app.get("/api/logout", (req, res) => {
+      req.logout(() => {
+        res.redirect(
+          client.buildEndSessionUrl(config, {
+            client_id: process.env.REPL_ID!,
+            post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+          }).href
+        );
+      });
+    });
+  } else {
+    // Mock authentication for local development
+    console.log("Auth: Using mock authentication for local development.");
+    app.get("/api/login", (req, res) => {
+      res.send("Login is disabled in local development. A mock user is assumed.");
+    });
+    app.get("/api/logout", (req, res) => {
+      req.logout((err) => {
+        if (err) { console.error(err); }
+        res.redirect("/");
+      });
+    });
+    // Middleware to inject a mock user for all requests
+    app.use((req: any, res, next) => {
+      req.user = {
+        claims: {
+          sub: "local-user-id",
+          email: "local.user@example.com",
+          first_name: "Local",
+          last_name: "User",
+          profile_image_url: "",
+        },
+      };
+      next();
+    });
+  }
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  if (!isProduction) {
+    return next();
+  }
+
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
@@ -174,6 +214,9 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
   try {
     const config = await getOidcConfig();
+    if (!config) {
+      throw new Error("OIDC config not available");
+    }
     const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
     updateUserSession(user, tokenResponse);
     return next();

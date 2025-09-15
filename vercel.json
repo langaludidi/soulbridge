@@ -1,8 +1,13 @@
 {
-  "buildCommand": "npm run build:client",
+  "buildCommand": "npm ci --production=false --omit=optional && npm run vercel-build",
   "outputDirectory": "dist/public",
-  "installCommand": "npm install",
+  "installCommand": "npm ci --production=false --omit=optional",
   "framework": null,
+  "env": {
+    "NPM_CONFIG_FUND": "false",
+    "NPM_CONFIG_AUDIT": "false",
+    "NODE_ENV": "production"
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

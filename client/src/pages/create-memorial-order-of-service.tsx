@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { OrderOfServiceForm } from "@/components/order-of-service-form";
 import { useAuth } from "@/hooks/useAuth";
-import type { Memorial } from "@shared/schema";
+import type { Memorial, OrderOfService } from "@shared/types";
 import { ArrowLeft } from "lucide-react";
 
 export default function CreateMemorialOrderOfServicePage() {
@@ -24,7 +24,7 @@ export default function CreateMemorialOrderOfServicePage() {
     memorial.submittedBy === user.id || user.role === 'admin'
   );
 
-  const handleSave = (orderOfService: any) => {
+  const handleSave = (orderOfService: OrderOfService) => {
     // Navigate to the newly created Order of Service
     setLocation(`/order-of-service/${orderOfService.id}`);
   };

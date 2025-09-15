@@ -11,6 +11,10 @@ export default function Partners() {
     { icon: "🚀", title: "Promote Brand", description: "Every memorial showcases your business, creating lasting brand impressions with families." },
     { icon: "📈", title: "Generate Revenue", description: "Earn through revenue sharing, referral commissions, or direct white-label pricing." },
     { icon: "🕊️", title: "Dignified Remembrance", description: "Help families create beautiful, permanent tributes that honor their loved ones with dignity." },
+    { icon: "🎯", title: "Easy Integration", description: "Seamlessly integrate digital memorials into your existing funeral service packages." },
+    { icon: "📱", title: "Mobile Optimized", description: "All memorials are fully responsive and optimized for mobile viewing and sharing." },
+    { icon: "🔒", title: "Secure & Private", description: "Enterprise-grade security with privacy controls that families can trust completely." },
+    { icon: "📊", title: "Analytics Dashboard", description: "Track memorial performance, engagement metrics, and revenue through detailed reports." }
   ];
 
   const partnerTypes = [
@@ -115,6 +119,110 @@ export default function Partners() {
         </div>
       </section>
 
+      {/* Comprehensive Packages Section */}
+      <section className="py-16 sm:py-20 section-bg-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="h2 mb-6">
+              Partnership Packages & Pricing
+            </h2>
+            <p className="lead text-muted-foreground max-w-3xl mx-auto">
+              Choose from our flexible partnership packages designed to grow with your business
+            </p>
+          </div>
+
+          {/* Starter Package */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            <Card className="relative overflow-hidden border-2 hover:shadow-xl transition-shadow">
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+              <CardContent className="p-8 text-center">
+                <div className="text-5xl mb-4">🌱</div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">Starter Package</h3>
+                <Badge variant="secondary" className="mb-6">Perfect for New Partners</Badge>
+                
+                <div className="text-3xl font-bold text-primary mb-6">R0 <span className="text-sm font-normal text-muted-foreground">/month</span></div>
+                
+                <div className="space-y-3 mb-8 text-left">
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Up to 5 memorials/month</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Co-branded experience</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Basic analytics dashboard</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Email support</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> 20% revenue share</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Training materials</div>
+                </div>
+                
+                <Link href="/partners/signup?model=cobrand&package=starter">
+                  <Button className="w-full" data-testid="button-choose-starter">
+                    Start Free Trial
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Professional Package */}
+            <Card className="relative overflow-hidden border-2 border-primary hover:shadow-xl transition-shadow">
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-primary to-secondary"></div>
+              <div className="absolute top-4 right-4">
+                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+              </div>
+              <CardContent className="p-8 text-center">
+                <div className="text-5xl mb-4">⭐</div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">Professional Package</h3>
+                <Badge variant="default" className="mb-6">Best Value</Badge>
+                
+                <div className="text-3xl font-bold text-primary mb-6">R299 <span className="text-sm font-normal text-muted-foreground">/month</span></div>
+                
+                <div className="space-y-3 mb-8 text-left">
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Unlimited memorials</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Full co-branded experience</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Advanced analytics & reports</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Priority phone & email support</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> 30% revenue share</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Custom branding options</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Marketing materials & templates</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Team member accounts (up to 5)</div>
+                </div>
+                
+                <Link href="/partners/signup?model=cobrand&package=professional">
+                  <Button className="w-full" data-testid="button-choose-professional">
+                    Choose Professional
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Package */}
+            <Card className="relative overflow-hidden border-2 hover:shadow-xl transition-shadow">
+              <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-purple-500 to-purple-600"></div>
+              <CardContent className="p-8 text-center">
+                <div className="text-5xl mb-4">🏢</div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">Enterprise Package</h3>
+                <Badge variant="outline" className="mb-6">Custom Solution</Badge>
+                
+                <div className="text-3xl font-bold text-primary mb-6">Custom <span className="text-sm font-normal text-muted-foreground">pricing</span></div>
+                
+                <div className="space-y-3 mb-8 text-left">
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> White-label solution</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Custom domain setup</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Complete brand control</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Dedicated account manager</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Custom revenue sharing</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> API access & integrations</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> Unlimited team members</div>
+                  <div className="flex items-center text-sm"><span className="text-green-500 mr-2">✓</span> 24/7 priority support</div>
+                </div>
+                
+                <Link href="/contact?subject=enterprise">
+                  <Button variant="outline" className="w-full" data-testid="button-choose-enterprise">
+                    Contact Sales
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Partner Options */}
       <section className="py-16">
         <div className="text-center mb-12">
@@ -140,10 +248,12 @@ export default function Partners() {
               </p>
               <ul className="text-left space-y-2 text-sm">
                 <li>• Your logo on all memorials</li>
-                <li>• Revenue sharing model</li>
+                <li>• 20-30% revenue sharing</li>
                 <li>• Joint marketing opportunities</li>
                 <li>• Shared customer support</li>
                 <li>• Quick setup (1-2 days)</li>
+                <li>• Training & onboarding included</li>
+                <li>• Marketing materials provided</li>
               </ul>
               <Link href="/partners/signup?model=cobrand">
                 <Button className="w-full" data-testid="button-choose-cobrand">
@@ -165,11 +275,13 @@ export default function Partners() {
                 Complete branding control with your own domain. Ideal for larger operators wanting full brand ownership.
               </p>
               <ul className="text-left space-y-2 text-sm">
-                <li>• Your branding throughout</li>
+                <li>• Complete branding control</li>
                 <li>• Custom domain (memorials.yourname.com)</li>
-                <li>• White-label pricing</li>
+                <li>• White-label pricing flexibility</li>
                 <li>• Direct customer relationship</li>
-                <li>• Setup assistance (3-5 days)</li>
+                <li>• Professional setup (3-5 days)</li>
+                <li>• SSL certificates included</li>
+                <li>• Dedicated account manager</li>
               </ul>
               <Link href="/partners/signup?model=whitelabel">
                 <Button className="w-full" variant="outline" data-testid="button-choose-whitelabel">
@@ -192,10 +304,12 @@ export default function Partners() {
               </p>
               <ul className="text-left space-y-2 text-sm">
                 <li>• Unique referral tracking</li>
-                <li>• Commission per conversion</li>
+                <li>• R500-R1500 per conversion</li>
                 <li>• No ongoing management</li>
                 <li>• Marketing materials provided</li>
-                <li>• Instant setup</li>
+                <li>• Instant setup & activation</li>
+                <li>• Monthly payout via EFT</li>
+                <li>• Performance bonuses available</li>
               </ul>
               <Link href="/partners/signup?model=referral">
                 <Button className="w-full" variant="outline" data-testid="button-choose-referral">
@@ -262,6 +376,75 @@ export default function Partners() {
         </div>
       </section>
 
+      {/* Special Offers Section */}
+      <section className="py-16 sm:py-20 section-bg-accent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="h2 mb-6">
+              Special Partnership Offers
+            </h2>
+            <p className="lead text-muted-foreground max-w-3xl mx-auto">
+              Limited-time offers designed to help you get started and grow faster
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            {/* Launch Bonus Offer */}
+            <Card className="relative overflow-hidden border-2 border-primary">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold rounded-bl-lg">
+                Limited Time
+              </div>
+              <CardContent className="p-8">
+                <div className="text-4xl mb-4">🚀</div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">Launch Bonus</h3>
+                <p className="text-muted-foreground mb-6">
+                  Start your partnership with a head start. Get your first month free plus additional bonuses to help you succeed.
+                </p>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center text-sm"><span className="text-primary mr-2">•</span> First month completely free (Professional Package)</div>
+                  <div className="flex items-center text-sm"><span className="text-primary mr-2">•</span> R2,000 marketing credit for online advertising</div>
+                  <div className="flex items-center text-sm"><span className="text-primary mr-2">•</span> Free professional logo design service</div>
+                  <div className="flex items-center text-sm"><span className="text-primary mr-2">•</span> Dedicated onboarding specialist</div>
+                  <div className="flex items-center text-sm"><span className="text-primary mr-2">•</span> Priority placement in partner directory</div>
+                </div>
+                <Badge variant="secondary" className="text-sm">
+                  Valid until March 31, 2025
+                </Badge>
+              </CardContent>
+            </Card>
+
+            {/* Volume Discount Offer */}
+            <Card className="relative overflow-hidden border-2">
+              <CardContent className="p-8">
+                <div className="text-4xl mb-4">📊</div>
+                <h3 className="text-2xl font-bold text-foreground mb-4">Volume Rewards Program</h3>
+                <p className="text-muted-foreground mb-6">
+                  The more memorials you create, the more you earn. Our tiered reward system increases your revenue share as you grow.
+                </p>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>5-10 memorials/month:</span>
+                    <Badge variant="outline">25% revenue share</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span>11-25 memorials/month:</span>
+                    <Badge variant="secondary">30% revenue share</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span>25+ memorials/month:</span>
+                    <Badge variant="default">35% revenue share</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span>50+ memorials/month:</span>
+                    <Badge className="bg-gradient-to-r from-primary to-secondary text-white">40% revenue share</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Why Partner */}
       <section className="py-16 sm:py-20 section-bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -302,7 +485,7 @@ export default function Partners() {
             <AccordionItem value="pricing" data-testid="accordion-pricing">
               <AccordionTrigger>What does it cost to become a partner?</AccordionTrigger>
               <AccordionContent>
-                Partnership with SoulBridge is free to start. Co-branded partners work on a revenue-sharing model (typically 20-30%), white-label partners pay a monthly platform fee based on usage, and referral partners earn commissions per successful conversion. There are no setup fees or long-term contracts required.
+                We offer flexible pricing to suit every business. Our Starter Package is completely free with basic features and 20% revenue share. The Professional Package is R299/month with unlimited memorials and 30% revenue share. Enterprise solutions have custom pricing with white-label options. No setup fees or long-term contracts required - you can start free and upgrade anytime.
               </AccordionContent>
             </AccordionItem>
 
@@ -323,7 +506,7 @@ export default function Partners() {
             <AccordionItem value="billing" data-testid="accordion-billing">
               <AccordionTrigger>How does billing and payment work?</AccordionTrigger>
               <AccordionContent>
-                Revenue sharing and referral commissions are paid monthly via bank transfer. White-label platform fees are billed monthly in advance. All financial reporting is available in real-time through your partner dashboard, with detailed breakdowns of revenue and commissions.
+                Revenue sharing and referral commissions are paid monthly via EFT bank transfer on the last business day of each month. Professional Package fees are billed monthly in advance via debit order or credit card. All financial reporting is available in real-time through your partner dashboard, with detailed breakdowns of revenue, commissions, and payment history. Minimum payout threshold is R100.
               </AccordionContent>
             </AccordionItem>
 
@@ -337,7 +520,7 @@ export default function Partners() {
             <AccordionItem value="training" data-testid="accordion-training">
               <AccordionTrigger>Do you provide training for my staff?</AccordionTrigger>
               <AccordionContent>
-                Absolutely. We provide comprehensive training materials, video tutorials, and live training sessions for your team. Partners can invite multiple staff members to their dashboard with appropriate role-based access controls.
+                Absolutely. We provide comprehensive training including: video tutorials for all features, live onboarding sessions, downloadable training materials, and ongoing support. Partners can invite unlimited staff members (Professional+ packages) with role-based access controls. We also offer on-site training for Enterprise partners and quarterly webinars to keep your team updated on new features.
               </AccordionContent>
             </AccordionItem>
           </Accordion>

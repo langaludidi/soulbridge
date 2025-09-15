@@ -13,6 +13,7 @@ import { Link } from "wouter";
 import { useEffect } from "react";
 import { z } from "zod";
 import { Phone, Mail, MapPin, Clock, MessageCircle, HelpCircle, ShieldCheck } from "lucide-react";
+import type { ApiError } from "@shared/types";
 
 const contactSchema = z.object({
   subject: z.string().min(5, "Subject must be at least 5 characters"),
@@ -61,7 +62,7 @@ export default function Contact() {
       });
       form.reset();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast({
         title: "Error Sending Message",
         description: error?.message || "Please try again or contact us directly.",

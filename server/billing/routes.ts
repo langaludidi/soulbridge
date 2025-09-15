@@ -139,7 +139,7 @@ billingRouter.get('/subscription', isAuthenticated, async (req, res) => {
 const checkoutSessionSchema = z.object({
   plan: z.enum(['honour', 'legacy', 'family_vault']),
   interval: z.enum(['monthly', 'yearly']),
-  provider: z.enum(['paystack', 'netcash']).default('paystack')
+  provider: z.enum(['paystack', 'netcash']).default('netcash')
 });
 
 // Simplified checkout endpoint for PaymentModal compatibility

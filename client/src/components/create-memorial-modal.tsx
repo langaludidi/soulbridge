@@ -154,7 +154,7 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
@@ -213,6 +213,25 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
       return;
     }
 
+    // Upload photo if provided
+    let profilePhotoUrl: string | undefined;
+    if (profilePhoto) {
+      try {
+        const photoUploadData = new FormData();
+        photoUploadData.append('photo', profilePhoto);
+        photoUploadData.append('category', 'memorial');
+        
+        const uploadResponse = await apiRequest("POST", "/api/upload/photos", photoUploadData);
+        profilePhotoUrl = uploadResponse.url;
+      } catch (error) {
+        toast({
+          title: "Photo Upload Failed",
+          description: "Memorial will be created without photo. You can add one later.",
+          variant: "destructive",
+        });
+      }
+    }
+
     const memorialData: InsertMemorial = {
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
@@ -221,7 +240,8 @@ export function CreateMemorialModal({ open, onClose }: CreateMemorialModalProps)
       province: formData.province,
       memorialMessage: formData.memorialMessage.trim() || undefined,
       privacy: formData.privacy as "public" | "private",
-      profilePhotoUrl: undefined, // TODO: Implement photo upload with object storage
+      profilePhotoUrl: profilePhotoUrl,
+      notificationEmail: formData.notifyEmail.trim() || undefined,
     };
 
     createMemorialMutation.mutate(memorialData);

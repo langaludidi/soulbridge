@@ -29,6 +29,7 @@ import {
   BarChart3,
   Settings
 } from "lucide-react";
+import type { PartnerBrandingConfig, ApiError } from "@shared/types";
 
 // API-driven data fetching (replaced mock data)
 
@@ -67,7 +68,7 @@ export default function PartnerDashboard() {
   // Update branding form when branding data is fetched
   React.useEffect(() => {
     if (brandingData && typeof brandingData === 'object' && 'brandingConfig' in brandingData && brandingData.brandingConfig) {
-      setBrandingForm(brandingData.brandingConfig);
+      setBrandingForm(brandingData.brandingConfig as PartnerBrandingConfig & { displayName: string });
     }
   }, [brandingData]);
 
@@ -98,7 +99,7 @@ export default function PartnerDashboard() {
 
   // Real mutation for saving branding
   const { mutate: saveBranding, isPending: isSavingBranding } = useMutation({
-    mutationFn: async (brandingConfig: any) => {
+    mutationFn: async (brandingConfig: PartnerBrandingConfig & { displayName: string }) => {
       const response = await fetch('/api/partner/branding', {
         method: 'PATCH',
         headers: {
@@ -120,7 +121,7 @@ export default function PartnerDashboard() {
       // Invalidate and refetch branding data
       queryClient.invalidateQueries({ queryKey: ['/api/partner/branding'] });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast({
         title: "Update Failed",
         description: error.message || "Failed to update branding configuration.",

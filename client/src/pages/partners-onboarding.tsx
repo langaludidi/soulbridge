@@ -36,16 +36,43 @@ export default function PartnersOnboarding() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeModel, setActiveModel] = useState<string>("cobrand");
+  const [selectedPackage, setSelectedPackage] = useState<string>("professional");
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
   // Partner data - in real app this would come from API
   const [partnerData, setPartnerData] = useState({
     partnershipModel: "cobrand",
+    packageTier: "professional",
     onboardingStatus: "pending",
     businessName: user?.name || "",
     contactName: user?.name || "",
     email: user?.email || "",
   });
+
+  // Package configurations
+  const packages = {
+    starter: {
+      name: "Starter Package",
+      icon: "🌱",
+      price: "R0/month",
+      limits: "Up to 5 memorials/month",
+      features: ["Basic analytics", "Email support", "20% revenue share"]
+    },
+    professional: {
+      name: "Professional Package",
+      icon: "⭐",
+      price: "R299/month",
+      limits: "Unlimited memorials",
+      features: ["Advanced analytics", "Priority support", "30% revenue share", "Team accounts"]
+    },
+    enterprise: {
+      name: "Enterprise Package",
+      icon: "🏢",
+      price: "Custom pricing",
+      limits: "White-label solution",
+      features: ["Custom domain", "24/7 support", "Custom revenue share", "API access"]
+    }
+  };
 
   const models: PartnershipModel[] = [
     {

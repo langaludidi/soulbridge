@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { ApiError } from '@shared/types';
 
 export interface Plan {
   id: string;
@@ -49,7 +50,7 @@ class PaymentService {
     try {
       const response = await axios.post(`${this.baseURL}/checkout`, request);
       return response.data;
-    } catch (error: any) {
+    } catch (error: ApiError) {
       const message = error.response?.data?.message || error.message || 'Payment initialization failed';
       throw new Error(message);
     }
@@ -62,7 +63,7 @@ class PaymentService {
     try {
       const response = await axios.get(`${this.baseURL}/subscription`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: ApiError) {
       const message = error.response?.data?.message || error.message || 'Failed to fetch subscription status';
       throw new Error(message);
     }
@@ -74,7 +75,7 @@ class PaymentService {
   async cancelSubscription(): Promise<void> {
     try {
       await axios.delete(`${this.baseURL}/subscription`);
-    } catch (error: any) {
+    } catch (error: ApiError) {
       const message = error.response?.data?.message || error.message || 'Failed to cancel subscription';
       throw new Error(message);
     }
@@ -87,7 +88,7 @@ class PaymentService {
     try {
       const response = await axios.get(`${this.baseURL}/portal`);
       return response.data;
-    } catch (error: any) {
+    } catch (error: ApiError) {
       const message = error.response?.data?.message || error.message || 'Failed to get customer portal';
       throw new Error(message);
     }
@@ -100,7 +101,7 @@ class PaymentService {
     try {
       const response = await axios.post(`${this.baseURL}/verify`, { reference });
       return response.data;
-    } catch (error: any) {
+    } catch (error: ApiError) {
       const message = error.response?.data?.message || error.message || 'Payment verification failed';
       throw new Error(message);
     }

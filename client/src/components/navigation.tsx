@@ -93,10 +93,10 @@ export function Navigation() {
             ) : (
               <div className="flex items-center space-x-3">
                 <Button variant="ghost" size="sm" asChild className="hover:bg-primary/10 hover:text-primary transition-all duration-300">
-                  <a href="/login">Login</a>
+                  <a href="/api/login">Login</a>
                 </Button>
                 <Button size="sm" asChild className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 shadow-md hover:shadow-lg transition-all duration-300">
-                  <a href="/login">
+                  <a href="/api/login">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Memorial
                   </a>
@@ -161,14 +161,14 @@ export function Navigation() {
                 ) : (
                   <div className="space-y-3">
                     <a
-                      href="/login"
+                      href="/api/login"
                       className="block px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all duration-300"
                       onClick={() => setIsOpen(false)}
                     >
                       Login
                     </a>
                     <a
-                      href="/login"
+                      href="/api/login"
                       className="flex items-center px-4 py-3 text-base font-medium bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-lg hover:from-primary/90 hover:to-secondary/90 shadow-md transition-all duration-300"
                       onClick={() => setIsOpen(false)}
                     >

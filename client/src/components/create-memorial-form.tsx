@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Check, ChevronLeft, ChevronRight, Upload, Heart, MessageCircle, Camera, Share2, Calendar, MapPin, User, Loader2 } from "lucide-react";
 import type { InsertMemorial } from "@shared/schema";
 import { useLocation } from "wouter";
+import { PhotoUpload } from "./photo-upload";
 
 interface CreateMemorialFormProps {
   onBack?: () => void;
@@ -50,7 +51,7 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
     lifeStory: "",
     
     // Step 3: Photo Upload
-    profilePhoto: null as File | null,
+    profilePhotoUrl: "",
     
     // Step 4: Privacy & Final Settings
     privacy: "public",
@@ -59,9 +60,6 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
     notifyEmail: "",
     enableOrderOfService: false,
   });
-  
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string>("");
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -203,47 +201,21 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
       memorialMessage: "",
       memorialUrl: "",
       lifeStory: "",
-      profilePhoto: null as File | null,
+      profilePhotoUrl: "",
       privacy: "public",
       allowTributes: true,
       allowPhotos: true,
       notifyEmail: "",
       enableOrderOfService: false,
     });
-    setProfilePhoto(null);
-    setPhotoPreview("");
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
-        toast({
-          title: "File Too Large",
-          description: "Please select an image smaller than 10MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Invalid File Type",
-          description: "Please select an image file (PNG, JPG, etc.).",
-          variant: "destructive",
-        });
-        return;
-      }
+  const handlePhotoUploaded = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, profilePhotoUrl: imageUrl }));
+  };
 
-      setProfilePhoto(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPhotoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handlePhotoRemoved = () => {
+    setFormData(prev => ({ ...prev, profilePhotoUrl: "" }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -313,7 +285,7 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
       province: formData.province,
       memorialMessage: formData.memorialMessage.trim() || undefined,
       privacy: formData.privacy as "public" | "private",
-      profilePhotoUrl: undefined, // TODO: Implement photo upload with object storage
+      profilePhotoUrl: formData.profilePhotoUrl || undefined
     };
 
     createMemorialMutation.mutate(memorialData);
@@ -719,49 +691,21 @@ export function CreateMemorialForm({ onBack }: CreateMemorialFormProps) {
             {/* Step 3: Photo Upload */}
             {currentStep === 3 && (
               <div className="space-y-6">
+                <PhotoUpload
+                  onPhotoUploaded={handlePhotoUploaded}
+                  onPhotoRemoved={handlePhotoRemoved}
+                  currentPhoto={formData.profilePhotoUrl}
+                  label="Memorial Photo"
+                  description="Choose a beautiful photo that captures their spirit. This will be displayed prominently on their memorial."
+                  maxSizeMB={5}
+                  className="flex justify-center"
+                />
+                
                 <div className="text-center">
-                  <div className="mx-auto w-32 h-32 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center bg-muted/30 mb-4">
-                    {photoPreview ? (
-                      <img
-                        src={photoPreview}
-                        alt="Profile preview"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    ) : (
-                      <Camera className="h-8 w-8 text-muted-foreground" />
-                    )}
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <input
-                        type="file"
-                        id="photo-upload"
-                        accept="image/*"
-                        onChange={handlePhotoChange}
-                        className="hidden"
-                        data-testid="input-photo-upload"
-                      />
-                      <Label htmlFor="photo-upload" className="cursor-pointer">
-                        <Button type="button" variant="outline" className="w-full" asChild>
-                          <span>
-                            <Upload className="h-4 w-4 mr-2" />
-                            {photoPreview ? "Change Photo" : "Upload Photo"}
-                          </span>
-                        </Button>
-                      </Label>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground">
-                      Choose a beautiful photo that captures their spirit. This will be displayed prominently on their memorial.
-                    </p>
-                    
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <p>• Recommended: Square or portrait orientation</p>
-                      <p>• File size: Maximum 10MB</p>
-                      <p>• Formats: JPG, PNG, GIF</p>
-                      <p>• This step is optional - you can add photos later</p>
-                    </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>• Recommended: Square or portrait orientation</p>
+                    <p>• This step is optional - you can add photos later</p>
+                    <p>• All uploaded photos are automatically optimized</p>
                   </div>
                 </div>
               </div>

@@ -509,6 +509,7 @@ export const partnerLeads = pgTable("partner_leads", {
   province: varchar("province").notNull(),
   serviceType: varchar("service_type").notNull(), // funeral_home, florist, caterer, musician, photographer
   partnershipModel: varchar("partnership_model").notNull(), // cobrand, whitelabel, referral
+  packageTier: varchar("package_tier"), // starter, professional, enterprise
   website: varchar("website"),
   message: text("message"), // Optional message from the lead
   
@@ -796,6 +797,8 @@ export const insertMemorialSchema = createInsertSchema(memorials).omit({
   dateOfPassing: z.coerce.date().refine(date => !isNaN(date.getTime()), {
     message: "Please enter a valid passing date"
   }),
+  // Optional notification email for memorial updates
+  notificationEmail: z.string().email("Please enter a valid email address").optional(),
 }).refine(data => data.dateOfBirth <= data.dateOfPassing, {
   message: "Birth date must be before passing date",
   path: ["dateOfPassing"]

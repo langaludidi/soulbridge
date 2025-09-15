@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Download, ArrowRight, Home, CreditCard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import type { PaymentTransaction, SubscriptionResponse } from "@shared/types";
 
 export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
@@ -21,7 +22,7 @@ export default function PaymentSuccess() {
   }, []);
 
   // Get transaction details if reference is available
-  const { data: transactionData, isLoading } = useQuery({
+  const { data: transactionData, isLoading } = useQuery<PaymentTransaction>({
     queryKey: ['/api/billing/transaction', reference],
     enabled: !!reference,
     retry: 3,
@@ -29,7 +30,7 @@ export default function PaymentSuccess() {
   });
 
   // Get user subscription details
-  const { data: subscription } = useQuery({
+  const { data: subscription } = useQuery<SubscriptionResponse>({
     queryKey: ['/api/billing/subscription'],
     enabled: !!user
   });
@@ -115,7 +116,7 @@ export default function PaymentSuccess() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Amount:</span>
                     <span className="font-semibold" data-testid="text-amount">
-                      {(transactionData as any)?.amount ? `R${(transactionData as any).amount}` : 'Processing...'}
+                      {transactionData?.amount ? `R${transactionData.amount}` : 'Processing...'}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -144,10 +145,10 @@ export default function PaymentSuccess() {
                     <span className="text-gray-600">Plan:</span>
                     <div className="text-right">
                       <div className="font-semibold" data-testid="text-plan">
-                        {planNames[(subscription as any)?.subscription?.plan as keyof typeof planNames] || (subscription as any)?.subscription?.plan}
+                        {planNames[subscription?.subscription?.plan as keyof typeof planNames] || subscription?.subscription?.plan}
                       </div>
                       <div className="text-sm text-gray-500 capitalize">
-                        {(subscription as any)?.subscription?.interval}ly
+                        {subscription?.subscription?.interval}ly
                       </div>
                     </div>
                   </div>
@@ -160,9 +161,9 @@ export default function PaymentSuccess() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Memorial Limit:</span>
                     <span data-testid="text-memorial-limit">
-                      {(subscription as any)?.entitlements?.memorialLimit === -1 
+                      {subscription?.entitlements?.memorialLimit === -1 
                         ? 'Unlimited' 
-                        : (subscription as any)?.entitlements?.memorialLimit || '1'}
+                        : subscription?.entitlements?.memorialLimit || '1'}
                     </span>
                   </div>
                 </>

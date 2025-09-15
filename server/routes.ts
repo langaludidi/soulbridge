@@ -8,8 +8,12 @@ import { type AuthenticatedRequest } from "./middleware/auth";
 import { insertMemorialSchema, insertTributeSchema, insertPartnerSchema, insertMemorialPhotoSchema, insertContactSubmissionSchema, insertMemorialSubscriptionSchema, insertDigitalOrderOfServiceSchema, insertOrderOfServiceEventSchema, insertPartnerLeadSchema } from "@shared/schema";
 import { billingRouter } from "./billing/routes";
 import { securityRouter } from "./routes/security";
+import { aiRouter } from "./routes/ai";
+import { uploadRouter } from "./routes/upload";
+import { adminRouter } from "./routes/admin";
 import { logger } from "./utils/logger";
-import { pool } from "./db";
+import { notifyMemorialCreated, notifyTributeSubmitted, notifyOrderOfServiceCreated } from "./utils/notifications";
+import { pool, checkDatabaseHealth, dbConnection } from "./db";
 import fs from "fs";
 import path from "path";
 
@@ -94,26 +98,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint (before auth)
   app.get('/api/health', async (req, res) => {
     try {
-      // Quick database connectivity check
+      // Check database connectivity
+      const dbHealth = await checkDatabaseHealth();
+      
       const healthCheck = {
-        status: 'healthy',
+        status: dbHealth.healthy ? 'healthy' : 'unhealthy',
         timestamp: new Date().toISOString(),
         version: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development',
         uptime: Math.floor(process.uptime()),
-        database: 'connected', // We'll test this below
+        database: {
+          status: dbHealth.healthy ? 'connected' : 'disconnected',
+          type: dbHealth.type,
+          timestamp: dbHealth.timestamp,
+          error: dbHealth.error || null,
+        },
       };
-
-      // Test database connection with a quick query
-      await pool.query('SELECT 1');
       
-      res.status(200).json(healthCheck);
+      const statusCode = dbHealth.healthy ? 200 : 503;
+      res.status(statusCode).json(healthCheck);
     } catch (error) {
       logger.error('Health check failed', { error: error.message });
       res.status(503).json({
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: 'Database connection failed'
+        error: 'Health check system error',
+        database: {
+          status: 'unknown',
+          type: dbConnection.type || 'unknown',
+          error: error.message,
+        },
       });
     }
   });
@@ -162,6 +176,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Security dashboard and management routes
   app.use('/api/security', securityRouter);
+  app.use('/api/ai', aiRouter);
+  app.use('/api/upload', uploadRouter);
+  app.use('/api/admin', adminRouter);
 
   // Memorial page route with OpenGraph meta tags for social media crawlers
   app.get('/memorial/:id', async (req, res, next) => {
@@ -330,6 +347,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         partnerId, // Associate memorial with partner if in partner context
         status: "draft", // All submissions start as drafts for moderation
       });
+
+      // Send email notification if user provided notification email
+      if (memorialData.notificationEmail) {
+        try {
+          const user = await storage.getUser(userId);
+          await notifyMemorialCreated(memorialData.notificationEmail, {
+            memorialId: memorial.id,
+            memorialName: `${memorial.firstName} ${memorial.lastName}`,
+            creatorName: user?.name || user?.email || 'Family Member'
+          });
+        } catch (emailError) {
+          logger.error("Failed to send memorial creation notification", {
+            error: emailError,
+            memorialId: memorial.id,
+            email: memorialData.notificationEmail
+          });
+          // Don't fail the memorial creation if email fails
+        }
+      }
       
       res.status(201).json(memorial);
     } catch (error: any) {
@@ -1128,14 +1164,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         events
       });
     } catch (error) {
-      logger.error("Error fetching Order of Service", { error: error.message, memorialId });
+      logger.error("Error fetching Order of Service", { error: error.message, orderOfServiceId: id });
       res.status(500).json({ message: "Failed to fetch Order of Service" });
     }
   });
 
   app.post('/api/memorials/:memorialId/order-of-service', isAuthenticated, async (req: any, res) => {
+    const { memorialId } = req.params;
     try {
-      const { memorialId } = req.params;
       const userId = req.user.claims.sub;
       
       // Check if memorial exists
@@ -1272,8 +1308,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/order-of-service/:orderOfServiceId/events', isAuthenticated, async (req: any, res) => {
+    const { orderOfServiceId } = req.params;
     try {
-      const { orderOfServiceId } = req.params;
       const userId = req.user.claims.sub;
       
       // Check if Order of Service exists

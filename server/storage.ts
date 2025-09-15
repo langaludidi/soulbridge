@@ -1575,5 +1575,8 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use DatabaseStorage for persistent data storage
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Use DatabaseStorage for persistent data storage in all environments
+// since we have Supabase configured and working
 export const storage = new DatabaseStorage();

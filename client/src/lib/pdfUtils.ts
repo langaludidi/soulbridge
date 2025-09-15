@@ -1,62 +1,462 @@
-// PDF and Print utility functions for Order of Service
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import type { DigitalOrderOfService, Memorial } from '@shared/schema';
 
+// Professional PDF generation with enhanced styling inspired by memorial service templates
 export function generatePrintableOrderOfService(
-  orderOfService: any,
-  memorial: any
+  orderOfService: DigitalOrderOfService & { events?: any[] },
+  memorial: Memorial
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
-      // Set document title for PDF filename
-      const originalTitle = document.title;
       const filename = `${memorial.firstName}_${memorial.lastName}_Order_of_Service`;
-      document.title = filename;
-
-      // Add print-specific metadata to the document
-      const printMeta = document.createElement('meta');
-      printMeta.name = 'print-title';
-      printMeta.content = `Order of Service - ${memorial.firstName} ${memorial.lastName}`;
-      document.head.appendChild(printMeta);
-
-      // Ensure all images are loaded before printing
-      const images = document.querySelectorAll('img');
-      const imagePromises = Array.from(images).map(img => {
-        return new Promise((resolve) => {
-          if (img.complete) {
-            resolve(img);
-          } else {
-            img.onload = () => resolve(img);
-            img.onerror = () => resolve(img); // Continue even if image fails
-          }
+      
+      // Create enhanced PDF using html2canvas and jsPDF
+      generateEnhancedPDF(orderOfService, memorial, filename)
+        .then(() => resolve())
+        .catch(() => {
+          // Fallback to browser print if PDF generation fails
+          generateBrowserPrint(orderOfService, memorial, filename)
+            .then(() => resolve())
+            .catch(reject);
         });
-      });
-
-      Promise.all(imagePromises).then(() => {
-        // Add print classes to optimize layout
-        document.body.classList.add('printing');
-        
-        // Trigger the browser's print dialog
-        window.print();
-
-        // Cleanup after print dialog closes
-        const afterPrint = () => {
-          document.title = originalTitle;
-          document.body.classList.remove('printing');
-          document.head.removeChild(printMeta);
-          window.removeEventListener('afterprint', afterPrint);
-          resolve();
-        };
-
-        // Listen for print completion
-        window.addEventListener('afterprint', afterPrint);
-        
-        // Fallback timeout in case afterprint doesn't fire
-        setTimeout(afterPrint, 1000);
-      });
-
     } catch (error) {
       reject(error);
     }
   });
+}
+
+// Enhanced PDF generation with professional styling
+async function generateEnhancedPDF(
+  orderOfService: DigitalOrderOfService & { events?: any[] },
+  memorial: Memorial,
+  filename: string
+): Promise<void> {
+  // Create a temporary container for the PDF content
+  const pdfContainer = document.createElement('div');
+  pdfContainer.style.position = 'absolute';
+  pdfContainer.style.left = '-9999px';
+  pdfContainer.style.width = '210mm'; // A4 width
+  pdfContainer.style.fontFamily = 'serif';
+  pdfContainer.style.background = 'white';
+  pdfContainer.style.padding = '20mm';
+  pdfContainer.style.boxSizing = 'border-box';
+  
+  // Generate the professional PDF content
+  pdfContainer.innerHTML = generateProfessionalOrderOfServiceHTML(orderOfService, memorial);
+  
+  document.body.appendChild(pdfContainer);
+
+  try {
+    // Generate canvas from the container
+    const canvas = await html2canvas(pdfContainer, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: 794, // A4 width in pixels at 96 DPI
+      height: 1123, // A4 height in pixels at 96 DPI
+    });
+
+    // Create PDF
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    
+    // Add the image to PDF
+    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+    
+    // Save the PDF
+    pdf.save(`${filename}.pdf`);
+    
+  } finally {
+    // Cleanup
+    document.body.removeChild(pdfContainer);
+  }
+}
+
+// Fallback browser print function
+async function generateBrowserPrint(
+  orderOfService: DigitalOrderOfService & { events?: any[] },
+  memorial: Memorial,
+  filename: string
+): Promise<void> {
+  const originalTitle = document.title;
+  document.title = filename;
+
+  // Add print-specific metadata
+  const printMeta = document.createElement('meta');
+  printMeta.name = 'print-title';
+  printMeta.content = `Order of Service - ${memorial.firstName} ${memorial.lastName}`;
+  document.head.appendChild(printMeta);
+
+  // Wait for images to load
+  const images = document.querySelectorAll('img');
+  await Promise.all(Array.from(images).map(img => {
+    return new Promise((resolve) => {
+      if (img.complete) {
+        resolve(img);
+      } else {
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(img);
+      }
+    });
+  }));
+
+  // Add print optimization
+  document.body.classList.add('printing');
+  
+  // Trigger print
+  window.print();
+
+  // Cleanup after print
+  const cleanup = () => {
+    document.title = originalTitle;
+    document.body.classList.remove('printing');
+    if (printMeta.parentNode) {
+      document.head.removeChild(printMeta);
+    }
+    window.removeEventListener('afterprint', cleanup);
+  };
+
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(cleanup, 1000);
+}
+
+// Generate professional HTML template for PDF with Canva-inspired styling
+function generateProfessionalOrderOfServiceHTML(
+  orderOfService: DigitalOrderOfService & { events?: any[] },
+  memorial: Memorial
+): string {
+  const birthYear = memorial.dateOfBirth ? new Date(memorial.dateOfBirth).getFullYear() : '';
+  const passingYear = memorial.dateOfPassing ? new Date(memorial.dateOfPassing).getFullYear() : '';
+  const serviceDate = orderOfService.serviceDate 
+    ? new Date(orderOfService.serviceDate).toLocaleDateString('en-US', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+      })
+    : '';
+
+  return `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Serif+Pro:wght@300;400;600&display=swap');
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      .order-service-pdf {
+        font-family: 'Source Serif Pro', Georgia, serif;
+        line-height: 1.6;
+        color: #2c2c2c;
+        max-width: 170mm;
+        margin: 0 auto;
+        background: white;
+      }
+      
+      .header {
+        text-align: center;
+        padding: 20px 0 30px;
+        border-bottom: 2px solid #d4b896;
+        margin-bottom: 30px;
+      }
+      
+      .ornament {
+        font-size: 24px;
+        color: #d4b896;
+        margin-bottom: 15px;
+      }
+      
+      .title {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      
+      .subtitle {
+        font-size: 16px;
+        color: #666;
+        font-weight: 300;
+        margin-bottom: 25px;
+      }
+      
+      .memorial-info {
+        text-align: center;
+        padding: 25px 0;
+        background: linear-gradient(135deg, #f8f6f3 0%, #ffffff 100%);
+        border: 1px solid #e8e1d9;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+      
+      .name {
+        font-family: 'Playfair Display', serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+      }
+      
+      .dates {
+        font-size: 18px;
+        color: #666;
+        font-weight: 400;
+        margin-bottom: 15px;
+      }
+      
+      .memorial-message {
+        font-style: italic;
+        font-size: 14px;
+        color: #555;
+        max-width: 400px;
+        margin: 0 auto;
+        line-height: 1.7;
+      }
+      
+      .service-details {
+        background: #f9f7f4;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #d4b896;
+        margin-bottom: 30px;
+      }
+      
+      .service-details h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        color: #1a1a1a;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+      
+      .service-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        font-size: 14px;
+      }
+      
+      .service-item {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .service-label {
+        font-weight: 600;
+        color: #8b6914;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 12px;
+      }
+      
+      .service-value {
+        color: #333;
+      }
+      
+      .tribute-quote {
+        text-align: center;
+        padding: 25px;
+        background: linear-gradient(135deg, #f5f3f0 0%, #ffffff 100%);
+        border-radius: 8px;
+        margin-bottom: 30px;
+        position: relative;
+      }
+      
+      .tribute-quote::before,
+      .tribute-quote::after {
+        content: '"';
+        font-family: 'Playfair Display', serif;
+        font-size: 48px;
+        color: #d4b896;
+        position: absolute;
+        line-height: 1;
+      }
+      
+      .tribute-quote::before {
+        top: 10px;
+        left: 20px;
+      }
+      
+      .tribute-quote::after {
+        bottom: 10px;
+        right: 20px;
+      }
+      
+      .tribute-text {
+        font-style: italic;
+        font-size: 16px;
+        color: #444;
+        line-height: 1.8;
+        margin: 0 40px;
+      }
+      
+      .events-section {
+        margin-bottom: 30px;
+      }
+      
+      .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 24px;
+        color: #1a1a1a;
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #d4b896;
+      }
+      
+      .event-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      
+      .event-item:last-child {
+        border-bottom: none;
+      }
+      
+      .event-number {
+        background: #d4b896;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        margin-right: 20px;
+        flex-shrink: 0;
+      }
+      
+      .event-content {
+        flex: 1;
+      }
+      
+      .event-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 5px;
+      }
+      
+      .event-details {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+      
+      .event-description {
+        font-size: 14px;
+        color: #555;
+        line-height: 1.6;
+      }
+      
+      .footer {
+        text-align: center;
+        padding: 25px 0;
+        border-top: 2px solid #d4b896;
+        margin-top: 30px;
+        font-size: 12px;
+        color: #888;
+      }
+      
+      .footer-ornament {
+        font-size: 20px;
+        color: #d4b896;
+        margin-bottom: 10px;
+      }
+    </style>
+    
+    <div class="order-service-pdf">
+      <div class="header">
+        <div class="ornament">❦</div>
+        <h1 class="title">${orderOfService.title || 'Order of Service'}</h1>
+        <p class="subtitle">In Loving Memory</p>
+      </div>
+      
+      <div class="memorial-info">
+        <h2 class="name">${memorial.firstName} ${memorial.lastName}</h2>
+        <p class="dates">${birthYear} – ${passingYear}</p>
+        ${memorial.memorialMessage ? `<p class="memorial-message">${memorial.memorialMessage}</p>` : ''}
+      </div>
+      
+      ${orderOfService.serviceDate || orderOfService.serviceTime || orderOfService.venue || orderOfService.officiant ? `
+        <div class="service-details">
+          <h3>Service Information</h3>
+          <div class="service-info">
+            ${serviceDate ? `
+              <div class="service-item">
+                <div class="service-label">Date</div>
+                <div class="service-value">${serviceDate}</div>
+              </div>
+            ` : ''}
+            ${orderOfService.serviceTime ? `
+              <div class="service-item">
+                <div class="service-label">Time</div>
+                <div class="service-value">${orderOfService.serviceTime}</div>
+              </div>
+            ` : ''}
+            ${orderOfService.venue ? `
+              <div class="service-item">
+                <div class="service-label">Location</div>
+                <div class="service-value">${orderOfService.venue}</div>
+              </div>
+            ` : ''}
+            ${orderOfService.officiant ? `
+              <div class="service-item">
+                <div class="service-label">Officiant</div>
+                <div class="service-value">${orderOfService.officiant}</div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      ` : ''}
+      
+      ${orderOfService.tributeQuote ? `
+        <div class="tribute-quote">
+          <p class="tribute-text">${orderOfService.tributeQuote}</p>
+        </div>
+      ` : ''}
+      
+      ${orderOfService.events && orderOfService.events.length > 0 ? `
+        <div class="events-section">
+          <h3 class="section-title">Order of Service</h3>
+          ${orderOfService.events.map((event: any, index: number) => `
+            <div class="event-item">
+              <div class="event-number">${index + 1}</div>
+              <div class="event-content">
+                <h4 class="event-title">${event.title}</h4>
+                ${event.speaker || event.duration ? `
+                  <div class="event-details">
+                    ${event.speaker ? `Speaker: ${event.speaker}` : ''}
+                    ${event.speaker && event.duration ? ' • ' : ''}
+                    ${event.duration ? `Duration: ${event.duration}` : ''}
+                  </div>
+                ` : ''}
+                ${event.description || event.content ? `
+                  <p class="event-description">${event.description || event.content}</p>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      
+      <div class="footer">
+        <div class="footer-ornament">❦</div>
+        <p>Created with love and remembrance</p>
+        <p>SoulBridge Digital Memorial Platform</p>
+      </div>
+    </div>
+  `;
 }
 
 export function downloadAsImage(

@@ -125,9 +125,12 @@ export default function PricingPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedInterval, setSelectedInterval] = useState<"monthly" | "yearly">("monthly");
-  const [selectedProvider, setSelectedProvider] = useState<"paystack" | "netcash">("paystack");
+  const [selectedProvider, setSelectedProvider] = useState<"paystack" | "netcash">("netcash");
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  
+  // Check if we're in development mode
+  const isDevelopment = import.meta.env.DEV;
   
   // Get current user subscription
   const { data: subscription } = useQuery({
@@ -138,13 +141,18 @@ export default function PricingPage() {
   // Checkout mutation
   const checkoutMutation = useMutation({
     mutationFn: async (planId: string) => {
-      const response = await apiRequest("POST", `/api/billing/checkout-session`, {
-        plan: planId,
-        interval: selectedInterval,
-        provider: selectedProvider,
-        userId: user?.id
-      });
-      return response.json();
+      try {
+        const response = await apiRequest("POST", `/api/billing/checkout-session`, {
+          plan: planId,
+          interval: selectedInterval,
+          provider: selectedProvider,
+          userId: user?.id
+        });
+        return await response.json();
+      } catch (error: any) {
+        console.error('Checkout API error:', error);
+        throw new Error(error?.message || 'Failed to initialize checkout session');
+      }
     },
     onSuccess: (data: any) => {
       if (data?.checkoutUrl) {
@@ -199,6 +207,17 @@ export default function PricingPage() {
         title: "Already active",
         description: "You're currently on the free Remember plan."
       });
+      return;
+    }
+
+    // Prevent Paystack usage in development
+    if (isDevelopment && selectedProvider === "paystack") {
+      toast({
+        title: "Payment Method Not Available",
+        description: "Paystack is not available in development mode. Please use NetCash Pay Now.",
+        variant: "destructive"
+      });
+      setSelectedProvider("netcash");
       return;
     }
 
@@ -348,20 +367,31 @@ export default function PricingPage() {
               data-testid="payment-provider-selection"
             >
               <div className="relative">
-                <RadioGroupItem value="paystack" id="paystack" className="peer sr-only" />
+                <RadioGroupItem 
+                  value="paystack" 
+                  id="paystack" 
+                  className="peer sr-only" 
+                  disabled={isDevelopment}
+                />
                 <Label
                   htmlFor="paystack"
-                  className="flex items-center justify-between w-full p-4 text-muted-foreground bg-white border-2 border-border rounded-lg cursor-pointer dark:hover:text-muted-foreground dark:border-border peer-checked:border-primary hover:text-muted-foreground dark:peer-checked:text-primary peer-checked:text-primary hover:bg-muted/10 dark:text-muted-foreground dark:bg-card dark:hover:bg-surface-2"
+                  className={`flex items-center justify-between w-full p-4 text-muted-foreground bg-white border-2 border-border rounded-lg cursor-pointer dark:hover:text-muted-foreground dark:border-border peer-checked:border-primary hover:text-muted-foreground dark:peer-checked:text-primary peer-checked:text-primary hover:bg-muted/10 dark:text-muted-foreground dark:bg-card dark:hover:bg-surface-2 ${isDevelopment ? 'opacity-50 cursor-not-allowed' : ''}`}
                   data-testid="label-paystack"
                 >
                   <div className="flex items-center">
                     <CreditCard className="w-5 h-5 mr-3" />
                     <div>
                       <div className="text-lg font-medium">Paystack</div>
-                      <div className="text-sm text-muted-foreground">Credit cards, debit cards, mobile money</div>
+                      <div className="text-sm text-muted-foreground">
+                        {isDevelopment ? 'Not available in development' : 'Credit cards, debit cards, mobile money'}
+                      </div>
                     </div>
                   </div>
-                  <Badge variant="secondary">Most Popular</Badge>
+                  {isDevelopment ? (
+                    <Badge variant="outline">Disabled</Badge>
+                  ) : (
+                    <Badge variant="secondary">Most Popular</Badge>
+                  )}
                 </Label>
               </div>
               

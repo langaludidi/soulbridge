@@ -17,7 +17,7 @@ export interface PortalSessionResponse {
 export interface WebhookEvent {
   id: string;
   event: string;
-  data: any;
+  data: Record<string, unknown>;
   signature?: string;
   timestamp?: string;
 }

@@ -1,0 +1,31 @@
+# Environment Configuration for SoulBridge Application
+
+# Database Configuration
+DATABASE_URL="your_postgres_connection_string_here"
+
+# Application Configuration
+APP_URL="https://yourdomain.com"
+# For development: APP_URL="http://localhost:5000"
+# For production: APP_URL="https://soulbridge.co.za"
+
+# NetCash Pay Now Integration
+# Get these values from your NetCash merchant account > NetConnector > Pay Now settings
+NETCASH_SERVICE_KEY="your_netcash_service_key_here"
+NETCASH_MERCHANT_EMAIL="your_netcash_merchant_email_here"
+
+# Paystack Integration (Required for payments)
+PAYSTACK_SECRET_KEY="your_paystack_secret_key_here"
+PAYSTACK_PUBLIC_KEY="your_paystack_public_key_here"
+PAYSTACK_WEBHOOK_SECRET="your_paystack_webhook_secret_here"
+
+# Client-side Paystack Public Key (for react-paystack)
+REACT_APP_PAYSTACK_PUBLIC_KEY="your_paystack_public_key_here"
+
+# Session Secret (generate a secure random string)
+SESSION_SECRET="your_secure_session_secret_here"
+
+# Environment
+NODE_ENV="production"
+
+# Replit Authentication (automatically set by Replit)
+# REPLIT_DB_URL (set automatically)

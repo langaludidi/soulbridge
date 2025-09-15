@@ -1105,7 +1105,7 @@ export function EnhancedGallery({ memorialId, photos: allPhotos, memorial, isLoa
                   className="w-full justify-start text-[#25D366] border-[#25D366]/20 hover:bg-[#25D366]/10 min-h-[40px] text-xs sm:text-sm"
                   data-testid="button-share-whatsapp-gallery"
                 >
-                  <FaWhatsApp className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <FaWhatsapp className="w-4 h-4 mr-2 flex-shrink-0" />
                   <span className="truncate">WhatsApp</span>
                 </Button>
 

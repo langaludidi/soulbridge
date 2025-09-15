@@ -482,9 +482,9 @@ export default function Landing() {
               <h4 className="font-semibold mb-4">Create & Share</h4>
               <ul className="space-y-2 text-sm text-background/80">
                 <li><button onClick={() => setShowCreateModal(true)} className="hover:text-background transition-colors">Create Memorial</button></li>
-                <li><a href="#" className="hover:text-background transition-colors">Funeral Programs</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Share Tributes</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Upload Photos</a></li>
+                <li><Link href="/browse?category=funeral-programs"><span className="hover:text-background transition-colors cursor-pointer">Funeral Programs</span></Link></li>
+                <li><Link href="/browse?category=tributes"><span className="hover:text-background transition-colors cursor-pointer">Share Tributes</span></Link></li>
+                <li><Link href="/create"><span className="hover:text-background transition-colors cursor-pointer">Upload Photos</span></Link></li>
               </ul>
             </div>
 
@@ -493,18 +493,18 @@ export default function Landing() {
               <ul className="space-y-2 text-sm text-background/80">
                 <li><Link href="/browse"><span className="hover:text-background transition-colors cursor-pointer">Browse Memorials</span></Link></li>
                 <li><Link href="/partners"><span className="hover:text-background transition-colors cursor-pointer">Partner Directory</span></Link></li>
-                <li><a href="#" className="hover:text-background transition-colors">Search by Province</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Community Support</a></li>
+                <li><Link href="/browse?filter=province"><span className="hover:text-background transition-colors cursor-pointer">Search by Province</span></Link></li>
+                <li><Link href="/contact"><span className="hover:text-background transition-colors cursor-pointer">Community Support</span></Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-background/80">
-                <li><a href="#" className="hover:text-background transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Contact Us</a></li>
+                <li><Link href="/faq"><span className="hover:text-background transition-colors cursor-pointer">Help Center</span></Link></li>
+                <li><Link href="/privacy"><span className="hover:text-background transition-colors cursor-pointer">Privacy Policy</span></Link></li>
+                <li><Link href="/terms"><span className="hover:text-background transition-colors cursor-pointer">Terms of Service</span></Link></li>
+                <li><Link href="/contact"><span className="hover:text-background transition-colors cursor-pointer">Contact Us</span></Link></li>
               </ul>
             </div>
           </div>
