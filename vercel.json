@@ -5,7 +5,11 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/((?!assets|_next|favicon\\.ico|robots\\.txt|sitemap\\.xml|manifest\\.json|.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)).*)",
       "destination": "/index.html"
     }
   ]
