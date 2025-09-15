@@ -12,12 +12,11 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Core pages loaded immediately
 import Landing from "@/pages/landing";
-import Home from "@/pages/home";
+import Browse from "@/pages/browse";
 import NotFound from "@/pages/not-found";
 
 // Lazy load other pages for better performance
 const Memorial = lazy(() => import("@/pages/memorial"));
-const Browse = lazy(() => import("@/pages/browse"));
 const Partners = lazy(() => import("@/pages/partners"));
 const PartnersDirectory = lazy(() => import("@/pages/partners-directory"));
 const PartnersSignup = lazy(() => import("@/pages/partners-signup"));
@@ -31,6 +30,7 @@ const About = lazy(() => import("@/pages/about"));
 const PricingPage = lazy(() => import("@/pages/pricing"));
 const PackagesPage = lazy(() => import("@/pages/packages"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const AdminDashboard = lazy(() => import("@/pages/admin-dashboard"));
 const Terms = lazy(() => import("@/pages/terms"));
 const Privacy = lazy(() => import("@/pages/privacy"));
 const Contact = lazy(() => import("@/pages/contact"));
@@ -40,12 +40,20 @@ const PaymentSuccess = lazy(() => import("@/pages/payment-success"));
 const PaymentDeclined = lazy(() => import("@/pages/payment-declined"));
 const PaymentComplete = lazy(() => import("@/pages/payment-complete"));
 
+// Login redirect component
+function LoginRedirect() {
+  window.location.href = "/api/login";
+  return null;
+}
+
 // Route configuration to eliminate duplication
 const routes = [
-  { path: "/dashboard", component: DashboardPage },
-  { path: "/create", component: CreatePage },
-  { path: "/memorial/:id", component: Memorial },
   { path: "/browse", component: Browse },
+  { path: "/dashboard", component: DashboardPage },
+  { path: "/admin", component: AdminDashboard },
+  { path: "/create", component: CreatePage },
+  { path: "/login", component: LoginRedirect },
+  { path: "/memorial/:id", component: Memorial },
   { path: "/partners", component: Partners },
   { path: "/partners/directory", component: PartnersDirectory },
   { path: "/partners/signup", component: PartnersSignup },
@@ -76,7 +84,7 @@ function Router() {
       <Suspense fallback={<LoadingSpinner />}>
         <Switch>
           {/* Home route changes based on auth status */}
-          <Route path="/" component={isLoading || !isAuthenticated ? Landing : Home} />
+          <Route path="/" component={isLoading || !isAuthenticated ? Landing : Browse} />
           
           {/* All other routes are the same regardless of auth status */}
           {routes.map(({ path, component }) => (
