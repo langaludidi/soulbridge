@@ -17,6 +17,7 @@ import NotFound from "@/pages/not-found";
 
 // Lazy load other pages for better performance
 const Memorial = lazy(() => import("@/pages/memorial"));
+const Login = lazy(() => import("@/pages/login"));
 const Partners = lazy(() => import("@/pages/partners"));
 const PartnersDirectory = lazy(() => import("@/pages/partners-directory"));
 const PartnersSignup = lazy(() => import("@/pages/partners-signup"));
@@ -40,19 +41,13 @@ const PaymentSuccess = lazy(() => import("@/pages/payment-success"));
 const PaymentDeclined = lazy(() => import("@/pages/payment-declined"));
 const PaymentComplete = lazy(() => import("@/pages/payment-complete"));
 
-// Login redirect component
-function LoginRedirect() {
-  window.location.href = "/api/login";
-  return null;
-}
-
 // Route configuration to eliminate duplication
 const routes = [
   { path: "/browse", component: Browse },
   { path: "/dashboard", component: DashboardPage },
   { path: "/admin", component: AdminDashboard },
   { path: "/create", component: CreatePage },
-  { path: "/login", component: LoginRedirect },
+  { path: "/login", component: Login },
   { path: "/memorial/:id", component: Memorial },
   { path: "/partners", component: Partners },
   { path: "/partners/directory", component: PartnersDirectory },
