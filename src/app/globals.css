@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+/* === SoulBridge Design Tokens ===
+   Brand colors: Delft Blue #2d3958, Ash Gray #a8b9a0, Payne's Gray #647278
+   Typography: Playfair Display (headings), Inter (body)
+*/
+:root {
+  /* base */
+  --font-size: 16px;
+  --background: 249 249 247;          /* #F9F9F7 */
+  --foreground: 0 0 0;                /* #000000 */
+
+  /* surfaces */
+  --card: 255 255 255;                /* #fff */
+  --card-foreground: 0 0 0;           /* #000000 */
+  --popover: 255 255 255;             /* #fff */
+  --popover-foreground: 0 0 0;        /* #000000 */
+
+  /* brand */
+  --primary: 45 57 88;                /* #2d3958 Delft Blue */
+  --primary-foreground: 255 255 255;  /* #fff */
+  --secondary: 100 114 120;           /* #647278 Payne's Gray */
+  --secondary-foreground: 255 255 255;/* #fff */
+  --accent: 168 185 160;              /* #a8b9a0 Ash Gray */
+  --accent-foreground: 45 57 88;      /* #2d3958 Delft Blue */
+
+  /* ui */
+  --muted: 249 249 247;               /* #F9F9F7 */
+  --muted-foreground: 100 114 120;    /* #647278 Payne's Gray */
+  --border: 229 231 235;              /* #e5e7eb */
+  --ring: 168 185 160;                /* #a8b9a0 Ash Gray */
+
+  /* inputs */
+  --input: 0 0 0 / 0;                 /* transparent */
+  --input-background: 249 249 247;    /* #F9F9F7 */
+  --switch-background: 229 231 235;   /* #e5e7eb */
+
+  /* feedback */
+  --destructive: 220 38 38;           /* #dc2626 */
+  --destructive-foreground: 255 255 255; /* #fff */
+
+  /* glassmorphism overlay */
+  --overlay: 46 60 90;                /* #2E3C5A at 50% opacity */
+
+  /* layout */
+  --radius: 0.75rem;                  /* 12px - cards */
+  --radius-modal: 1rem;               /* 16px - modals */
+  --radius-pill: 9999px;              /* pills */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.16);
+  --blur-glass: 20px;
+
+  /* spacing */
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+}
+
+/* (Optional) dark mode token tweaks, if you plan to support it later */
+/*
+.dark {
+  --background: 27 67 50;
+  --foreground: 248 249 250;
+  --muted: 27 67 50;
+  --border: 82 183 136;
+  --ring: 82 183 136;
+}
+*/
+
+@layer base {
+  html { font-size: var(--font-size); }
+  html, body { height: 100%; }
+  body {
+    background: rgb(var(--background));
+    color: rgb(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Handy utilities bound to your tokens */
+@layer utilities {
+  .bg-background { background-color: rgb(var(--background)); }
+  .text-foreground { color: rgb(var(--foreground)); }
+
+  .bg-card { background-color: rgb(var(--card)); }
+  .text-card-foreground { color: rgb(var(--card-foreground)); }
+
+  .bg-popover { background-color: rgb(var(--popover)); }
+  .text-popover-foreground { color: rgb(var(--popover-foreground)); }
+
+  .bg-primary { background-color: rgb(var(--primary)); }
+  .text-primary-foreground { color: rgb(var(--primary-foreground)); }
+
+  .bg-secondary { background-color: rgb(var(--secondary)); }
+  .text-secondary-foreground { color: rgb(var(--secondary-foreground)); }
+
+  .bg-accent { background-color: rgb(var(--accent)); }
+  .text-accent-foreground { color: rgb(var(--accent-foreground)); }
+
+  .bg-muted { background-color: rgb(var(--muted)); }
+  .text-muted-foreground { color: rgb(var(--muted-foreground)); }
+
+  .border-token { border-color: rgb(var(--border)); }
+  .ring-token { --tw-ring-color: rgb(var(--ring)); }
+
+  .rounded-token { border-radius: var(--radius); }
+
+  .bg-input { background-color: rgb(var(--input-background)); }
+  .bg-switch { background-color: rgb(var(--switch-background)); }
+
+  .bg-sidebar { background-color: rgb(var(--sidebar)); }
+  .text-sidebar-foreground { color: rgb(var(--sidebar-foreground)); }
+  .border-sidebar { border-color: rgb(var(--sidebar-border)); }
+
+  /* Scrollbar hide utility */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
