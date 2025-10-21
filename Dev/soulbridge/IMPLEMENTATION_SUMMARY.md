@@ -523,26 +523,114 @@ When sharing memorial URL:
 
 ---
 
+## 🚨 IMPORTANT: DATABASE SETUP REQUIRED
+
+### **Run This SQL in Supabase SQL Editor NOW:**
+
+```sql
+-- This function is REQUIRED for share tracking to work
+CREATE OR REPLACE FUNCTION increment_share_count(memorial_id UUID)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  UPDATE memorials
+  SET share_count = COALESCE(share_count, 0) + 1
+  WHERE id = memorial_id;
+END;
+$$;
+
+-- Grant permissions
+GRANT EXECUTE ON FUNCTION increment_share_count(UUID) TO service_role;
+GRANT EXECUTE ON FUNCTION increment_share_count(UUID) TO authenticated;
+GRANT EXECUTE ON FUNCTION increment_share_count(UUID) TO anon;
+```
+
+**Alternative:** Run migration file directly:
+```bash
+# Copy content from supabase/migrations/009_share_tracking_function.sql
+# and paste into Supabase SQL Editor
+```
+
+---
+
+## 🐛 FIXES APPLIED (October 21, 2025)
+
+### **Memorial Creation Debugging Enhanced**
+
+I've improved the memorial creation API with better error logging to help diagnose your issue:
+
+**File:** `app/api/memorials/route.ts:166-178`
+
+The API now returns detailed error information including:
+- Error message
+- Error hint (from PostgreSQL)
+- Error code
+- Request body (in logs)
+
+When you try to create a memorial again, the error message will show exactly what went wrong!
+
+### **OG Metadata Fixed**
+
+Fixed bug where OG metadata tried to reference a non-existent `headline` field:
+
+**File:** `lib/og-metadata.ts:37-43`
+
+Changes:
+- Now uses `biography` or `obituary` for descriptions
+- Generates short excerpts (100 chars) for meta descriptions
+- Removed all `headline` references
+
+### **Share Tracking Function Created**
+
+Created the missing `increment_share_count()` function that was preventing share tracking from working.
+
+**File:** `supabase/migrations/009_share_tracking_function.sql`
+
+**Status:** ⚠️ Migration file created but NOT applied yet!
+**Action Required:** Run the SQL above in your Supabase SQL Editor
+
+---
+
 ## 🔧 NEXT STEPS
 
-### 1. **Add Database Functions (5 minutes)**
+### 1. **Run Database Migration (2 minutes) - REQUIRED**
 
-Run the SQL from "DATABASE CHANGES NEEDED" section above in your Supabase SQL Editor.
+Run the SQL from the "IMPORTANT: DATABASE SETUP REQUIRED" section above in your Supabase SQL Editor.
 
-### 2. **Integrate into Memorial Pages (15 minutes)**
+### 2. **Debug Memorial Creation (if still failing) (5 minutes)**
+
+Try creating a memorial again. The improved error logging will now show:
+- Exact database error message
+- Error code
+- Suggestions for fixing
+
+Check:
+1. Browser console for client-side errors
+2. Dev server logs for detailed API errors
+3. Supabase dashboard for database errors
+
+Common issues:
+- Plan limit reached → Upgrade plan or delete old memorials
+- Missing required fields → Check all required fields are filled
+- Database constraint violation → Check error details
+- Image upload failure → Check file size/format
+
+### 3. **Integrate into Memorial Pages (15 minutes)**
 
 Add the `<SocialSharing />` component to your memorial pages.
 Add metadata generation to memorial page files.
 
-### 3. **Test Everything (20 minutes)**
+### 4. **Test Everything (20 minutes)**
 
+- Test memorial creation with real data
 - Test OG image generation locally
 - Deploy to production
 - Use Facebook Debugger
 - Test all share buttons
 - Verify analytics tracking
 
-### 4. **Monitor Performance (Ongoing)**
+### 5. **Monitor Performance (Ongoing)**
 
 - Check share counts in database
 - Monitor which platforms are most popular
@@ -552,6 +640,65 @@ Add metadata generation to memorial page files.
 ---
 
 ## 📞 TROUBLESHOOTING
+
+### Memorial Creation Failing?
+
+**Updated: October 21, 2025** - Enhanced debugging added!
+
+If memorial creation fails, follow these steps:
+
+1. **Check Browser Console** (F12 → Console tab):
+   ```
+   Look for:
+   - Network errors (red in Network tab)
+   - JavaScript errors
+   - Failed fetch requests
+   ```
+
+2. **Check Dev Server Logs**:
+   The API now logs detailed error information:
+   ```
+   Error creating memorial: <error>
+   Error details: <full JSON error>
+   Request body: <what you submitted>
+   ```
+
+3. **Common Errors & Solutions**:
+
+   **Error: "Memorial limit reached"**
+   - Cause: You've hit your plan's memorial limit
+   - Solution: Upgrade plan OR delete old memorials
+   - How to check: Dashboard shows X/Y memorials
+
+   **Error: "Missing required fields"**
+   - Cause: first_name, last_name, date_of_birth, or date_of_death is empty
+   - Solution: Fill all required fields
+   - Check: Red borders around empty required fields
+
+   **Error: "Profile not found"**
+   - Cause: User profile doesn't exist in Supabase
+   - Solution: Sign out and sign in again to trigger profile creation
+   - Check: Supabase → profiles table → search for your clerk_user_id
+
+   **Error: "date_of_birth must be before date_of_death"**
+   - Cause: Birth date is after death date
+   - Solution: Check your date inputs
+
+   **Error: "Failed to upload image"**
+   - Cause: Image too large or wrong format
+   - Solution: Use JPEG/PNG under 5MB
+   - Try: Compress image or use different file
+
+4. **Still Not Working?**
+   ```bash
+   # Enable detailed logging
+   # Check Supabase logs:
+   # 1. Go to Supabase Dashboard
+   # 2. Click "Logs" in sidebar
+   # 3. Select "API" logs
+   # 4. Try creating memorial again
+   # 5. Look for errors in logs
+   ```
 
 ### OG Image Not Showing?
 
