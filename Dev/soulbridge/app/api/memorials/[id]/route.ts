@@ -130,7 +130,17 @@ export async function PATCH(
     }
 
     // Update memorial
-    const updates: any = { ...body };
+    // Sanitize empty strings to null for optional fields (especially dates)
+    const sanitizeValue = (value: any) => {
+      return (value === '' || value === undefined) ? null : value;
+    };
+
+    const updates: any = {};
+
+    // Copy all fields from body, sanitizing empty strings
+    Object.keys(body).forEach((key) => {
+      updates[key] = sanitizeValue(body[key as keyof UpdateMemorialRequest]);
+    });
 
     // Set published_at if changing status to published
     if (body.status === 'published' && existing.profile_id !== profile.id) {
@@ -146,8 +156,14 @@ export async function PATCH(
 
     if (error) {
       console.error('Error updating memorial:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Update data:', JSON.stringify(updates, null, 2));
       return NextResponse.json(
-        { error: 'Failed to update memorial' },
+        {
+          error: 'Failed to update memorial',
+          details: error.message || error.hint || 'Unknown database error',
+          code: error.code,
+        },
         { status: 500 }
       );
     }
