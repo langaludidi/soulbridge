@@ -78,7 +78,7 @@ export default function MediaActionPanel({ memorialId, showTimeline = false }: M
           />
         </svg>
       ),
-      title: 'Event',
+      title: 'Timeline Event',
       description: 'Add a life milestone',
       color: 'bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 border-amber-200 dark:border-amber-800',
       iconColor: 'text-amber-600 dark:text-amber-400',

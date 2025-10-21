@@ -602,17 +602,8 @@ export default async function SlugMemorialPage({
           </div>
         )}
 
-        {/* 11. Share & Stats Section */}
-        <div id="share" className="scroll-mt-20 mb-8">
-          <ShareSheet
-            memorialId={id}
-            memorialName={memorial.full_name}
-            memorialUrl={memorialUrl}
-          />
-        </div>
-
         {/* Stats Bar */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8 mb-8">
+        <div id="share" className="scroll-mt-20 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-[#2B3E50] dark:text-[#9FB89D]">
@@ -644,6 +635,15 @@ export default async function SlugMemorialPage({
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Shares</div>
             </div>
+          </div>
+
+          {/* Share Button */}
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-center">
+            <ShareSheet
+              memorialId={id}
+              memorialName={memorial.full_name}
+              memorialUrl={memorialUrl}
+            />
           </div>
         </div>
 
