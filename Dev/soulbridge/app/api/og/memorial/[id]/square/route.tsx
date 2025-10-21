@@ -38,37 +38,57 @@ export async function GET(
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: '#f5f5f0',
-            backgroundImage: 'linear-gradient(135deg, #f5f5f0 0%, #e8e8dc 100%)',
-            padding: 60,
+            backgroundColor: '#2B3E50',
+            backgroundImage: 'linear-gradient(135deg, #2B3E50 0%, #1a2833 100%)',
+            padding: 40,
           }}
         >
-          {/* Memorial photo */}
-          {profileImage && (
+          {/* Memorial photo - Large and centered for WhatsApp */}
+          {profileImage ? (
             <img
               src={profileImage}
               alt={fullName}
               style={{
-                width: 320,
-                height: 320,
+                width: 420,
+                height: 420,
                 borderRadius: '50%',
-                border: '8px solid #fff',
+                border: '10px solid #9FB89D',
                 objectFit: 'cover',
-                marginBottom: 30,
-                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)',
+                marginBottom: 25,
+                boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)',
               }}
             />
+          ) : (
+            <div
+              style={{
+                width: 420,
+                height: 420,
+                borderRadius: '50%',
+                border: '10px solid #9FB89D',
+                backgroundColor: '#9FB89D',
+                marginBottom: 25,
+                boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 160,
+                color: '#fff',
+              }}
+            >
+              🕯️
+            </div>
           )}
 
           {/* Name */}
           <div
             style={{
-              fontSize: 48,
+              fontSize: 42,
               fontWeight: 700,
               textAlign: 'center',
-              color: '#1a1a1a',
-              marginBottom: 15,
-              lineHeight: 1.2,
+              color: '#ffffff',
+              marginBottom: 10,
+              lineHeight: 1.1,
+              maxWidth: '90%',
             }}
           >
             {fullName}
@@ -78,9 +98,9 @@ export async function GET(
           {years && (
             <div
               style={{
-                fontSize: 32,
-                color: '#666',
-                marginBottom: 20,
+                fontSize: 28,
+                color: '#9FB89D',
+                marginBottom: 15,
               }}
             >
               {years}
@@ -90,24 +110,12 @@ export async function GET(
           {/* Memorial text */}
           <div
             style={{
-              fontSize: 24,
-              color: '#888',
-              marginTop: 20,
+              fontSize: 20,
+              color: '#cccccc',
+              marginTop: 10,
             }}
           >
-            🕯️ In Loving Memory
-          </div>
-
-          {/* Footer */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 20,
-              fontSize: 18,
-              color: '#999',
-            }}
-          >
-            soulbridge.co.za
+            In Loving Memory
           </div>
         </div>
       ),
