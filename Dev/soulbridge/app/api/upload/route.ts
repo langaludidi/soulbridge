@@ -90,8 +90,26 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Storage upload error:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('File details:', {
+        name: file.name,
+        type: file.type,
+        size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        fileName,
+      });
+
+      // Return detailed error to help debug
       return NextResponse.json(
-        { error: 'Failed to upload file' },
+        {
+          error: 'Failed to upload file',
+          details: error.message || 'Unknown storage error',
+          fileInfo: {
+            name: file.name,
+            type: file.type,
+            size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+          },
+          hint: 'Check Supabase storage bucket exists and has correct permissions'
+        },
         { status: 500 }
       );
     }
@@ -110,10 +128,15 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('POST /api/upload error:', error);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        details: error.message || 'Unknown error',
+        type: error.name || 'Error'
+      },
       { status: 500 }
     );
   }

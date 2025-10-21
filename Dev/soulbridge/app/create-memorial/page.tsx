@@ -96,7 +96,11 @@ export default function CreateMemorialPage() {
         const uploadData = await uploadResponse.json();
 
         if (!uploadResponse.ok) {
-          throw new Error(uploadData.error || 'Failed to upload profile image');
+          const errorMsg = uploadData.details
+            ? `${uploadData.error}: ${uploadData.details}`
+            : uploadData.error || 'Failed to upload profile image';
+          console.error('Profile image upload error:', uploadData);
+          throw new Error(errorMsg);
         }
 
         profileImageUrl = uploadData.url;
@@ -115,7 +119,11 @@ export default function CreateMemorialPage() {
         const uploadData = await uploadResponse.json();
 
         if (!uploadResponse.ok) {
-          throw new Error(uploadData.error || 'Failed to upload cover image');
+          const errorMsg = uploadData.details
+            ? `${uploadData.error}: ${uploadData.details}`
+            : uploadData.error || 'Failed to upload cover image';
+          console.error('Cover image upload error:', uploadData);
+          throw new Error(errorMsg);
         }
 
         coverImageUrl = uploadData.url;
