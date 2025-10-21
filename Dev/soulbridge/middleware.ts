@@ -6,7 +6,7 @@ const isProtectedRoute = createRouteMatcher([
   '/my-memorials(.*)',
   '/settings(.*)',
   '/checkout(.*)',
-  '/memorials/[^/]+/edit(.*)',
+  '/memorials/:id/edit(.*)',
 ])
 
 export default clerkMiddleware(async (auth, req) => {
