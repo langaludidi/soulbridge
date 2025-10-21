@@ -453,9 +453,9 @@ export default async function MemorialPage({
                           <h4 className="font-semibold text-gray-900 dark:text-white">
                             {tribute.author_name}
                           </h4>
-                          {tribute.relationship && (
+                          {tribute.author_relationship && (
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {tribute.relationship}
+                              {tribute.author_relationship}
                             </p>
                           )}
                         </div>

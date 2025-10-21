@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         author_profile_id: authorProfileId,
         author_name,
         author_email: author_email || null,
-        relationship: relationship || null,
+        author_relationship: relationship || null,
         message,
         is_approved: true, // Auto-approve for now (can add moderation later)
       })
