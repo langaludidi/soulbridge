@@ -11,14 +11,11 @@ import GallerySection from './GallerySection';
 import VideoSection from './VideoSection';
 import AudioSection from './AudioSection';
 import TimelineSection from './TimelineSection';
-import AddPhotoForm from './AddPhotoForm';
-import AddVideoForm from './AddVideoForm';
-import AddAudioForm from './AddAudioForm';
-import AddTimelineForm from './AddTimelineForm';
 import GuestbookForm from './GuestbookForm';
 import StickyActionBar from './StickyActionBar';
 import FamilyTreeSection from '@/components/memorials/FamilyTreeSection';
 import MemorialServicesSection from '@/components/memorials/MemorialServicesSection';
+import MediaActionPanel from '@/components/memorials/MediaActionPanel';
 
 async function getMemorial(id: string): Promise<Memorial | null> {
   try {
@@ -404,16 +401,17 @@ export default async function MemorialPage({
           <MemorialServicesSection memorialId={id} isOwner={isOwner} />
         </div>
 
-        {/* 5. Gallery & Media Section */}
-        {(gallery.length > 0 || videos.length > 0 || audios.length > 0 || isOwner) && (
+        {/* 5. Media & Timeline Actions (Owner Only) */}
+        {isOwner && (
+          <MediaActionPanel
+            memorialId={id}
+            showTimeline={true}
+          />
+        )}
+
+        {/* 6. Gallery & Media Section */}
+        {(gallery.length > 0 || videos.length > 0 || audios.length > 0) && (
           <div>
-            {isOwner && (
-              <div className="mb-4 flex flex-wrap gap-3">
-                <AddPhotoForm memorialId={id} />
-                <AddVideoForm memorialId={id} />
-                <AddAudioForm memorialId={id} />
-              </div>
-            )}
             {gallery.length > 0 && (
               <div className="mb-8">
                 <GallerySection memorialId={id} initialPhotos={gallery} />
@@ -432,17 +430,10 @@ export default async function MemorialPage({
           </div>
         )}
 
-        {/* 6. Life Timeline */}
-        {(timeline.length > 0 || isOwner) && (
-          <div>
-            {isOwner && (
-              <div className="mb-4">
-                <AddTimelineForm memorialId={id} />
-              </div>
-            )}
-            {timeline.length > 0 && (
-              <TimelineSection events={timeline} />
-            )}
+        {/* 7. Life Timeline */}
+        {timeline.length > 0 && (
+          <div className="mb-8">
+            <TimelineSection events={timeline} />
           </div>
         )}
 

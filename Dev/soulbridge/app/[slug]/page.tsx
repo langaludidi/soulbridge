@@ -11,14 +11,11 @@ import GallerySection from '../memorials/[id]/GallerySection';
 import VideoSection from '../memorials/[id]/VideoSection';
 import AudioSection from '../memorials/[id]/AudioSection';
 import TimelineSection from '../memorials/[id]/TimelineSection';
-import AddPhotoForm from '../memorials/[id]/AddPhotoForm';
-import AddVideoForm from '../memorials/[id]/AddVideoForm';
-import AddAudioForm from '../memorials/[id]/AddAudioForm';
-import AddTimelineForm from '../memorials/[id]/AddTimelineForm';
 import GuestbookForm from '../memorials/[id]/GuestbookForm';
 import StickyActionBar from '../memorials/[id]/StickyActionBar';
 import FamilyTreeSection from '@/components/memorials/FamilyTreeSection';
 import MemorialServicesSection from '@/components/memorials/MemorialServicesSection';
+import MediaActionPanel from '@/components/memorials/MediaActionPanel';
 import { generateMemorialMetadata } from '@/lib/og-metadata';
 import type { Metadata } from 'next';
 
@@ -426,16 +423,17 @@ export default async function SlugMemorialPage({
           <MemorialServicesSection memorialId={id} isOwner={isOwner} />
         </div>
 
-        {/* 5. Gallery & Media Section */}
-        {(gallery.length > 0 || videos.length > 0 || audios.length > 0 || isOwner) && (
+        {/* 5. Media & Timeline Actions (Owner Only) */}
+        {isOwner && (
+          <MediaActionPanel
+            memorialId={id}
+            showTimeline={true}
+          />
+        )}
+
+        {/* 6. Gallery & Media Section */}
+        {(gallery.length > 0 || videos.length > 0 || audios.length > 0) && (
           <div>
-            {isOwner && (
-              <div className="mb-4 flex flex-wrap gap-3">
-                <AddPhotoForm memorialId={id} />
-                <AddVideoForm memorialId={id} />
-                <AddAudioForm memorialId={id} />
-              </div>
-            )}
             {gallery.length > 0 && (
               <div className="mb-8">
                 <GallerySection memorialId={id} initialPhotos={gallery} />
@@ -454,17 +452,10 @@ export default async function SlugMemorialPage({
           </div>
         )}
 
-        {/* 6. Life Timeline */}
-        {(timeline.length > 0 || isOwner) && (
-          <div>
-            {isOwner && (
-              <div className="mb-4">
-                <AddTimelineForm memorialId={id} />
-              </div>
-            )}
-            {timeline.length > 0 && (
-              <TimelineSection events={timeline} />
-            )}
+        {/* 7. Life Timeline */}
+        {timeline.length > 0 && (
+          <div className="mb-8">
+            <TimelineSection events={timeline} />
           </div>
         )}
 
