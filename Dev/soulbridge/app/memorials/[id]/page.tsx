@@ -17,6 +17,7 @@ import AddAudioForm from './AddAudioForm';
 import AddTimelineForm from './AddTimelineForm';
 import GuestbookForm from './GuestbookForm';
 import StickyActionBar from './StickyActionBar';
+import FamilyTreeSection from '@/components/memorials/FamilyTreeSection';
 
 async function getMemorial(id: string): Promise<Memorial | null> {
   try {
@@ -391,6 +392,11 @@ export default async function MemorialPage({
             obituary={memorial.obituary}
           />
         )}
+
+        {/* 4.5 Family Tree */}
+        <div className="mb-8">
+          <FamilyTreeSection memorialId={id} isOwner={isOwner} />
+        </div>
 
         {/* 5. Gallery & Media Section */}
         {(gallery.length > 0 || videos.length > 0 || audios.length > 0 || isOwner) && (

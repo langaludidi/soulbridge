@@ -17,6 +17,7 @@ import AddAudioForm from '../memorials/[id]/AddAudioForm';
 import AddTimelineForm from '../memorials/[id]/AddTimelineForm';
 import GuestbookForm from '../memorials/[id]/GuestbookForm';
 import StickyActionBar from '../memorials/[id]/StickyActionBar';
+import FamilyTreeSection from '@/components/memorials/FamilyTreeSection';
 import { generateMemorialMetadata } from '@/lib/og-metadata';
 import type { Metadata } from 'next';
 
@@ -413,6 +414,11 @@ export default async function SlugMemorialPage({
             obituary={memorial.obituary}
           />
         )}
+
+        {/* 4.5 Family Tree */}
+        <div className="mb-8">
+          <FamilyTreeSection memorialId={id} isOwner={isOwner} />
+        </div>
 
         {/* 5. Gallery & Media Section */}
         {(gallery.length > 0 || videos.length > 0 || audios.length > 0 || isOwner) && (
