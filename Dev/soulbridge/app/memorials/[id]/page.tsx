@@ -18,6 +18,7 @@ import AddTimelineForm from './AddTimelineForm';
 import GuestbookForm from './GuestbookForm';
 import StickyActionBar from './StickyActionBar';
 import FamilyTreeSection from '@/components/memorials/FamilyTreeSection';
+import MemorialServicesSection from '@/components/memorials/MemorialServicesSection';
 
 async function getMemorial(id: string): Promise<Memorial | null> {
   try {
@@ -396,6 +397,11 @@ export default async function MemorialPage({
         {/* 4.5 Family Tree */}
         <div className="mb-8">
           <FamilyTreeSection memorialId={id} isOwner={isOwner} />
+        </div>
+
+        {/* 4.6 Memorial Services */}
+        <div className="mb-8">
+          <MemorialServicesSection memorialId={id} isOwner={isOwner} />
         </div>
 
         {/* 5. Gallery & Media Section */}
