@@ -34,9 +34,12 @@ export async function generateMemorialMetadata({
     const ogImageUrl = `https://soulbridge.co.za/api/og/memorial/${memorial.id}?style=${ogImageStyle}`;
     const squareOgImageUrl = `https://soulbridge.co.za/api/og/memorial/${memorial.id}/square`;
 
-    // Craft dignified description
-    const description = memorial.headline
-      ? `${memorial.headline} - Visit ${fullName.split(' ')[0]}'s memorial to light a candle, share memories, and celebrate their life.`
+    // Craft dignified description from biography or use default
+    const biography = memorial.biography || '';
+    const shortBio = biography.length > 100 ? biography.substring(0, 100) + '...' : biography;
+
+    const description = shortBio
+      ? `${shortBio} - Visit ${fullName.split(' ')[0]}'s memorial to light a candle, share memories, and celebrate their life.`
       : `In loving memory of ${fullName} ${years ? `(${years})` : ''}. Light a virtual candle, share memories and tributes, and celebrate their remarkable life.`;
 
     return {
@@ -89,7 +92,7 @@ export async function generateMemorialMetadata({
         'remembrance',
         'celebration of life',
         'South Africa',
-        ...(memorial.headline ? [memorial.headline] : []),
+        'SoulBridge',
       ],
 
       // Robots
@@ -152,7 +155,7 @@ export async function generateMemorialStructuredData(memorialId: string) {
       birthDate,
       deathDate,
       image: memorial.profile_image_url || '',
-      description: memorial.headline || memorial.biography || '',
+      description: memorial.biography || memorial.obituary || '',
       url: `https://soulbridge.co.za/memorials/${memorial.id}`,
       memorialLocation: memorial.burial_location || undefined,
       // Add more structured data as needed

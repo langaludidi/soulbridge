@@ -165,8 +165,14 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Error creating memorial:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Request body:', JSON.stringify(body, null, 2));
       return NextResponse.json(
-        { error: 'Failed to create memorial' },
+        {
+          error: 'Failed to create memorial',
+          details: error.message || error.hint || 'Unknown database error',
+          code: error.code,
+        },
         { status: 500 }
       );
     }
