@@ -31,7 +31,7 @@ export default function AudioSection({ memorialId, initialAudios }: AudioSection
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+    <div className="bg-[#e9eee8] dark:bg-gray-800 rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
         Audio Recordings ({audios.length})
       </h2>

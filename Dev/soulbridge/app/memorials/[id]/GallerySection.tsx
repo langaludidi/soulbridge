@@ -24,7 +24,7 @@ export default function GallerySection({ memorialId, initialPhotos }: GallerySec
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <div className="bg-[#c9d1e3] dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
           Photo Gallery ({photos.length})
         </h2>

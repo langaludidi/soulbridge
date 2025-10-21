@@ -192,7 +192,7 @@ export async function generateMetadata({
     };
   }
 
-  return generateMemorialMetadata(memorial);
+  return generateMemorialMetadata({ slug: memorial.slug });
 }
 
 export default async function SlugMemorialPage({
@@ -466,7 +466,7 @@ export default async function SlugMemorialPage({
               <TributeForm memorialId={id} />
             </div>
             {tributes.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <div className="bg-[#e9eee8] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Tributes ({tributes.length})
                 </h2>
@@ -506,13 +506,13 @@ export default async function SlugMemorialPage({
               <CandleForm memorialId={id} />
             </div>
             {candles.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+              <div className="bg-[#c9d1e3] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   Virtual Candles ({candles.length})
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {candles.map((candle: any) => (
-                    <div key={candle.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
+                    <div key={candle.id} className="bg-white/60 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-center">
                       <div className="text-4xl mb-2">🕯️</div>
                       <p className="font-semibold text-gray-900 dark:text-white">
                         {candle.lit_by_name}
@@ -535,7 +535,7 @@ export default async function SlugMemorialPage({
 
         {/* 9. Locations & Community */}
         {(memorial.place_of_birth || memorial.place_of_death) && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <div className="bg-[#d6d6d6] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Locations
             </h2>
@@ -569,7 +569,7 @@ export default async function SlugMemorialPage({
           <GuestbookForm memorialId={id} />
         </div>
         {guestbook.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <div className="bg-[#ede8e8] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Guestbook ({guestbook.length})
             </h2>

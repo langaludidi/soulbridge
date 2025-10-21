@@ -24,7 +24,7 @@ export default function VideoSection({ memorialId, initialVideos }: VideoSection
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+      <div className="bg-[#ede8e8] dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
           Videos ({videos.length})
         </h2>

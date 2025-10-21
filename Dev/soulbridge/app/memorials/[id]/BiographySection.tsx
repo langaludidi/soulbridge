@@ -22,7 +22,7 @@ export default function BiographySection({ biography, obituary }: BiographySecti
     <>
       {/* Biography */}
       {biography && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <div className="bg-[#e9eee8] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Life Story
           </h2>
@@ -58,7 +58,7 @@ export default function BiographySection({ biography, obituary }: BiographySecti
 
       {/* Obituary */}
       {obituary && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+        <div className="bg-[#ede8e8] dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Obituary
           </h2>
