@@ -5,7 +5,7 @@ import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
 import { auth } from '@clerk/nextjs/server';
 import TributeForm from '../memorials/[id]/TributeForm';
 import CandleForm from '../memorials/[id]/CandleForm';
-import ShareButtons from '../memorials/[id]/ShareButtons';
+import ShareSheet from '@/components/memorials/ShareSheet';
 import BiographySection from '../memorials/[id]/BiographySection';
 import GallerySection from '../memorials/[id]/GallerySection';
 import VideoSection from '../memorials/[id]/VideoSection';
@@ -603,12 +603,11 @@ export default async function SlugMemorialPage({
         )}
 
         {/* 11. Share & Stats Section */}
-        <div id="share" className="scroll-mt-20">
-          <ShareButtons
+        <div id="share" className="scroll-mt-20 mb-8">
+          <ShareSheet
             memorialId={id}
             memorialName={memorial.full_name}
             memorialUrl={memorialUrl}
-            dates={`${formatDate(memorial.date_of_birth)} - ${formatDate(memorial.date_of_death)}`}
           />
         </div>
 

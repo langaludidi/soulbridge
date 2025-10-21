@@ -23,10 +23,18 @@ export async function GET(
     }
 
     const fullName = memorial.full_name || 'In Loving Memory';
-    const birthYear = memorial.date_of_birth ? new Date(memorial.date_of_birth).getFullYear() : '';
-    const deathYear = memorial.date_of_death ? new Date(memorial.date_of_death).getFullYear() : '';
-    const years = birthYear && deathYear ? `${birthYear} - ${deathYear}` : '';
     const profileImage = memorial.profile_image_url || '';
+
+    // Format dates
+    const formatDate = (dateString: string | null) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const birthDate = memorial.date_of_birth ? formatDate(memorial.date_of_birth) : '';
+    const deathDate = memorial.date_of_death ? formatDate(memorial.date_of_death) : '';
+    const dateRange = birthDate && deathDate ? `${birthDate} – ${deathDate}` : '';
 
     return new ImageResponse(
       (
@@ -35,93 +43,111 @@ export async function GET(
             width: '100%',
             height: '100%',
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#2B3E50',
-            backgroundImage: 'linear-gradient(135deg, #2B3E50 0%, #1a2833 100%)',
-            padding: 40,
+            position: 'relative',
           }}
         >
-          {/* Memorial photo - Large and centered for WhatsApp */}
+          {/* Background Image (Profile Picture) */}
           {profileImage ? (
-            <img
-              src={profileImage}
-              alt={fullName}
-              style={{
-                width: 420,
-                height: 420,
-                borderRadius: '50%',
-                border: '10px solid #9FB89D',
-                objectFit: 'cover',
-                marginBottom: 25,
-                boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)',
-              }}
-            />
+            <>
+              <img
+                src={profileImage}
+                alt={fullName}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: '50% 35%',
+                  position: 'absolute',
+                }}
+              />
+              {/* Vignette Overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)',
+                }}
+              />
+            </>
           ) : (
+            /* Fallback gradient with candle */
             <div
               style={{
-                width: 420,
-                height: 420,
-                borderRadius: '50%',
-                border: '10px solid #9FB89D',
-                backgroundColor: '#9FB89D',
-                marginBottom: 25,
-                boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)',
+                width: '100%',
+                height: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 160,
-                color: '#fff',
+                background: 'linear-gradient(135deg, #2B3E50 0%, #1a2833 100%)',
+                fontSize: 200,
+                position: 'absolute',
               }}
             >
               🕯️
             </div>
           )}
 
-          {/* Name */}
+          {/* Text Content */}
           <div
             style={{
-              fontSize: 42,
-              fontWeight: 700,
-              textAlign: 'center',
-              color: '#ffffff',
-              marginBottom: 10,
-              lineHeight: 1.1,
-              maxWidth: '90%',
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+              padding: '60px',
             }}
           >
-            {fullName}
-          </div>
-
-          {/* Years */}
-          {years && (
+            {/* "In loving memory of" */}
             <div
               style={{
-                fontSize: 28,
-                color: '#9FB89D',
-                marginBottom: 15,
+                fontSize: 24,
+                color: '#F1C566',
+                fontWeight: 600,
+                marginBottom: 12,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
               }}
             >
-              {years}
+              In loving memory of
             </div>
-          )}
 
-          {/* Memorial text */}
-          <div
-            style={{
-              fontSize: 20,
-              color: '#cccccc',
-              marginTop: 10,
-            }}
-          >
-            In Loving Memory
+            {/* Full Name */}
+            <div
+              style={{
+                fontSize: fullName.length > 20 ? 52 : 64,
+                fontWeight: 700,
+                color: '#ffffff',
+                lineHeight: 1.1,
+                marginBottom: 16,
+                textShadow: '2px 2px 8px rgba(0,0,0,0.5)',
+              }}
+            >
+              {fullName}
+            </div>
+
+            {/* Date Range */}
+            {dateRange && (
+              <div
+                style={{
+                  fontSize: 32,
+                  color: '#ffffff',
+                  fontWeight: 500,
+                }}
+              >
+                {dateRange}
+              </div>
+            )}
           </div>
         </div>
       ),
       {
-        width: 600,
-        height: 600,
+        width: 1080,
+        height: 1080,
+        headers: {
+          'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+        },
       }
     );
   } catch (error) {
