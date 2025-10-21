@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
+import { toSlugFromFullName, ensureUniqueSlug } from '@/lib/slug';
 import type { CreateMemorialRequest } from '@/types/memorial';
 
 /**
@@ -131,6 +132,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Generate unique slug from full name
+    const fullName = `${body.first_name} ${body.last_name}`;
+    const baseSlug = toSlugFromFullName(fullName);
+    const birthYear = body.date_of_birth ? new Date(body.date_of_birth).getFullYear() : undefined;
+    const uniqueSlug = await ensureUniqueSlug(baseSlug, { birthYear });
+
     // Create memorial
     const { data: memorial, error } = await supabase
       .from('memorials')
@@ -159,6 +166,7 @@ export async function POST(req: Request) {
         allow_photos: body.allow_photos !== undefined ? body.allow_photos : true,
         status: body.status || 'published',
         published_at: body.status === 'published' ? new Date().toISOString() : null,
+        slug: uniqueSlug, // Use our robust slug generation
       })
       .select()
       .single();

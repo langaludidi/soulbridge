@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
+import { toSlugFromFullName, ensureUniqueSlug } from '@/lib/slug';
 import type { UpdateMemorialRequest } from '@/types/memorial';
 
 /**
@@ -108,10 +109,10 @@ export async function PATCH(
       );
     }
 
-    // Check ownership
+    // Check ownership and get existing memorial data
     const { data: existing, error: fetchError } = await supabase
       .from('memorials')
-      .select('profile_id')
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -143,8 +144,32 @@ export async function PATCH(
     });
 
     // Set published_at if changing status to published
-    if (body.status === 'published' && existing.profile_id !== profile.id) {
+    if (body.status === 'published' && existing.status !== 'published') {
       updates.published_at = new Date().toISOString();
+    }
+
+    // Regenerate slug if name changed
+    const firstNameChanged = body.first_name && body.first_name !== existing.first_name;
+    const lastNameChanged = body.last_name && body.last_name !== existing.last_name;
+
+    if (firstNameChanged || lastNameChanged) {
+      const newFirstName = body.first_name || existing.first_name;
+      const newLastName = body.last_name || existing.last_name;
+      const fullName = `${newFirstName} ${newLastName}`;
+
+      const baseSlug = toSlugFromFullName(fullName);
+      const birthYear = body.date_of_birth
+        ? new Date(body.date_of_birth).getFullYear()
+        : existing.date_of_birth
+        ? new Date(existing.date_of_birth).getFullYear()
+        : undefined;
+
+      const uniqueSlug = await ensureUniqueSlug(baseSlug, {
+        memorialId: id,
+        birthYear,
+      });
+
+      updates.slug = uniqueSlug;
     }
 
     const { data: memorial, error } = await supabase
