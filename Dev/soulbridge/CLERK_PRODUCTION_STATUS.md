@@ -12,7 +12,7 @@
 | Setting | Value |
 |---------|-------|
 | **Instance Type** | Production (Live) |
-| **Publishable Key** | `pk_live_Y2xlcmsuc291bGJyaWRnZS5jby56YSQ` |
+| **Publishable Key** | `pk_live_[CONFIGURED]` |
 | **Secret Key** | `sk_live_4cbo...` (secured) |
 | **Frontend API** | https://clerk.soulbridge.co.za |
 | **Backend API** | https://api.clerk.com |
@@ -92,7 +92,7 @@ https://soulbridge.co.za/api/webhooks/clerk
 
 **Signing Secret:**
 ```
-whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy
+whsec_[YOUR_WEBHOOK_SECRET]
 ```
 
 **Events Subscribed:**

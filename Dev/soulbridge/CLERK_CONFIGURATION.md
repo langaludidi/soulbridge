@@ -6,7 +6,7 @@
 
 ## Current Configuration Status
 
-✅ **Webhook Secret Confirmed:** `whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy`
+✅ **Webhook Secret Confirmed:** `whsec_[YOUR_WEBHOOK_SECRET]`
 
 ---
 
@@ -73,7 +73,7 @@ https://soulbridge.co.za/api/webhooks/clerk
 
 #### Signing Secret
 ```
-whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy
+whsec_[YOUR_WEBHOOK_SECRET]
 ```
 
 #### Events to Subscribe
@@ -126,7 +126,7 @@ All set correctly ✅
 ```bash
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZGl2ZXJzZS1jcmF3ZGFkLTUzLmNsZXJrLmFjY291bnRzLmRldiQ
 CLERK_SECRET_KEY=sk_test_GDeDbnISTS01ViPRP18Kw0ODOEog0YwC9bgbEIybL6
-CLERK_WEBHOOK_SECRET=whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy
+CLERK_WEBHOOK_SECRET=whsec_[YOUR_WEBHOOK_SECRET]
 ```
 
 ### Local Development
@@ -307,7 +307,7 @@ Try accessing protected routes without authentication:
 
 ## Next Steps
 
-1. ✅ Verify webhook secret matches: `whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy`
+1. ✅ Verify webhook secret matches: `whsec_[YOUR_WEBHOOK_SECRET]`
 2. ⚠️ Add `soulbridge.co.za` to authorized domains in Clerk
 3. ⚠️ Verify webhook URL in Clerk: `https://soulbridge.co.za/api/webhooks/clerk`
 4. ⚠️ Test complete sign-up flow
@@ -378,7 +378,7 @@ Logs user sign-in:
 - ✅ Environment variables set in Vercel production:
   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
   - `CLERK_SECRET_KEY`
-  - `CLERK_WEBHOOK_SECRET` (matches: `whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy`)
+  - `CLERK_WEBHOOK_SECRET` (matches: `whsec_[YOUR_WEBHOOK_SECRET]`)
 - ✅ User sync handlers implemented (create, update, delete, session)
 - ✅ Auto Lite plan creation on user sign-up
 
@@ -401,7 +401,7 @@ Complete these steps in your Clerk Dashboard at https://dashboard.clerk.com:
 
 3. **Set Up Webhook** (Webhooks):
    - Endpoint URL: `https://soulbridge.co.za/api/webhooks/clerk`
-   - Signing Secret: `whsec_2U13AwdQyOFOVqsNfNx8VR+xlSI2bNfy`
+   - Signing Secret: `whsec_[YOUR_WEBHOOK_SECRET]`
    - Events: `user.created`, `user.updated`, `user.deleted`, `session.created`
 
 4. **Verify Application URLs** (Configure > General):
