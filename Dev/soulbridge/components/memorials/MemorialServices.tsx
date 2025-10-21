@@ -112,7 +112,7 @@ export default function MemorialServices({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Memorial Services</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Services</h2>
         {isOwner && onAdd && (
           <button
             onClick={onAdd}

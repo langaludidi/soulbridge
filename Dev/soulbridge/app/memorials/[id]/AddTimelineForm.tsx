@@ -124,7 +124,7 @@ export default function AddTimelineForm({ memorialId, onSuccess }: AddTimelineFo
         <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
-        Add Timeline Event
+        Add Event
       </button>
 
       {showModal && (
@@ -133,7 +133,7 @@ export default function AddTimelineForm({ memorialId, onSuccess }: AddTimelineFo
             {/* Header */}
             <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Add Timeline Event
+                Add Event
               </h3>
               <button
                 onClick={() => setShowModal(false)}
