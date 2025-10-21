@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { getProfileByClerkId } from '@/lib/utils';
+import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
 
 const supabase = getSupabaseAdmin();
 
