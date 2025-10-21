@@ -374,7 +374,7 @@ export default async function DashboardPage() {
               {memorials.data.map((memorial: any) => (
                 <Link
                   key={memorial.id}
-                  href={`/memorials/${memorial.id}`}
+                  href={memorial.slug ? `/${memorial.slug}` : `/memorials/${memorial.id}`}
                   className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
                 >
                   <h3 className="font-semibold text-gray-900 dark:text-white">

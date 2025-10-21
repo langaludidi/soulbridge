@@ -132,7 +132,7 @@ export default function BrowsePage() {
             {filteredMemorials.map((memorial) => (
               <Link
                 key={memorial.id}
-                href={`/memorials/${memorial.id}`}
+                href={memorial.slug ? `/${memorial.slug}` : `/memorials/${memorial.id}`}
                 className="block bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden"
               >
                 <div className="p-6">
