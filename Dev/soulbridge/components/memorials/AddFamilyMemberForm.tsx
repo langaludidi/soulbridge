@@ -27,6 +27,7 @@ export default function AddFamilyMemberForm({
   onCancel,
 }: AddFamilyMemberFormProps) {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState<FamilyMember>({
     full_name: '',
@@ -37,6 +38,8 @@ export default function AddFamilyMemberForm({
     is_living: true,
     description: '',
   });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>('');
 
   useEffect(() => {
     if (editingMember) {
@@ -49,8 +52,48 @@ export default function AddFamilyMemberForm({
         is_living: editingMember.is_living ?? true,
         description: editingMember.description || '',
       });
+      setPhotoPreview(editingMember.photo_url || '');
     }
   }, [editingMember]);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPhotoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadPhoto = async (): Promise<string | null> => {
+    if (!photoFile) return formData.photo_url || null;
+
+    setUploading(true);
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', photoFile);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload photo');
+      }
+
+      return data.url;
+    } catch (err: any) {
+      throw new Error(`Photo upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -69,14 +112,20 @@ export default function AddFamilyMemberForm({
     setError('');
 
     try {
+      // Upload photo if new file selected
+      let photo_url = formData.photo_url;
+      if (photoFile) {
+        photo_url = await uploadPhoto() || '';
+      }
+
       const url = editingMember
         ? '/api/family-members'
         : '/api/family-members';
 
       const method = editingMember ? 'PATCH' : 'POST';
       const body = editingMember
-        ? { id: editingMember.id, ...formData }
-        : { memorial_id: memorialId, ...formData };
+        ? { id: editingMember.id, ...formData, photo_url }
+        : { memorial_id: memorialId, ...formData, photo_url };
 
       const response = await fetch(url, {
         method,
@@ -179,19 +228,42 @@ export default function AddFamilyMemberForm({
               </select>
             </div>
 
-            {/* Photo URL */}
+            {/* Photo Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Photo URL (Optional)
+                Photo (Optional)
               </label>
+              {photoPreview && (
+                <div className="mb-3 relative w-32 h-32 rounded-lg overflow-hidden">
+                  <img
+                    src={photoPreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhotoFile(null);
+                      setPhotoPreview('');
+                      setFormData(prev => ({ ...prev, photo_url: '' }));
+                    }}
+                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full hover:bg-red-700"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              )}
               <input
-                type="url"
-                name="photo_url"
-                value={formData.photo_url}
-                onChange={handleChange}
-                placeholder="https://example.com/photo.jpg"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#2B3E50] file:text-white hover:file:bg-[#243342]"
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Upload a photo (JPEG, PNG, GIF)
+              </p>
             </div>
 
             {/* Date of Birth */}
