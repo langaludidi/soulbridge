@@ -57,7 +57,7 @@ interface Memorial {
   date_of_birth?: string;
   date_of_death?: string;
   profile_image_url?: string;
-  hero_photo_url?: string;
+  cover_image_url?: string;
   obituary?: string;
 }
 
@@ -143,7 +143,7 @@ export default async function OrderOfServicePreviewPage({
   // Fetch memorial with obituary
   const { data: memorial, error: memorialError } = await supabase
     .from('memorials')
-    .select('id, full_name, date_of_birth, date_of_death, profile_image_url, hero_photo_url, obituary')
+    .select('id, full_name, date_of_birth, date_of_death, profile_image_url, cover_image_url, obituary')
     .eq('id', id)
     .single();
 
@@ -256,11 +256,11 @@ export default async function OrderOfServicePreviewPage({
           )}
 
           {/* Profile Picture */}
-          {(memorial.hero_photo_url || memorial.profile_image_url) && (
+          {(memorial.cover_image_url || memorial.profile_image_url) && (
             <div className="mb-8 flex justify-center">
               <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-current shadow-2xl">
                 <img
-                  src={memorial.hero_photo_url || memorial.profile_image_url}
+                  src={memorial.cover_image_url || memorial.profile_image_url}
                   alt={memorial.full_name}
                   className="w-full h-full object-cover"
                 />
