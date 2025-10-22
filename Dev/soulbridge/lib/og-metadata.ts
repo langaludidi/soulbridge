@@ -2,13 +2,11 @@ import { Metadata } from 'next';
 import { getSupabaseAdmin } from './supabase/client';
 
 interface MemorialMetadataOptions {
-  memorialId: string;
-  ogImageStyle?: 'elegant' | 'traditional' | 'minimalist' | 'modern';
+  slug: string;
 }
 
 export async function generateMemorialMetadata({
-  memorialId,
-  ogImageStyle = 'elegant',
+  slug,
 }: MemorialMetadataOptions): Promise<Metadata> {
   try {
     const supabase = getSupabaseAdmin();
@@ -16,7 +14,7 @@ export async function generateMemorialMetadata({
     const { data: memorial, error } = await supabase
       .from('memorials')
       .select('*')
-      .eq('id', memorialId)
+      .eq('slug', slug)
       .single();
 
     if (error || !memorial) {
@@ -27,43 +25,64 @@ export async function generateMemorialMetadata({
     }
 
     const fullName = memorial.full_name || 'In Loving Memory';
-    const birthYear = memorial.date_of_birth ? new Date(memorial.date_of_birth).getFullYear() : '';
-    const deathYear = memorial.date_of_death ? new Date(memorial.date_of_death).getFullYear() : '';
-    const years = birthYear && deathYear ? `${birthYear} - ${deathYear}` : '';
-    const memorialUrl = `https://soulbridge.co.za/memorials/${memorial.id}`;
-    const ogImageUrl = `https://soulbridge.co.za/api/og/memorial/${memorial.id}?style=${ogImageStyle}`;
+
+    // Format dates
+    const formatDate = (dateString: string | null) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const birthDate = memorial.date_of_birth ? formatDate(memorial.date_of_birth) : '';
+    const deathDate = memorial.date_of_death ? formatDate(memorial.date_of_death) : '';
+
+    // URLs using slug
+    const memorialUrl = `https://soulbridge.co.za/${memorial.slug}`;
+    const ogImageUrl = `https://soulbridge.co.za/api/og/${memorial.slug}`;
     const squareOgImageUrl = `https://soulbridge.co.za/api/og/memorial/${memorial.id}/square`;
 
-    // Craft dignified description from biography or use default
-    const biography = memorial.biography || '';
-    const shortBio = biography.length > 100 ? biography.substring(0, 100) + '...' : biography;
+    // Add cache-busting with updated timestamp
+    const cacheBuster = memorial.updated_at ? `?v=${new Date(memorial.updated_at).getTime()}` : '';
 
-    const description = shortBio
-      ? `${shortBio} - Visit ${fullName.split(' ')[0]}'s memorial to light a candle, share memories, and celebrate their life.`
-      : `In loving memory of ${fullName} ${years ? `(${years})` : ''}. Light a virtual candle, share memories and tributes, and celebrate their remarkable life.`;
+    // Craft description
+    let description = '';
+    if (birthDate && deathDate) {
+      description = `Born ${birthDate}, passed ${deathDate}. `;
+    }
+
+    // Add funeral info if available
+    if (memorial.funeral_date) {
+      const funeralDate = new Date(memorial.funeral_date);
+      const dayName = funeralDate.toLocaleDateString('en-US', { weekday: 'long' });
+      const formattedDate = formatDate(memorial.funeral_date);
+      const time = memorial.funeral_time ? ` at ${memorial.funeral_time}` : '';
+      const location = memorial.funeral_location ? ` ${memorial.funeral_location}` : '';
+      description += `Funeral: ${dayName}, ${formattedDate}${time}${location}. `;
+    }
+
+    description += `Light a candle, share memories, and celebrate ${fullName.split(' ')[0]}'s remarkable life.`;
 
     return {
-      title: `${fullName} ${years ? `(${years})` : ''} - In Loving Memory`,
+      title: `${fullName} — In Loving Memory`,
       description,
 
       // Open Graph tags (Facebook, LinkedIn, WhatsApp)
       openGraph: {
         type: 'profile',
         url: memorialUrl,
-        title: `In Loving Memory of ${fullName}`,
+        title: `${fullName} — In Loving Memory`,
         description,
-        siteName: 'SoulBridge Memorial Platform',
+        siteName: 'SoulBridge',
         images: [
           {
-            url: ogImageUrl,
+            url: ogImageUrl + cacheBuster,
             width: 1200,
             height: 630,
             alt: `Memorial for ${fullName}`,
             type: 'image/png',
           },
-          // Add square version for WhatsApp
           {
-            url: squareOgImageUrl,
+            url: squareOgImageUrl + cacheBuster,
             width: 600,
             height: 600,
             alt: `Memorial for ${fullName}`,
@@ -78,9 +97,9 @@ export async function generateMemorialMetadata({
         card: 'summary_large_image',
         site: '@soulbridge',
         creator: '@soulbridge',
-        title: `In Loving Memory of ${fullName}`,
+        title: `${fullName} — In Loving Memory`,
         description,
-        images: [ogImageUrl],
+        images: [ogImageUrl + cacheBuster],
       },
 
       // Additional metadata
@@ -97,11 +116,11 @@ export async function generateMemorialMetadata({
 
       // Robots
       robots: {
-        index: memorial.status === 'published',
-        follow: memorial.status === 'published',
+        index: memorial.status === 'published' && memorial.visibility === 'public',
+        follow: memorial.status === 'published' && memorial.visibility === 'public',
         googleBot: {
-          index: memorial.status === 'published',
-          follow: memorial.status === 'published',
+          index: memorial.status === 'published' && memorial.visibility === 'public',
+          follow: memorial.status === 'published' && memorial.visibility === 'public',
           'max-image-preview': 'large',
           'max-snippet': -1,
         },
@@ -130,14 +149,14 @@ export async function generateMemorialMetadata({
 }
 
 // Generate structured data (JSON-LD) for SEO
-export async function generateMemorialStructuredData(memorialId: string) {
+export async function generateMemorialStructuredData(slug: string) {
   try {
     const supabase = getSupabaseAdmin();
 
     const { data: memorial, error } = await supabase
       .from('memorials')
       .select('*')
-      .eq('id', memorialId)
+      .eq('slug', slug)
       .single();
 
     if (error || !memorial) {
@@ -147,6 +166,7 @@ export async function generateMemorialStructuredData(memorialId: string) {
     const fullName = memorial.full_name || '';
     const birthDate = memorial.date_of_birth || '';
     const deathDate = memorial.date_of_death || '';
+    const memorialUrl = `https://soulbridge.co.za/${memorial.slug}`;
 
     return {
       '@context': 'https://schema.org',
@@ -156,20 +176,19 @@ export async function generateMemorialStructuredData(memorialId: string) {
       deathDate,
       image: memorial.profile_image_url || '',
       description: memorial.biography || memorial.obituary || '',
-      url: `https://soulbridge.co.za/memorials/${memorial.id}`,
+      url: memorialUrl,
       memorialLocation: memorial.burial_location || undefined,
-      // Add more structured data as needed
       '@graph': [
         {
           '@type': 'WebPage',
-          '@id': `https://soulbridge.co.za/memorials/${memorial.id}`,
-          url: `https://soulbridge.co.za/memorials/${memorial.id}`,
+          '@id': memorialUrl,
+          url: memorialUrl,
           name: `${fullName} Memorial`,
           description: `Memorial page for ${fullName}`,
           inLanguage: 'en-ZA',
           potentialAction: {
             '@type': 'ViewAction',
-            target: `https://soulbridge.co.za/memorials/${memorial.id}`,
+            target: memorialUrl,
           },
         },
       ],
