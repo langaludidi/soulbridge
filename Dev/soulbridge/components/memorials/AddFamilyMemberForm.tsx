@@ -166,6 +166,13 @@ export default function AddFamilyMemberForm({
     { value: 'grandchild', label: 'Grandchild' },
     { value: 'grandson', label: 'Grandson' },
     { value: 'granddaughter', label: 'Granddaughter' },
+    { value: 'aunt', label: 'Aunt' },
+    { value: 'uncle', label: 'Uncle' },
+    { value: 'niece', label: 'Niece' },
+    { value: 'nephew', label: 'Nephew' },
+    { value: 'cousin', label: 'Cousin' },
+    { value: 'great-grandparent', label: 'Great-Grandparent' },
+    { value: 'great-grandchild', label: 'Great-Grandchild' },
   ];
 
   return (

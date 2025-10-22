@@ -30,7 +30,7 @@ export default function FamilyTree({
   onDelete,
 }: FamilyTreeProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(['parents', 'spouse', 'children'])
+    new Set(['parent', 'spouse', 'child'])
   );
 
   const toggleSection = (section: string) => {
@@ -55,14 +55,93 @@ export default function FamilyTree({
     return acc;
   }, {} as Record<string, FamilyMember[]>);
 
-  // Define sections in order
+  // Define sections in order with colors
   const sections = [
-    { key: 'grandparent', title: 'Grandparents', icon: '👴👵' },
-    { key: 'parent', title: 'Parents', icon: '👨👩', aliases: ['mother', 'father'] },
-    { key: 'spouse', title: 'Spouse', icon: '💑', aliases: ['husband', 'wife', 'partner'] },
-    { key: 'sibling', title: 'Siblings', icon: '👫', aliases: ['brother', 'sister'] },
-    { key: 'child', title: 'Children', icon: '👶', aliases: ['son', 'daughter'] },
-    { key: 'grandchild', title: 'Grandchildren', icon: '👼' },
+    {
+      key: 'great-grandparent',
+      title: 'Great-Grandparents',
+      icon: '👴👵',
+      color: 'border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20',
+      headerColor: 'bg-purple-100 dark:bg-purple-900/30'
+    },
+    {
+      key: 'grandparent',
+      title: 'Grandparents',
+      icon: '👴👵',
+      aliases: ['grandmother', 'grandfather'],
+      color: 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20',
+      headerColor: 'bg-blue-100 dark:bg-blue-900/30'
+    },
+    {
+      key: 'parent',
+      title: 'Parents',
+      icon: '👨👩',
+      aliases: ['mother', 'father'],
+      color: 'border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20',
+      headerColor: 'bg-indigo-100 dark:bg-indigo-900/30'
+    },
+    {
+      key: 'aunt',
+      title: 'Aunts & Uncles',
+      icon: '👨‍👩‍👧‍👦',
+      aliases: ['uncle'],
+      color: 'border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20',
+      headerColor: 'bg-teal-100 dark:bg-teal-900/30'
+    },
+    {
+      key: 'spouse',
+      title: 'Spouse',
+      icon: '💑',
+      aliases: ['husband', 'wife', 'partner'],
+      color: 'border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20',
+      headerColor: 'bg-rose-100 dark:bg-rose-900/30'
+    },
+    {
+      key: 'sibling',
+      title: 'Siblings',
+      icon: '👫',
+      aliases: ['brother', 'sister'],
+      color: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20',
+      headerColor: 'bg-amber-100 dark:bg-amber-900/30'
+    },
+    {
+      key: 'child',
+      title: 'Children',
+      icon: '👶',
+      aliases: ['son', 'daughter'],
+      color: 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20',
+      headerColor: 'bg-green-100 dark:bg-green-900/30'
+    },
+    {
+      key: 'niece',
+      title: 'Nieces & Nephews',
+      icon: '👧👦',
+      aliases: ['nephew'],
+      color: 'border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-900/20',
+      headerColor: 'bg-cyan-100 dark:bg-cyan-900/30'
+    },
+    {
+      key: 'grandchild',
+      title: 'Grandchildren',
+      icon: '👼',
+      aliases: ['grandson', 'granddaughter'],
+      color: 'border-lime-200 dark:border-lime-800 bg-lime-50 dark:bg-lime-900/20',
+      headerColor: 'bg-lime-100 dark:bg-lime-900/30'
+    },
+    {
+      key: 'great-grandchild',
+      title: 'Great-Grandchildren',
+      icon: '👶',
+      color: 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20',
+      headerColor: 'bg-emerald-100 dark:bg-emerald-900/30'
+    },
+    {
+      key: 'cousin',
+      title: 'Cousins',
+      icon: '👥',
+      color: 'border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20',
+      headerColor: 'bg-orange-100 dark:bg-orange-900/30'
+    },
   ];
 
   const formatDate = (dateString: string) => {
@@ -73,7 +152,14 @@ export default function FamilyTree({
     });
   };
 
-  const getMembersForSection = (section: { key: string; aliases?: string[] }) => {
+  const getMembersForSection = (section: {
+    key: string;
+    aliases?: string[];
+    title: string;
+    icon: string;
+    color: string;
+    headerColor: string;
+  }) => {
     const keys = [section.key, ...(section.aliases || [])];
     const members: FamilyMember[] = [];
     keys.forEach(key => {
@@ -134,12 +220,12 @@ export default function FamilyTree({
           return (
             <div
               key={section.key}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+              className={`border-2 rounded-lg overflow-hidden ${section.color}`}
             >
               {/* Section Header */}
               <button
                 onClick={() => toggleSection(section.key)}
-                className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className={`w-full flex items-center justify-between p-4 ${section.headerColor} hover:opacity-90 transition-all`}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{section.icon}</span>
