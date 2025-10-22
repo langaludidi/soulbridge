@@ -201,6 +201,30 @@ export default async function SlugMemorialPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  // Reserved paths that should not be treated as memorial slugs
+  const reservedPaths = [
+    'dashboard',
+    'create-memorial',
+    'browse',
+    'settings',
+    'about',
+    'features',
+    'pricing',
+    'checkout',
+    'payment',
+    'api',
+    'memorials',
+    '_next',
+    'favicon.ico',
+    'logo.png',
+    'logo-512.png',
+  ];
+
+  if (reservedPaths.includes(slug.toLowerCase())) {
+    notFound();
+  }
+
   const memorial = await getMemorialBySlug(slug);
 
   if (!memorial) {
