@@ -57,6 +57,8 @@ interface Memorial {
   date_of_birth?: string;
   date_of_death?: string;
   profile_image_url?: string;
+  hero_photo_url?: string;
+  obituary?: string;
 }
 
 const THEME_STYLES = {
@@ -138,10 +140,10 @@ export default async function OrderOfServicePreviewPage({
   const { id } = await params;
   const supabase = getSupabaseAdmin();
 
-  // Fetch memorial
+  // Fetch memorial with obituary
   const { data: memorial, error: memorialError } = await supabase
     .from('memorials')
-    .select('id, full_name, date_of_birth, date_of_death, profile_image_url')
+    .select('id, full_name, date_of_birth, date_of_death, profile_image_url, hero_photo_url, obituary')
     .eq('id', id)
     .single();
 
@@ -253,6 +255,19 @@ export default async function OrderOfServicePreviewPage({
             </p>
           )}
 
+          {/* Profile Picture */}
+          {(memorial.hero_photo_url || memorial.profile_image_url) && (
+            <div className="mb-8 flex justify-center">
+              <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-current shadow-2xl">
+                <img
+                  src={memorial.hero_photo_url || memorial.profile_image_url}
+                  alt={memorial.full_name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Name */}
           <h2 className="text-6xl font-bold mb-4 tracking-tight">
             {memorial.full_name}
@@ -290,7 +305,34 @@ export default async function OrderOfServicePreviewPage({
         </div>
       </div>
 
-      {/* Program Page */}
+      {/* Page 1: Obituary (if exists) */}
+      {memorial.obituary && (
+        <div className="print-page bg-white p-16">
+          <div className={`border-4 ${theme.accentColor} p-12 min-h-full`}>
+            {/* Header */}
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-serif text-gray-900 mb-2">Obituary</h2>
+              <h3 className="text-3xl font-semibold text-gray-800 mb-4">{memorial.full_name}</h3>
+              {memorial.date_of_birth && memorial.date_of_death && (
+                <p className="text-lg text-gray-600">
+                  {new Date(memorial.date_of_birth).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  {' - '}
+                  {new Date(memorial.date_of_death).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </p>
+              )}
+            </div>
+
+            {/* Obituary Text */}
+            <div className="prose prose-lg max-w-none text-gray-800 leading-relaxed">
+              <div className="whitespace-pre-wrap text-justify" style={{ columnCount: memorial.obituary.length > 1000 ? 2 : 1, columnGap: '3rem' }}>
+                {memorial.obituary}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Page 2: Order of Service */}
       <div className="print-page bg-white p-16">
         <div className={`border-4 ${theme.accentColor} p-12 min-h-full`}>
           {/* Header */}
