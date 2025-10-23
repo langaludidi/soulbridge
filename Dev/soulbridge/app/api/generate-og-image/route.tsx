@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ImageResponse } from '@vercel/og';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 
-export const runtime = 'nodejs'; // Use Node.js runtime for more flexibility
-export const maxDuration = 60; // 60 seconds for generation + upload
+export const runtime = 'edge'; // @vercel/og requires Edge runtime
+export const maxDuration = 25; // 25 seconds (Edge runtime limit)
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,11 +52,17 @@ export async function POST(request: NextRequest) {
     let profileImage = '';
     if (profileImageUrl) {
       try {
-        const imageResponse = await fetch(profileImageUrl);
+        const imageResponse = await fetch(profileImageUrl, { cache: 'force-cache' });
         if (imageResponse.ok) {
           const arrayBuffer = await imageResponse.arrayBuffer();
           if (arrayBuffer.byteLength < 5 * 1024 * 1024) {
-            const base64 = Buffer.from(arrayBuffer).toString('base64');
+            // Convert to base64 in Edge runtime
+            const bytes = new Uint8Array(arrayBuffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            const base64 = btoa(binary);
             const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
             profileImage = `data:${contentType};base64,${base64}`;
           }
@@ -183,15 +189,15 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Convert ImageResponse to buffer
+    // Convert ImageResponse to blob for upload
     const imageBuffer = await ogImage.arrayBuffer();
-    const buffer = Buffer.from(imageBuffer);
+    const blob = new Blob([imageBuffer], { type: 'image/png' });
 
     // Upload to Supabase Storage
     const fileName = `og-images/${memorialId}.png`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('memorial-media')
-      .upload(fileName, buffer, {
+      .upload(fileName, blob, {
         contentType: 'image/png',
         upsert: true, // Overwrite if exists
       });
