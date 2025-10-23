@@ -49,7 +49,7 @@ export async function GET(
     }
 
     const fullName = memorial.full_name || 'In Loving Memory';
-    const profileImage = memorial.hero_photo_url || memorial.profile_image_url || '';
+    const profileImage = memorial.cover_image_url || memorial.profile_image_url || '';
 
     // Format dates
     const formatDate = (dateString: string | null) => {
