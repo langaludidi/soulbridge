@@ -51,9 +51,27 @@ export async function GET(
     const fullName = memorial.full_name || 'In Loving Memory';
     const profileImageUrl = memorial.cover_image_url || memorial.profile_image_url || '';
 
-    // Use image URL directly - @vercel/og can fetch external images
-    // Skip base64 conversion for better performance
-    const profileImage = profileImageUrl;
+    // Satori REQUIRES base64 data URLs - external URLs don't work
+    // With 25s timeout, we have enough time for conversion
+    let profileImage = '';
+    if (profileImageUrl) {
+      try {
+        const imageResponse = await fetch(profileImageUrl, {
+          cache: 'force-cache',
+        });
+
+        if (imageResponse.ok) {
+          const arrayBuffer = await imageResponse.arrayBuffer();
+          if (arrayBuffer.byteLength < 5 * 1024 * 1024) { // Max 5MB
+            const base64 = Buffer.from(arrayBuffer).toString('base64');
+            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+            profileImage = `data:${contentType};base64,${base64}`;
+          }
+        }
+      } catch (error) {
+        console.error('[OG] Image fetch failed:', error);
+      }
+    }
 
     // Format dates
     const formatDate = (dateString: string | null) => {
