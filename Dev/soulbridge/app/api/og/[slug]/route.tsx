@@ -55,18 +55,35 @@ export async function GET(
     let profileImage = '';
     if (profileImageUrl) {
       try {
-        const imageResponse = await fetch(profileImageUrl);
+        console.log('[OG] Fetching image:', profileImageUrl);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+        const imageResponse = await fetch(profileImageUrl, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Vercel-OG-Image-Generator',
+          },
+        });
+        clearTimeout(timeoutId);
+
+        console.log('[OG] Fetch status:', imageResponse.status);
+
         if (imageResponse.ok) {
           const arrayBuffer = await imageResponse.arrayBuffer();
+          console.log('[OG] Image size:', arrayBuffer.byteLength, 'bytes');
           const base64 = Buffer.from(arrayBuffer).toString('base64');
           const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
           profileImage = `data:${contentType};base64,${base64}`;
+          console.log('[OG] Successfully converted to base64');
         } else {
-          console.error('Failed to fetch image:', imageResponse.status, profileImageUrl);
+          console.error('[OG] Failed to fetch image:', imageResponse.status, imageResponse.statusText);
         }
       } catch (error) {
-        console.error('Error fetching profile image:', error);
+        console.error('[OG] Error fetching profile image:', error instanceof Error ? error.message : error);
       }
+    } else {
+      console.log('[OG] No profile image URL provided');
     }
 
     // Format dates
