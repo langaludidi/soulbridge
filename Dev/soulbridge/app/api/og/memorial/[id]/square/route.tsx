@@ -25,36 +25,9 @@ export async function GET(
     const fullName = memorial.full_name || 'In Loving Memory';
     const profileImageUrl = memorial.cover_image_url || memorial.profile_image_url || '';
 
-    // Satori requires base64 data URLs - fetch and convert from Supabase Storage
-    let profileImage = '';
-    if (profileImageUrl) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-        const imageResponse = await fetch(profileImageUrl, {
-          signal: controller.signal,
-          // Optimize caching
-          cache: 'force-cache',
-        });
-        clearTimeout(timeoutId);
-
-        if (imageResponse.ok) {
-          const arrayBuffer = await imageResponse.arrayBuffer();
-          // Check size to avoid memory issues (max 5MB)
-          if (arrayBuffer.byteLength > 5 * 1024 * 1024) {
-            console.error('[OG Square] Image too large:', arrayBuffer.byteLength);
-          } else {
-            const base64 = Buffer.from(arrayBuffer).toString('base64');
-            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
-            profileImage = `data:${contentType};base64,${base64}`;
-          }
-        }
-      } catch (error) {
-        // Silently fall back to candle emoji if image fetch fails
-        console.error('[OG Square] Image fetch failed:', error instanceof Error ? error.message : 'Unknown error');
-      }
-    }
+    // Use image URL directly - @vercel/og can fetch external images
+    // Skip base64 conversion for better performance
+    const profileImage = profileImageUrl;
 
     // Format dates
     const formatDate = (dateString: string | null) => {
