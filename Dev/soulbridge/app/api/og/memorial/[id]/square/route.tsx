@@ -25,23 +25,9 @@ export async function GET(
     const fullName = memorial.full_name || 'In Loving Memory';
     const profileImageUrl = memorial.cover_image_url || memorial.profile_image_url || '';
 
-    // Fetch and convert image to base64 for Edge runtime compatibility
-    let profileImage = '';
-    if (profileImageUrl) {
-      try {
-        const imageResponse = await fetch(profileImageUrl);
-        if (imageResponse.ok) {
-          const arrayBuffer = await imageResponse.arrayBuffer();
-          const base64 = Buffer.from(arrayBuffer).toString('base64');
-          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
-          profileImage = `data:${contentType};base64,${base64}`;
-        } else {
-          console.error('Failed to fetch image:', imageResponse.status, profileImageUrl);
-        }
-      } catch (error) {
-        console.error('Error fetching profile image:', error);
-      }
-    }
+    // Use external URL directly - Supabase Storage has CORS enabled
+    // @vercel/og can fetch external images with proper CORS headers
+    const profileImage = profileImageUrl;
 
     // Format dates
     const formatDate = (dateString: string | null) => {
