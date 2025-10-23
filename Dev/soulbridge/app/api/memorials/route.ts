@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
 import { toSlugFromFullName, ensureUniqueSlug } from '@/lib/slug';
+import { triggerOGGeneration } from '@/lib/generate-og-helper';
 import type { CreateMemorialRequest } from '@/types/memorial';
 
 /**
@@ -182,6 +183,13 @@ export async function POST(req: Request) {
           code: error.code,
         },
         { status: 500 }
+      );
+    }
+
+    // Trigger OG image generation in background (non-blocking)
+    if (memorial?.id) {
+      triggerOGGeneration(memorial.id).catch(err =>
+        console.error('Background OG generation failed:', err)
       );
     }
 

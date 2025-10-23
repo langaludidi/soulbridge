@@ -1,96 +1,41 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { ImageResponse } from '@vercel/og';
-import { NextRequest } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs'; // Use Node.js runtime for more flexibility
+export const maxDuration = 60; // 60 seconds for generation + upload
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
+    const { memorialId } = await request.json();
+
+    if (!memorialId) {
+      return NextResponse.json({ error: 'Missing memorialId' }, { status: 400 });
+    }
+
     const supabase = getSupabaseAdmin();
 
-    const { data: memorial, error } = await supabase
+    // Fetch memorial data
+    const { data: memorial, error: fetchError } = await supabase
       .from('memorials')
       .select('*')
-      .eq('slug', params.slug)
+      .eq('id', memorialId)
       .single();
 
-    if (error || !memorial) {
-      return new Response('Memorial not found', { status: 404 });
-    }
-
-    // Check for pre-generated OG image (fast path!)
-    if (memorial.og_image_url) {
-      try {
-        const ogImageResponse = await fetch(memorial.og_image_url);
-        if (ogImageResponse.ok) {
-          const imageBuffer = await ogImageResponse.arrayBuffer();
-          return new Response(imageBuffer, {
-            headers: {
-              'Content-Type': 'image/png',
-              'Cache-Control': 'public, max-age=31536000, immutable',
-            },
-          });
-        }
-      } catch (error) {
-        console.error('[OG] Failed to fetch pre-generated image:', error);
-        // Fall through to dynamic generation
-      }
-    }
-
-    // Privacy check - return neutral image for non-public memorials
-    if (memorial.visibility !== 'public') {
-      return new ImageResponse(
-        (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #e9eee8 0%, #c9d1e3 100%)',
-            }}
-          >
-            <div style={{ fontSize: 48, fontWeight: 700, color: '#2B3E50', marginBottom: 20 }}>
-              Private Memorial
-            </div>
-            <div style={{ fontSize: 24, color: '#666' }}>
-              This memorial is private
-            </div>
-          </div>
-        ),
-        { width: 1200, height: 630 }
-      );
+    if (fetchError || !memorial) {
+      return NextResponse.json({ error: 'Memorial not found' }, { status: 404 });
     }
 
     const fullName = memorial.full_name || 'In Loving Memory';
     const profileImageUrl = memorial.cover_image_url || memorial.profile_image_url || '';
 
-    // Satori REQUIRES base64 data URLs - external URLs don't work
-    // With 25s timeout, we have enough time for conversion
-    let profileImage = '';
-    if (profileImageUrl) {
-      try {
-        const imageResponse = await fetch(profileImageUrl, {
-          cache: 'force-cache',
-        });
-
-        if (imageResponse.ok) {
-          const arrayBuffer = await imageResponse.arrayBuffer();
-          if (arrayBuffer.byteLength < 5 * 1024 * 1024) { // Max 5MB
-            const base64 = Buffer.from(arrayBuffer).toString('base64');
-            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
-            profileImage = `data:${contentType};base64,${base64}`;
-          }
-        }
-      } catch (error) {
-        console.error('[OG] Image fetch failed:', error);
-      }
-    }
+    // Generate initials for fallback
+    const initials = fullName
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
 
     // Format dates
     const formatDate = (dateString: string | null) => {
@@ -103,25 +48,26 @@ export async function GET(
     const deathDate = memorial.date_of_death ? formatDate(memorial.date_of_death) : '';
     const dateRange = birthDate && deathDate ? `${birthDate} – ${deathDate}` : '';
 
-    // Format funeral info
-    let funeralInfo = '';
-    if (memorial.funeral_date) {
-      const funeralDate = new Date(memorial.funeral_date);
-      const dayName = funeralDate.toLocaleDateString('en-US', { weekday: 'short' });
-      const formattedDate = formatDate(memorial.funeral_date);
-      const time = memorial.funeral_time || '';
-      funeralInfo = `Funeral: ${dayName}, ${formattedDate}${time ? ' • ' + time : ''}`;
+    // Fetch and convert profile image to base64
+    let profileImage = '';
+    if (profileImageUrl) {
+      try {
+        const imageResponse = await fetch(profileImageUrl);
+        if (imageResponse.ok) {
+          const arrayBuffer = await imageResponse.arrayBuffer();
+          if (arrayBuffer.byteLength < 5 * 1024 * 1024) {
+            const base64 = Buffer.from(arrayBuffer).toString('base64');
+            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+            profileImage = `data:${contentType};base64,${base64}`;
+          }
+        }
+      } catch (error) {
+        console.error('[Generate OG] Image fetch failed:', error);
+      }
     }
 
-    // Generate initials for fallback
-    const initials = fullName
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-
-    return new ImageResponse(
+    // Generate OG image
+    const ogImage = new ImageResponse(
       (
         <div
           style={{
@@ -228,32 +174,62 @@ export async function GET(
                 {dateRange}
               </div>
             )}
-
-            {/* Funeral Info */}
-            {funeralInfo && (
-              <div
-                style={{
-                  fontSize: 24,
-                  color: '#F1C566',
-                  fontWeight: 500,
-                }}
-              >
-                {funeralInfo}
-              </div>
-            )}
           </div>
         </div>
       ),
       {
         width: 1200,
         height: 630,
-        headers: {
-          'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
-        },
       }
     );
+
+    // Convert ImageResponse to buffer
+    const imageBuffer = await ogImage.arrayBuffer();
+    const buffer = Buffer.from(imageBuffer);
+
+    // Upload to Supabase Storage
+    const fileName = `og-images/${memorialId}.png`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('memorial-media')
+      .upload(fileName, buffer, {
+        contentType: 'image/png',
+        upsert: true, // Overwrite if exists
+      });
+
+    if (uploadError) {
+      console.error('[Generate OG] Upload error:', uploadError);
+      return NextResponse.json({ error: 'Failed to upload OG image' }, { status: 500 });
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('memorial-media')
+      .getPublicUrl(fileName);
+
+    const ogImageUrl = urlData.publicUrl;
+
+    // Update memorial with OG image URL
+    const { error: updateError } = await supabase
+      .from('memorials')
+      .update({ og_image_url: ogImageUrl })
+      .eq('id', memorialId);
+
+    if (updateError) {
+      console.error('[Generate OG] Update error:', updateError);
+      return NextResponse.json({ error: 'Failed to update memorial' }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      ogImageUrl,
+      message: 'OG image generated and uploaded successfully',
+    });
+
   } catch (error) {
-    console.error('OG image generation error:', error);
-    return new Response('Failed to generate image', { status: 500 });
+    console.error('[Generate OG] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate OG image', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 }
