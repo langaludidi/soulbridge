@@ -53,58 +53,12 @@ export default function PreviewControls({
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLElement;
 
-        // Pre-process: Convert all computed styles to inline styles
-        // This prevents html2canvas from parsing CSS files with lab() colors
-        const allElements = page.querySelectorAll('*');
-        const originalStyles: Map<Element, string> = new Map();
-
-        allElements.forEach(el => {
-          const htmlEl = el as HTMLElement;
-          // Save original style
-          originalStyles.set(el, htmlEl.getAttribute('style') || '');
-
-          const computedStyle = window.getComputedStyle(el);
-
-          // Apply critical computed styles as inline styles
-          const criticalProps = [
-            'color',
-            'background-color',
-            'background-image',
-            'border-color',
-            'border-top-color',
-            'border-bottom-color',
-            'border-left-color',
-            'border-right-color',
-            'font-family',
-            'font-size',
-            'font-weight',
-            'line-height',
-            'padding',
-            'margin',
-            'width',
-            'height',
-            'display',
-            'position',
-            'top',
-            'left',
-            'right',
-            'bottom'
-          ];
-
-          criticalProps.forEach(prop => {
-            const value = computedStyle.getPropertyValue(prop);
-            if (value && value !== 'none' && value !== 'auto') {
-              htmlEl.style.setProperty(prop, value, 'important');
-            }
-          });
-        });
-
-        // Capture the page as canvas with enhanced CORS handling
+        // Capture the page as canvas with enhanced CORS and stylesheet handling
         const canvas = await html2canvas(page, {
           scale: 2,
           useCORS: true,
           allowTaint: false,
-          logging: false, // Disable logging now
+          logging: false,
           backgroundColor: '#ffffff',
           imageTimeout: 15000,
           onclone: (clonedDoc) => {
@@ -113,19 +67,30 @@ export default function PreviewControls({
             clonedImages.forEach(img => {
               img.crossOrigin = 'anonymous';
             });
-          }
-        });
 
-        // Restore original styles
-        allElements.forEach(el => {
-          const htmlEl = el as HTMLElement;
-          const originalStyle = originalStyles.get(el);
-          if (originalStyle !== undefined) {
-            if (originalStyle) {
-              htmlEl.setAttribute('style', originalStyle);
-            } else {
-              htmlEl.removeAttribute('style');
-            }
+            // Remove all stylesheets to prevent lab() color parsing
+            const styleSheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
+            styleSheets.forEach(sheet => sheet.remove());
+
+            // Apply all computed styles as inline styles
+            const originalElements = page.querySelectorAll('*');
+            const clonedElements = clonedDoc.querySelectorAll('*');
+
+            originalElements.forEach((origEl, index) => {
+              if (index < clonedElements.length) {
+                const clonedEl = clonedElements[index] as HTMLElement;
+                const computedStyle = window.getComputedStyle(origEl);
+
+                // Apply ALL computed styles as inline
+                for (let i = 0; i < computedStyle.length; i++) {
+                  const prop = computedStyle[i];
+                  const value = computedStyle.getPropertyValue(prop);
+                  if (value) {
+                    clonedEl.style.setProperty(prop, value, 'important');
+                  }
+                }
+              }
+            });
           }
         });
 
