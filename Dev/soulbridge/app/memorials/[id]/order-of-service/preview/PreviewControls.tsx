@@ -41,7 +41,20 @@ export default function PreviewControls({
         }
       });
 
-      // CRITICAL: Remove stylesheets from the ORIGINAL document before html2canvas runs
+      // STEP 1: Read ALL computed styles FIRST (while stylesheets are still present)
+      const allElements = document.querySelectorAll('*');
+      const originalStyles = new Map<Element, string>();
+      const computedStylesMap = new Map<Element, CSSStyleDeclaration>();
+
+      allElements.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        // Save original inline style
+        originalStyles.set(el, htmlEl.getAttribute('style') || '');
+        // Save computed style (this has correct values because CSS is still loaded)
+        computedStylesMap.set(el, window.getComputedStyle(el));
+      });
+
+      // STEP 2: Remove stylesheets from the document
       const styleSheets = document.querySelectorAll('link[rel="stylesheet"], style');
       styleSheets.forEach(sheet => {
         removedStylesheets.push({
@@ -52,25 +65,19 @@ export default function PreviewControls({
         sheet.remove();
       });
 
-      // Apply ALL computed styles to ORIGINAL elements as inline
-      const allElements = document.querySelectorAll('*');
-      const originalStyles = new Map<Element, string>();
-
+      // STEP 3: Apply the saved computed styles as inline (now they're RGB from browser)
       allElements.forEach(el => {
         const htmlEl = el as HTMLElement;
-        // Save original inline style
-        originalStyles.set(el, htmlEl.getAttribute('style') || '');
+        const computedStyle = computedStylesMap.get(el);
 
-        const computedStyle = window.getComputedStyle(el);
-
-        // Apply ALL computed styles WITHOUT !important to preserve cascading
-        // This ensures layout is preserved while avoiding lab() colors
-        for (let i = 0; i < computedStyle.length; i++) {
-          const prop = computedStyle[i];
-          const value = computedStyle.getPropertyValue(prop);
-          if (value) {
-            // Don't use !important - let natural cascading work
-            htmlEl.style.setProperty(prop, value);
+        if (computedStyle) {
+          // Apply all computed styles as inline
+          for (let i = 0; i < computedStyle.length; i++) {
+            const prop = computedStyle[i];
+            const value = computedStyle.getPropertyValue(prop);
+            if (value) {
+              htmlEl.style.setProperty(prop, value);
+            }
           }
         }
       });
