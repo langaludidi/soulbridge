@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 interface TributeFormProps {
   memorialId: string;
@@ -18,6 +19,7 @@ export default function TributeForm({ memorialId, onSuccess }: TributeFormProps)
     relationship: '',
     message: '',
   });
+  const { trackTribute } = useAnalytics();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -55,6 +57,9 @@ export default function TributeForm({ memorialId, onSuccess }: TributeFormProps)
         relationship: '',
         message: '',
       });
+
+      // Track tribute analytics
+      trackTribute(memorialId);
 
       // Refresh the page to show the new tribute and update counts
       setTimeout(() => {

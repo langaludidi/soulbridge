@@ -23,14 +23,43 @@ export async function POST(request: NextRequest) {
       console.error('Error incrementing share count:', updateError);
     }
 
-    // Log the share event (if you have a share_events table)
-    // const { error: insertError } = await supabase.from('share_events').insert({
-    //   memorial_id: memorialId,
-    //   platform,
-    //   timestamp: new Date().toISOString(),
-    //   user_ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-    //   user_agent: request.headers.get('user-agent'),
-    // });
+    // Track share analytics event
+    const today = new Date().toISOString().split('T')[0];
+    const userAgent = request.headers.get('user-agent') || null;
+    const referrer = request.headers.get('referer') || `share:${platform}`;
+
+    // Try to increment existing record, or insert new one
+    const { data: existing, error: fetchError } = await supabase
+      .from('memorial_analytics')
+      .select('*')
+      .eq('memorial_id', memorialId)
+      .eq('event_type', 'share')
+      .eq('event_date', today)
+      .single();
+
+    if (existing) {
+      // Update existing record
+      await supabase
+        .from('memorial_analytics')
+        .update({
+          count: existing.count + 1,
+          referrer: referrer,
+          user_agent: userAgent,
+        })
+        .eq('id', existing.id);
+    } else {
+      // Insert new record
+      await supabase
+        .from('memorial_analytics')
+        .insert({
+          memorial_id: memorialId,
+          event_type: 'share',
+          event_date: today,
+          count: 1,
+          referrer: referrer,
+          user_agent: userAgent,
+        });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

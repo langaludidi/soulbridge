@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 interface CandleFormProps {
   memorialId: string;
@@ -17,6 +18,7 @@ export default function CandleForm({ memorialId, onSuccess }: CandleFormProps) {
     message: '',
     candle_type: 'white',
   });
+  const { trackCandle } = useAnalytics();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -53,6 +55,9 @@ export default function CandleForm({ memorialId, onSuccess }: CandleFormProps) {
         message: '',
         candle_type: 'white',
       });
+
+      // Track candle analytics
+      trackCandle(memorialId);
 
       // Refresh the page to show the new candle and update counts
       setTimeout(() => {

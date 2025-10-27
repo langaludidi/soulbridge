@@ -18,6 +18,7 @@ import MemorialServicesSection from '@/components/memorials/MemorialServicesSect
 import MediaActionPanel from '@/components/memorials/MediaActionPanel';
 import { generateMemorialMetadata } from '@/lib/og-metadata';
 import type { Metadata } from 'next';
+import AnalyticsTracker from '@/components/analytics/AnalyticsTracker';
 
 async function getMemorialBySlug(slug: string): Promise<Memorial | null> {
   try {
@@ -258,6 +259,9 @@ export default async function SlugMemorialPage({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Analytics Tracking */}
+      <AnalyticsTracker memorialId={id} trackView={true} />
+
       {/* 1. Hero / Identity Section */}
       <div className="relative bg-gradient-to-r from-indigo-900 to-purple-900 text-white">
         {/* Cover Image */}

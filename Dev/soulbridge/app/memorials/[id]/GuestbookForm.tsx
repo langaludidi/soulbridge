@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 interface GuestbookFormProps {
   memorialId: string;
@@ -17,6 +18,7 @@ export default function GuestbookForm({ memorialId }: GuestbookFormProps) {
     location: '',
     message: '',
   });
+  const { trackGuestbook } = useAnalytics();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -54,6 +56,9 @@ export default function GuestbookForm({ memorialId }: GuestbookFormProps) {
         location: '',
         message: '',
       });
+
+      // Track guestbook analytics
+      trackGuestbook(memorialId);
 
       // Refresh page after a short delay
       setTimeout(() => {

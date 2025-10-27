@@ -16,6 +16,7 @@ import StickyActionBar from './StickyActionBar';
 import FamilyTreeSection from '@/components/memorials/FamilyTreeSection';
 import MemorialServicesSection from '@/components/memorials/MemorialServicesSection';
 import MediaActionPanel from '@/components/memorials/MediaActionPanel';
+import AnalyticsTracker from '@/components/analytics/AnalyticsTracker';
 
 async function getMemorial(id: string): Promise<Memorial | null> {
   try {
@@ -212,6 +213,9 @@ export default async function MemorialPage({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Analytics Tracking */}
+      <AnalyticsTracker memorialId={id} trackView={true} />
+
       {/* 1. Hero / Identity Section */}
       <div className="relative bg-gradient-to-r from-indigo-900 to-purple-900 text-white">
         {/* Cover Image */}
