@@ -52,7 +52,7 @@ export default function PreviewControls({
         sheet.remove();
       });
 
-      // Apply all computed styles to ORIGINAL elements as inline
+      // Apply ONLY critical visual styles to ORIGINAL elements as inline
       const allElements = document.querySelectorAll('*');
       const originalStyles = new Map<Element, string>();
 
@@ -63,14 +63,42 @@ export default function PreviewControls({
 
         const computedStyle = window.getComputedStyle(el);
 
-        // Apply all computed styles as inline (already converted to RGB by browser)
-        for (let i = 0; i < computedStyle.length; i++) {
-          const prop = computedStyle[i];
+        // Only apply color-related and essential typography styles
+        // Avoid layout properties that could break the page
+        const criticalProps = [
+          'color',
+          'background-color',
+          'background-image',
+          'background-size',
+          'background-position',
+          'background-repeat',
+          'border-color',
+          'border-top-color',
+          'border-bottom-color',
+          'border-left-color',
+          'border-right-color',
+          'border-width',
+          'border-style',
+          'font-family',
+          'font-size',
+          'font-weight',
+          'font-style',
+          'text-align',
+          'text-decoration',
+          'text-transform',
+          'line-height',
+          'letter-spacing',
+          'opacity',
+          'box-shadow',
+          'text-shadow'
+        ];
+
+        criticalProps.forEach(prop => {
           const value = computedStyle.getPropertyValue(prop);
-          if (value && value !== 'none') {
+          if (value && value !== 'none' && value !== 'normal') {
             htmlEl.style.setProperty(prop, value, 'important');
           }
-        }
+        });
       });
 
       // Store originalStyles reference for restoration
