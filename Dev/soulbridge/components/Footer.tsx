@@ -16,6 +16,17 @@ export default function Footer() {
             <p className="text-gray-500 dark:text-gray-500 text-xs">
               &copy; {new Date().getFullYear()} SoulBridge. All rights reserved.
             </p>
+            <p className="text-gray-500 dark:text-gray-500 text-xs mt-2">
+              Built by{' '}
+              <a
+                href="https://smallbusinesswebdesigns.co.za/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#2B3E50] dark:text-[#9FB89D] hover:underline font-medium"
+              >
+                Small Business Web Designs
+              </a>
+            </p>
           </div>
 
           {/* Product */}
