@@ -263,6 +263,7 @@ export default async function OrderOfServicePreviewPage({
                   src={memorial.cover_image_url || memorial.profile_image_url}
                   alt={memorial.full_name}
                   className="w-full h-full object-cover"
+                  crossOrigin="anonymous"
                 />
               </div>
             </div>
@@ -466,6 +467,7 @@ export default async function OrderOfServicePreviewPage({
                       src={orderOfService.funeral_home_logo_url}
                       alt={orderOfService.funeral_home_name}
                       className="h-12 ml-auto mb-3"
+                      crossOrigin="anonymous"
                     />
                   )}
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">

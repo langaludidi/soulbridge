@@ -25,8 +25,20 @@ export default function PreviewControls({
       const pages = document.querySelectorAll('.print-page');
       if (!pages.length) {
         alert('No content to export');
+        setIsGenerating(false);
         return;
       }
+
+      // Set crossOrigin on all images to avoid CORS issues
+      const images = document.querySelectorAll('img');
+      images.forEach(img => {
+        if (!img.crossOrigin) {
+          img.crossOrigin = 'anonymous';
+        }
+      });
+
+      // Wait for images to reload with CORS
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Create PDF in A4 format
       const pdf = new jsPDF({
@@ -41,12 +53,21 @@ export default function PreviewControls({
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLElement;
 
-        // Capture the page as canvas
+        // Capture the page as canvas with enhanced CORS handling
         const canvas = await html2canvas(page, {
           scale: 2,
           useCORS: true,
+          allowTaint: false,
           logging: false,
-          backgroundColor: null,
+          backgroundColor: '#ffffff',
+          imageTimeout: 15000,
+          onclone: (clonedDoc) => {
+            // Ensure all images in cloned document have crossOrigin
+            const clonedImages = clonedDoc.querySelectorAll('img');
+            clonedImages.forEach(img => {
+              img.crossOrigin = 'anonymous';
+            });
+          }
         });
 
         // Convert canvas to image
@@ -61,7 +82,13 @@ export default function PreviewControls({
         const imgWidth = pageWidth;
         const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        // Ensure image doesn't exceed page height
+        if (imgHeight > pageHeight) {
+          const ratio = pageHeight / imgHeight;
+          pdf.addImage(imgData, 'PNG', 0, 0, imgWidth * ratio, pageHeight);
+        } else {
+          pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        }
       }
 
       // Generate filename
@@ -71,7 +98,8 @@ export default function PreviewControls({
       pdf.save(filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try using Print instead.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to generate PDF: ${errorMessage}\n\nPlease try using the Print button instead and save as PDF from your browser.`);
     } finally {
       setIsGenerating(false);
     }
