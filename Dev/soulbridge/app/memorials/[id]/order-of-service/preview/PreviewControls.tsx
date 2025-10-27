@@ -20,6 +20,10 @@ export default function PreviewControls({
 
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
+
+    // Store references to removed stylesheets so we can restore them
+    const removedStylesheets: { element: Element; parent: Node; nextSibling: Node | null }[] = [];
+
     try {
       // Get all print pages
       const pages = document.querySelectorAll('.print-page');
@@ -37,8 +41,43 @@ export default function PreviewControls({
         }
       });
 
-      // Wait for images to reload with CORS
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // CRITICAL: Remove stylesheets from the ORIGINAL document before html2canvas runs
+      const styleSheets = document.querySelectorAll('link[rel="stylesheet"], style');
+      styleSheets.forEach(sheet => {
+        removedStylesheets.push({
+          element: sheet,
+          parent: sheet.parentNode!,
+          nextSibling: sheet.nextSibling
+        });
+        sheet.remove();
+      });
+
+      // Apply all computed styles to ORIGINAL elements as inline
+      const allElements = document.querySelectorAll('*');
+      const originalStyles = new Map<Element, string>();
+
+      allElements.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        // Save original inline style
+        originalStyles.set(el, htmlEl.getAttribute('style') || '');
+
+        const computedStyle = window.getComputedStyle(el);
+
+        // Apply all computed styles as inline (already converted to RGB by browser)
+        for (let i = 0; i < computedStyle.length; i++) {
+          const prop = computedStyle[i];
+          const value = computedStyle.getPropertyValue(prop);
+          if (value && value !== 'none') {
+            htmlEl.style.setProperty(prop, value, 'important');
+          }
+        }
+      });
+
+      // Store originalStyles reference for restoration
+      const savedOriginalStyles = originalStyles;
+
+      // Wait for DOM to settle
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Create PDF in A4 format
       const pdf = new jsPDF({
@@ -53,7 +92,7 @@ export default function PreviewControls({
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLElement;
 
-        // Capture the page as canvas with enhanced CORS and stylesheet handling
+        // Capture the page as canvas - now with no stylesheets and all inline styles
         const canvas = await html2canvas(page, {
           scale: 2,
           useCORS: true,
@@ -61,37 +100,6 @@ export default function PreviewControls({
           logging: false,
           backgroundColor: '#ffffff',
           imageTimeout: 15000,
-          onclone: (clonedDoc) => {
-            // Ensure all images in cloned document have crossOrigin
-            const clonedImages = clonedDoc.querySelectorAll('img');
-            clonedImages.forEach(img => {
-              img.crossOrigin = 'anonymous';
-            });
-
-            // Remove all stylesheets to prevent lab() color parsing
-            const styleSheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
-            styleSheets.forEach(sheet => sheet.remove());
-
-            // Apply all computed styles as inline styles
-            const originalElements = page.querySelectorAll('*');
-            const clonedElements = clonedDoc.querySelectorAll('*');
-
-            originalElements.forEach((origEl, index) => {
-              if (index < clonedElements.length) {
-                const clonedEl = clonedElements[index] as HTMLElement;
-                const computedStyle = window.getComputedStyle(origEl);
-
-                // Apply ALL computed styles as inline
-                for (let i = 0; i < computedStyle.length; i++) {
-                  const prop = computedStyle[i];
-                  const value = computedStyle.getPropertyValue(prop);
-                  if (value) {
-                    clonedEl.style.setProperty(prop, value, 'important');
-                  }
-                }
-              }
-            });
-          }
         });
 
         // Convert canvas to image
@@ -118,12 +126,43 @@ export default function PreviewControls({
       // Generate filename
       const filename = `Order-of-Service-${memorialName.replace(/\s+/g, '-')}.pdf`;
 
+      // Restore original styles
+      allElements.forEach(el => {
+        const htmlEl = el as HTMLElement;
+        const originalStyle = savedOriginalStyles.get(el);
+        if (originalStyle !== undefined) {
+          if (originalStyle) {
+            htmlEl.setAttribute('style', originalStyle);
+          } else {
+            htmlEl.removeAttribute('style');
+          }
+        }
+      });
+
+      // Restore stylesheets
+      removedStylesheets.forEach(({ element, parent, nextSibling }) => {
+        if (nextSibling) {
+          parent.insertBefore(element, nextSibling);
+        } else {
+          parent.appendChild(element);
+        }
+      });
+
       // Save the PDF
       pdf.save(filename);
     } catch (error) {
       console.error('Error generating PDF:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       alert(`Failed to generate PDF: ${errorMessage}\n\nPlease try using the Print button instead and save as PDF from your browser.`);
+
+      // Restore stylesheets even on error
+      removedStylesheets.forEach(({ element, parent, nextSibling }) => {
+        if (nextSibling) {
+          parent.insertBefore(element, nextSibling);
+        } else {
+          parent.appendChild(element);
+        }
+      });
     } finally {
       setIsGenerating(false);
     }
