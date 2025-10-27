@@ -58,14 +58,62 @@ export default function PreviewControls({
           scale: 2,
           useCORS: true,
           allowTaint: false,
-          logging: false,
+          logging: true, // Enable logging to see color parsing errors
           backgroundColor: '#ffffff',
           imageTimeout: 15000,
+          ignoreElements: (element) => {
+            // Skip elements that might cause issues
+            return false;
+          },
           onclone: (clonedDoc) => {
             // Ensure all images in cloned document have crossOrigin
             const clonedImages = clonedDoc.querySelectorAll('img');
             clonedImages.forEach(img => {
               img.crossOrigin = 'anonymous';
+            });
+
+            // Convert modern color functions to RGB by reading computed styles
+            // from original document and applying to cloned elements
+            const originalPage = page;
+            const originalElements = originalPage.querySelectorAll('*');
+            const clonedElements = clonedDoc.body.querySelectorAll('*');
+
+            originalElements.forEach((origEl, index) => {
+              if (index < clonedElements.length) {
+                const clonedEl = clonedElements[index] as HTMLElement;
+                const computedStyle = window.getComputedStyle(origEl);
+
+                // Force RGB values for problematic properties
+                const colorProps = [
+                  'color',
+                  'background-color',
+                  'border-color',
+                  'border-top-color',
+                  'border-bottom-color',
+                  'border-left-color',
+                  'border-right-color'
+                ];
+
+                colorProps.forEach(prop => {
+                  const value = computedStyle.getPropertyValue(prop);
+                  if (value && (value.includes('lab(') || value.includes('lch(') ||
+                               value.includes('oklch(') || value.includes('oklab('))) {
+                    // Convert to hex or rgb format
+                    try {
+                      // Create a temporary element to get RGB value
+                      const temp = document.createElement('div');
+                      temp.style.color = value;
+                      document.body.appendChild(temp);
+                      const rgbValue = window.getComputedStyle(temp).color;
+                      document.body.removeChild(temp);
+                      clonedEl.style.setProperty(prop, rgbValue, 'important');
+                    } catch (e) {
+                      // Fallback to black or white
+                      clonedEl.style.setProperty(prop, prop.includes('background') ? '#ffffff' : '#000000', 'important');
+                    }
+                  }
+                });
+              }
             });
           }
         });
