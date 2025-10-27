@@ -21,9 +21,6 @@ export default function PreviewControls({
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
 
-    // Store references to removed stylesheets so we can restore them
-    const removedStylesheets: { element: Element; parent: Node; nextSibling: Node | null }[] = [];
-
     try {
       // Get all print pages
       const pages = document.querySelectorAll('.print-page');
@@ -32,61 +29,6 @@ export default function PreviewControls({
         setIsGenerating(false);
         return;
       }
-
-      // Set crossOrigin on all images to avoid CORS issues
-      const images = document.querySelectorAll('img');
-      images.forEach(img => {
-        if (!img.crossOrigin) {
-          img.crossOrigin = 'anonymous';
-        }
-      });
-
-      // STEP 1: Read ALL computed styles FIRST (while stylesheets are still present)
-      const allElements = document.querySelectorAll('*');
-      const originalStyles = new Map<Element, string>();
-      const computedStylesMap = new Map<Element, CSSStyleDeclaration>();
-
-      allElements.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        // Save original inline style
-        originalStyles.set(el, htmlEl.getAttribute('style') || '');
-        // Save computed style (this has correct values because CSS is still loaded)
-        computedStylesMap.set(el, window.getComputedStyle(el));
-      });
-
-      // STEP 2: Remove stylesheets from the document
-      const styleSheets = document.querySelectorAll('link[rel="stylesheet"], style');
-      styleSheets.forEach(sheet => {
-        removedStylesheets.push({
-          element: sheet,
-          parent: sheet.parentNode!,
-          nextSibling: sheet.nextSibling
-        });
-        sheet.remove();
-      });
-
-      // STEP 3: Apply the saved computed styles as inline (now they're RGB from browser)
-      allElements.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        const computedStyle = computedStylesMap.get(el);
-
-        if (computedStyle) {
-          // Apply all computed styles as inline
-          for (let i = 0; i < computedStyle.length; i++) {
-            const prop = computedStyle[i];
-            const value = computedStyle.getPropertyValue(prop);
-            if (value) {
-              htmlEl.style.setProperty(prop, value);
-            }
-          }
-        }
-      });
-
-      // Store originalStyles reference for restoration
-      const savedOriginalStyles = originalStyles;
-
-      // Wait for DOM to settle
-      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Create PDF in A4 format
       const pdf = new jsPDF({
@@ -101,14 +43,15 @@ export default function PreviewControls({
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLElement;
 
-        // Capture the page as canvas - now with no stylesheets and all inline styles
+        // Simple html2canvas configuration
         const canvas = await html2canvas(page, {
           scale: 2,
           useCORS: true,
-          allowTaint: false,
+          allowTaint: true, // Allow cross-origin images
           logging: false,
           backgroundColor: '#ffffff',
-          imageTimeout: 15000,
+          imageTimeout: 0, // No timeout
+          removeContainer: true,
         });
 
         // Convert canvas to image
@@ -135,54 +78,29 @@ export default function PreviewControls({
       // Generate filename
       const filename = `Order-of-Service-${memorialName.replace(/\s+/g, '-')}.pdf`;
 
-      // Restore original styles
-      allElements.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        const originalStyle = savedOriginalStyles.get(el);
-        if (originalStyle !== undefined) {
-          if (originalStyle) {
-            htmlEl.setAttribute('style', originalStyle);
-          } else {
-            htmlEl.removeAttribute('style');
-          }
-        }
-      });
-
-      // Restore stylesheets
-      removedStylesheets.forEach(({ element, parent, nextSibling }) => {
-        if (nextSibling) {
-          parent.insertBefore(element, nextSibling);
-        } else {
-          parent.appendChild(element);
-        }
-      });
-
       // Save the PDF
       pdf.save(filename);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert(`Failed to generate PDF: ${errorMessage}\n\nPlease try using the Print button instead and save as PDF from your browser.`);
+      console.error('PDF generation error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
 
-      // Restore stylesheets even on error
-      removedStylesheets.forEach(({ element, parent, nextSibling }) => {
-        if (nextSibling) {
-          parent.insertBefore(element, nextSibling);
-        } else {
-          parent.appendChild(element);
-        }
-      });
+      // Show user-friendly error with print alternative
+      alert(
+        `PDF Download temporarily unavailable: ${errorMsg}\n\n` +
+        `Alternative: Click the "Print" button and choose "Save as PDF" from your browser's print dialog.\n` +
+        `This will give you the same result with better quality.`
+      );
     } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <div className="no-print fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-50">
+    <div className="no-print fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link
           href={`/memorials/${memorialId}/order-of-service`}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
         >
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -191,10 +109,24 @@ export default function PreviewControls({
         </Link>
 
         <div className="flex items-center gap-3">
+          {/* Print button - Primary recommendation */}
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center px-6 py-3 bg-[#2B3E50] text-white rounded-lg hover:bg-[#243342] transition-colors font-medium shadow-sm"
+            title="Recommended: Use browser's print dialog to save as PDF"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print / Save as PDF
+          </button>
+
+          {/* Download PDF button - Secondary option */}
           <button
             onClick={handleDownloadPDF}
             disabled={isGenerating}
-            className="inline-flex items-center px-6 py-3 bg-[#9FB89D] text-white rounded-lg hover:bg-[#84a182] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-6 py-3 bg-[#9FB89D] text-white rounded-lg hover:bg-[#84a182] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            title="Direct PDF download (experimental)"
           >
             {isGenerating ? (
               <>
@@ -209,21 +141,16 @@ export default function PreviewControls({
                 <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Download PDF
+                Quick Download
               </>
             )}
           </button>
-
-          <button
-            onClick={handlePrint}
-            className="inline-flex items-center px-6 py-3 bg-[#2B3E50] text-white rounded-lg hover:bg-[#243342] transition-colors font-medium"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Print
-          </button>
         </div>
+      </div>
+
+      {/* Helper text */}
+      <div className="max-w-7xl mx-auto mt-2 text-xs text-gray-500 text-right">
+        Tip: For best quality, use "Print / Save as PDF"
       </div>
     </div>
   );
