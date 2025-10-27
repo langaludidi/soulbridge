@@ -53,68 +53,79 @@ export default function PreviewControls({
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i] as HTMLElement;
 
+        // Pre-process: Convert all computed styles to inline styles
+        // This prevents html2canvas from parsing CSS files with lab() colors
+        const allElements = page.querySelectorAll('*');
+        const originalStyles: Map<Element, string> = new Map();
+
+        allElements.forEach(el => {
+          const htmlEl = el as HTMLElement;
+          // Save original style
+          originalStyles.set(el, htmlEl.getAttribute('style') || '');
+
+          const computedStyle = window.getComputedStyle(el);
+
+          // Apply critical computed styles as inline styles
+          const criticalProps = [
+            'color',
+            'background-color',
+            'background-image',
+            'border-color',
+            'border-top-color',
+            'border-bottom-color',
+            'border-left-color',
+            'border-right-color',
+            'font-family',
+            'font-size',
+            'font-weight',
+            'line-height',
+            'padding',
+            'margin',
+            'width',
+            'height',
+            'display',
+            'position',
+            'top',
+            'left',
+            'right',
+            'bottom'
+          ];
+
+          criticalProps.forEach(prop => {
+            const value = computedStyle.getPropertyValue(prop);
+            if (value && value !== 'none' && value !== 'auto') {
+              htmlEl.style.setProperty(prop, value, 'important');
+            }
+          });
+        });
+
         // Capture the page as canvas with enhanced CORS handling
         const canvas = await html2canvas(page, {
           scale: 2,
           useCORS: true,
           allowTaint: false,
-          logging: true, // Enable logging to see color parsing errors
+          logging: false, // Disable logging now
           backgroundColor: '#ffffff',
           imageTimeout: 15000,
-          ignoreElements: (element) => {
-            // Skip elements that might cause issues
-            return false;
-          },
           onclone: (clonedDoc) => {
             // Ensure all images in cloned document have crossOrigin
             const clonedImages = clonedDoc.querySelectorAll('img');
             clonedImages.forEach(img => {
               img.crossOrigin = 'anonymous';
             });
+          }
+        });
 
-            // Convert modern color functions to RGB by reading computed styles
-            // from original document and applying to cloned elements
-            const originalPage = page;
-            const originalElements = originalPage.querySelectorAll('*');
-            const clonedElements = clonedDoc.body.querySelectorAll('*');
-
-            originalElements.forEach((origEl, index) => {
-              if (index < clonedElements.length) {
-                const clonedEl = clonedElements[index] as HTMLElement;
-                const computedStyle = window.getComputedStyle(origEl);
-
-                // Force RGB values for problematic properties
-                const colorProps = [
-                  'color',
-                  'background-color',
-                  'border-color',
-                  'border-top-color',
-                  'border-bottom-color',
-                  'border-left-color',
-                  'border-right-color'
-                ];
-
-                colorProps.forEach(prop => {
-                  const value = computedStyle.getPropertyValue(prop);
-                  if (value && (value.includes('lab(') || value.includes('lch(') ||
-                               value.includes('oklch(') || value.includes('oklab('))) {
-                    // Convert to hex or rgb format
-                    try {
-                      // Create a temporary element to get RGB value
-                      const temp = document.createElement('div');
-                      temp.style.color = value;
-                      document.body.appendChild(temp);
-                      const rgbValue = window.getComputedStyle(temp).color;
-                      document.body.removeChild(temp);
-                      clonedEl.style.setProperty(prop, rgbValue, 'important');
-                    } catch (e) {
-                      // Fallback to black or white
-                      clonedEl.style.setProperty(prop, prop.includes('background') ? '#ffffff' : '#000000', 'important');
-                    }
-                  }
-                });
-              }
-            });
+        // Restore original styles
+        allElements.forEach(el => {
+          const htmlEl = el as HTMLElement;
+          const originalStyle = originalStyles.get(el);
+          if (originalStyle !== undefined) {
+            if (originalStyle) {
+              htmlEl.setAttribute('style', originalStyle);
+            } else {
+              htmlEl.removeAttribute('style');
+            }
           }
         });
 
