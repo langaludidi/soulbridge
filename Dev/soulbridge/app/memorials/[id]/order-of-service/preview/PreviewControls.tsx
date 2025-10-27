@@ -52,7 +52,7 @@ export default function PreviewControls({
         sheet.remove();
       });
 
-      // Apply ONLY critical visual styles to ORIGINAL elements as inline
+      // Apply ALL computed styles to ORIGINAL elements as inline
       const allElements = document.querySelectorAll('*');
       const originalStyles = new Map<Element, string>();
 
@@ -63,42 +63,16 @@ export default function PreviewControls({
 
         const computedStyle = window.getComputedStyle(el);
 
-        // Only apply color-related and essential typography styles
-        // Avoid layout properties that could break the page
-        const criticalProps = [
-          'color',
-          'background-color',
-          'background-image',
-          'background-size',
-          'background-position',
-          'background-repeat',
-          'border-color',
-          'border-top-color',
-          'border-bottom-color',
-          'border-left-color',
-          'border-right-color',
-          'border-width',
-          'border-style',
-          'font-family',
-          'font-size',
-          'font-weight',
-          'font-style',
-          'text-align',
-          'text-decoration',
-          'text-transform',
-          'line-height',
-          'letter-spacing',
-          'opacity',
-          'box-shadow',
-          'text-shadow'
-        ];
-
-        criticalProps.forEach(prop => {
+        // Apply ALL computed styles WITHOUT !important to preserve cascading
+        // This ensures layout is preserved while avoiding lab() colors
+        for (let i = 0; i < computedStyle.length; i++) {
+          const prop = computedStyle[i];
           const value = computedStyle.getPropertyValue(prop);
-          if (value && value !== 'none' && value !== 'normal') {
-            htmlEl.style.setProperty(prop, value, 'important');
+          if (value) {
+            // Don't use !important - let natural cascading work
+            htmlEl.style.setProperty(prop, value);
           }
-        });
+        }
       });
 
       // Store originalStyles reference for restoration
