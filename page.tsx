@@ -20,6 +20,7 @@ export default async function FeaturesPage() {
             Create beautiful, lasting digital memorials with powerful features designed to preserve and share precious memories.
           </p>
         </div>
+        
 
         {/* Hero Feature - Timeline */}
         <div className="mb-24 bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
