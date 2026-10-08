@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { canViewMemorial, isDiscoverableMemorial } from '@/lib/memorials/access';
 import Link from 'next/link';
 import type { Memorial } from '@/types/memorial';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
@@ -31,12 +33,7 @@ async function getMemorial(id: string): Promise<Memorial | null> {
       return null;
     }
 
-    // Increment view count
-    await supabase
-      .from('memorials')
-      .update({ view_count: data.view_count + 1 })
-      .eq('id', id);
-
+    // Never mutate analytics or expose memorial details before access checks.
     return data;
   } catch (error) {
     console.error('Error fetching memorial:', error);
@@ -176,6 +173,25 @@ function formatDate(dateString: string): string {
   });
 }
 
+export const dynamic = 'force-dynamic';
+
+/** Never expose non-public memorial names or portraits in search snippets. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const memorial = await getMemorial(id);
+  if (!memorial || !isDiscoverableMemorial(memorial)) {
+    return { robots: { index: false, follow: false }, openGraph: { images: [] }, twitter: { images: [] } };
+  }
+  return {
+    title: `Remembering ${memorial.first_name} ${memorial.last_name}`,
+    robots: { index: true, follow: true },
+  };
+}
+
 export default async function MemorialPage({
   params,
 }: {
@@ -188,23 +204,25 @@ export default async function MemorialPage({
     notFound();
   }
 
-  const tributes = await getTributes(id);
-  const candles = await getCandles(id);
-  const gallery = await getGallery(id);
-  const videos = await getVideos(id);
-  const audios = await getAudios(id);
-  const timeline = await getTimeline(id);
-  const guestbook = await getGuestbook(id);
-
-  const memorialUrl = `${process.env.NEXT_PUBLIC_APP_URL}/memorials/${id}`;
-
-  // Check if current user is the owner
+  // Authorization MUST precede fetching tributes, private images or analytics.
   const { userId } = await auth();
-  let isOwner = false;
-  if (userId) {
-    const profile = await getProfileByClerkId(userId);
-    isOwner = profile?.id === memorial.profile_id;
+  const profile = userId ? await getProfileByClerkId(userId) : null;
+  const isOwner = profile?.id === memorial.profile_id;
+  if (!canViewMemorial(memorial, profile?.id)) {
+    notFound();
   }
+
+  const [tributes, candles, gallery, videos, audios, timeline, guestbook] = await Promise.all([
+    getTributes(id),
+    getCandles(id),
+    getGallery(id),
+    getVideos(id),
+    getAudios(id),
+    getTimeline(id),
+    getGuestbook(id),
+  ]);
+
+  const memorialUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.soulbridge.co.za'}/memorials/${id}`;
 
   // Check if service is upcoming or recent (within 7 days)
   const isServiceRelevant = memorial.funeral_date ?
