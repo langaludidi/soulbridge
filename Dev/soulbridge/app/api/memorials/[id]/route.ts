@@ -107,7 +107,9 @@ export async function PATCH(
       'cover_image_url', 'visibility', 'allow_tributes', 'allow_candles',
       'allow_photos', 'status', 'theme',
     ]);
-    const keys = Object.keys(body);
+    // The review acknowledgement is checked but is never stored as a DB column.
+    const publicationConfirmed = (body as UpdateMemorialRequest & { publication_confirmed?: boolean }).publication_confirmed === true;
+    const keys = Object.keys(body).filter(key => key !== 'publication_confirmed');
     if (keys.length === 0 || keys.some(key => !editable.has(key))) {
       return NextResponse.json({ error: 'Unexpected or missing update fields' }, { status: 400 });
     }
@@ -116,6 +118,9 @@ export async function PATCH(
     }
     if (body.status && !['draft', 'published', 'archived'].includes(body.status)) {
       return NextResponse.json({ error: 'Invalid memorial status' }, { status: 400 });
+    }
+    if (body.status === 'published' && existing.status !== 'published' && !publicationConfirmed) {
+      return NextResponse.json({ error: 'Please review and confirm publication first' }, { status: 400 });
     }
     if (body.date_of_birth || body.date_of_death) {
       const dateError = validateLifeDates(
