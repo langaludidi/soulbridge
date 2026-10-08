@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
 import { auth } from '@clerk/nextjs/server';
+import { canViewMemorial } from '@/lib/memorials/access';
 
 export async function GET(req: Request) {
   try {
@@ -13,6 +14,21 @@ export async function GET(req: Request) {
         { error: 'Memorial ID is required' },
         { status: 400 }
       );
+    }
+
+    // Public programme data must not reveal a draft or private memorial.
+    const { data: memorial, error: memorialError } = await supabase
+      .from('memorials')
+      .select('profile_id, status, visibility')
+      .eq('id', memorial_id)
+      .single();
+    if (memorialError || !memorial) {
+      return NextResponse.json({ error: 'Memorial not found' }, { status: 404 });
+    }
+    const { userId } = await auth();
+    const profile = userId ? await getProfileByClerkId(userId) : null;
+    if (!canViewMemorial(memorial, profile?.id)) {
+      return NextResponse.json({ error: 'Memorial not found' }, { status: 404 });
     }
 
     // Get order of service
