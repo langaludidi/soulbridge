@@ -289,6 +289,10 @@ export default async function MemorialPage({
           {isOwner && (
             <div className="absolute top-4 right-4 flex flex-wrap gap-2">
               <Link
+                href={`/memorials/${id}/tributes-review`}
+                className="inline-flex items-center rounded-lg bg-[#f5f7f5] px-3 py-2 text-sm font-medium text-[#2B3E50] hover:bg-white"
+              >Review tributes</Link>
+              <Link
                 href={`/memorials/${id}/publish`}
                 className="inline-flex items-center rounded-lg bg-[#f5f7f5] px-3 py-2 text-sm font-medium text-[#2B3E50] hover:bg-white"
               >{memorial.status === 'published' ? 'Visibility' : 'Publish'}</Link>
