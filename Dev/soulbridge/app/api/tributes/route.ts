@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
 import { sendEmail, getTributeEmailTemplate } from '@/lib/sendgrid';
+import { canViewMemorial } from '@/lib/memorials/access';
 
 /**
  * GET /api/tributes
@@ -21,10 +22,20 @@ export async function GET(req: Request) {
 
     const supabase = getSupabaseAdmin();
 
-    // Get approved tributes (public)
+    const { data: memorial } = await supabase
+      .from('memorials').select('profile_id, status, visibility')
+      .eq('id', memorialId).single();
+    if (!memorial) return NextResponse.json({ error: 'Memorial not found' }, { status: 404 });
+    const { userId } = await auth();
+    const viewer = userId ? await getProfileByClerkId(userId) : null;
+    if (!canViewMemorial(memorial, viewer?.id)) {
+      return NextResponse.json({ error: 'Memorial not found' }, { status: 404 });
+    }
+
+    // Public list never exposes private author email addresses.
     const { data: tributes, error } = await supabase
       .from('tributes')
-      .select('*')
+      .select('id, memorial_id, author_name, author_relationship, message, created_at')
       .eq('memorial_id', memorialId)
       .eq('is_approved', true)
       .order('created_at', { ascending: false });
@@ -75,7 +86,7 @@ export async function POST(req: Request) {
     // Check if memorial exists and allows tributes
     const { data: memorial, error: memorialError } = await supabase
       .from('memorials')
-      .select('id, full_name, profile_id, allow_tributes')
+      .select('id, full_name, profile_id, status, visibility, allow_tributes')
       .eq('id', memorial_id)
       .single();
 
@@ -84,6 +95,10 @@ export async function POST(req: Request) {
         { error: 'Memorial not found' },
         { status: 404 }
       );
+    }
+
+    if (memorial.status !== 'published' || memorial.visibility === 'private') {
+      return NextResponse.json({ error: 'This memorial is not accepting public tributes' }, { status: 403 });
     }
 
     if (!memorial.allow_tributes) {
@@ -111,7 +126,7 @@ export async function POST(req: Request) {
         author_email: author_email || null,
         author_relationship: relationship || null,
         message,
-        is_approved: true, // Auto-approve for now (can add moderation later)
+        is_approved: false, // Family review required before display
       })
       .select()
       .single();
@@ -157,7 +172,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         data: tribute,
-        message: 'Tribute submitted successfully',
+        message: 'Tribute submitted for family review',
       },
       { status: 201 }
     );
