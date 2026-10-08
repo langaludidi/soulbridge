@@ -4,6 +4,7 @@ import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
 import { toSlugFromFullName, ensureUniqueSlug } from '@/lib/slug';
 import { triggerOGGeneration } from '@/lib/generate-og-helper';
 import type { CreateMemorialRequest } from '@/types/memorial';
+import { validateLifeDates } from '@/lib/memorials/validation';
 
 /**
  * GET /api/memorials
@@ -79,12 +80,20 @@ export async function POST(req: Request) {
 
     const body: CreateMemorialRequest = await req.json();
 
-    // Validate required fields
-    if (!body.first_name || !body.last_name || !body.date_of_birth || !body.date_of_death) {
-      return NextResponse.json(
-        { error: 'Missing required fields: first_name, last_name, date_of_birth, date_of_death' },
-        { status: 400 }
-      );
+    // A new memorial is always a private draft until the family reviews it.
+    if (typeof body.first_name !== 'string' || !body.first_name.trim() ||
+        typeof body.last_name !== 'string' || !body.last_name.trim()) {
+      return NextResponse.json({ error: 'First name and last name are required' }, { status: 400 });
+    }
+    const lifeDateError = validateLifeDates(body.date_of_birth, body.date_of_death);
+    if (lifeDateError) {
+      return NextResponse.json({ error: lifeDateError }, { status: 400 });
+    }
+    if (body.status && body.status !== 'draft') {
+      return NextResponse.json({ error: 'Save a draft first, then explicitly publish after review' }, { status: 400 });
+    }
+    if (body.visibility && !['private', 'unlisted', 'public'].includes(body.visibility)) {
+      return NextResponse.json({ error: 'Invalid visibility' }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
@@ -161,12 +170,12 @@ export async function POST(req: Request) {
         obituary: body.obituary || null,
         profile_image_url: body.profile_image_url || null,
         cover_image_url: body.cover_image_url || null,
-        visibility: body.visibility || 'public',
+        visibility: 'private',
         allow_tributes: body.allow_tributes !== undefined ? body.allow_tributes : true,
         allow_candles: body.allow_candles !== undefined ? body.allow_candles : true,
         allow_photos: body.allow_photos !== undefined ? body.allow_photos : true,
-        status: body.status || 'published',
-        published_at: body.status === 'published' ? new Date().toISOString() : null,
+        status: 'draft',
+        published_at: null,
         slug: uniqueSlug, // Use our robust slug generation
       })
       .select()
@@ -175,7 +184,6 @@ export async function POST(req: Request) {
     if (error) {
       console.error('Error creating memorial:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
-      console.error('Request body:', JSON.stringify(body, null, 2));
       return NextResponse.json(
         {
           error: 'Failed to create memorial',
