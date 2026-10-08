@@ -30,11 +30,11 @@ export default function CreateMemorialPage() {
     burial_location: '',
     biography: '',
     obituary: '',
-    visibility: 'public' as 'public' | 'private' | 'unlisted',
+    visibility: 'private' as 'public' | 'private' | 'unlisted',
     allow_tributes: true,
     allow_candles: true,
     allow_photos: true,
-    status: 'published' as 'draft' | 'published',
+    status: 'draft' as 'draft' | 'published',
     theme: 'classic' as 'classic' | 'modern' | 'elegant' | 'minimal' | 'warm' | 'serene',
   });
 
@@ -562,6 +562,10 @@ export default function CreateMemorialPage() {
             </div>
           </div>
 
+          <p className="rounded-lg border border-[#d4ddd2] bg-[#f5f7f5] px-4 py-3 text-sm text-[#2B3E50]">
+            Your memorial will be saved as a draft. It will not be public or shareable until you review and publish it.
+          </p>
+
           {/* Submit Buttons */}
           <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
@@ -576,7 +580,7 @@ export default function CreateMemorialPage() {
               disabled={loading || uploading}
               className="flex-1 px-6 py-2 bg-[#2B3E50] text-white rounded-md hover:bg-[#243342] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {uploading ? 'Uploading Photo...' : loading ? 'Creating...' : 'Create Memorial'}
+              {uploading ? 'Uploading Photo...' : loading ? 'Saving draft...' : 'Save memorial draft'}
             </button>
           </div>
         </form>
