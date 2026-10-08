@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://soulbridge.co.za'),
+  metadataBase: new URL('https://app.soulbridge.co.za'),
   title: {
-    default: "SoulBridge - Honouring Every Life. Connecting Every Soul",
+    default: "Soulbridge — Memorial Application",
     template: "%s | SoulBridge Memorials"
   },
   description: "Create beautiful, lasting digital memorials for loved ones. Celebrate their life, share memories, and keep their legacy alive forever.",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_ZA',
-    url: 'https://soulbridge.co.za',
+    url: 'https://app.soulbridge.co.za',
     siteName: 'SoulBridge Memorial Platform',
     title: 'SoulBridge - Honouring Every Life. Connecting Every Soul',
     description: 'Create beautiful, lasting digital memorials for loved ones. Celebrate their life, share memories, and keep their legacy alive forever.',
@@ -63,8 +63,8 @@ export const metadata: Metadata = {
     creator: '@soulbridge',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
       index: true,
       follow: true,
@@ -72,9 +72,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  verification: {
-    google: 'your-google-verification-code', // Add your actual code
   },
 };
 
