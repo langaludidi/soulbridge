@@ -6,9 +6,10 @@ export const runtime = 'edge';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const style = searchParams.get('style') || 'elegant';
 
@@ -18,11 +19,17 @@ export async function GET(
     const { data: memorial, error } = await supabase
       .from('memorials')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (error || !memorial) {
       return new Response('Memorial not found', { status: 404 });
+    }
+
+    // Image endpoints can leak a name, dates and a family photo even if the
+    // memorial page itself is protected. Never render private or draft media.
+    if (memorial.status !== 'published' || memorial.visibility === 'private') {
+      return new Response('Image unavailable', { status: 404, headers: { 'Cache-Control': 'no-store' } });
     }
 
     const fullName = memorial.full_name || 'In Loving Memory';

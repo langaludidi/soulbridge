@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 interface TributeFormProps {
   memorialId: string;
@@ -19,7 +18,6 @@ export default function TributeForm({ memorialId, onSuccess }: TributeFormProps)
     relationship: '',
     message: '',
   });
-  const { trackTribute } = useAnalytics();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
@@ -58,13 +56,7 @@ export default function TributeForm({ memorialId, onSuccess }: TributeFormProps)
         message: '',
       });
 
-      // Track tribute analytics
-      trackTribute(memorialId);
-
-      // Refresh the page to show the new tribute and update counts
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // Pending submissions must not appear in the public list before approval.
 
       if (onSuccess) {
         onSuccess();
@@ -122,7 +114,7 @@ export default function TributeForm({ memorialId, onSuccess }: TributeFormProps)
       {success && (
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
           <p className="text-green-800 dark:text-green-200">
-            Thank you for your tribute. It has been submitted successfully.
+            Thank you. Your tribute has been sent to the family for review and will appear once approved.
           </p>
         </div>
       )}

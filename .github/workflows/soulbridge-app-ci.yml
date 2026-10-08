@@ -1,0 +1,31 @@
+name: Soulbridge application checks
+
+on:
+  push:
+    branches:
+      - development/**
+  pull_request:
+    paths:
+      - 'Dev/soulbridge/**'
+      - '.github/workflows/soulbridge-app-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit tests (Node 22)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Dev/soulbridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Dev/soulbridge/package-lock.json
+      - run: npm ci --no-audit
+      - run: npm test -- --run

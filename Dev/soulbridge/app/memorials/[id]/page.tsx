@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { canViewMemorial, isDiscoverableMemorial } from '@/lib/memorials/access';
 import Link from 'next/link';
 import type { Memorial } from '@/types/memorial';
 import { getSupabaseAdmin, getProfileByClerkId } from '@/lib/supabase/client';
@@ -31,12 +33,7 @@ async function getMemorial(id: string): Promise<Memorial | null> {
       return null;
     }
 
-    // Increment view count
-    await supabase
-      .from('memorials')
-      .update({ view_count: data.view_count + 1 })
-      .eq('id', id);
-
+    // Never mutate analytics or expose memorial details before access checks.
     return data;
   } catch (error) {
     console.error('Error fetching memorial:', error);
@@ -176,6 +173,54 @@ function formatDate(dateString: string): string {
   });
 }
 
+export const dynamic = 'force-dynamic';
+
+/** Never expose non-public memorial names or portraits in search snippets. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const memorial = await getMemorial(id);
+
+  // Never disclose a draft/private name, date or portrait in the metadata.
+  const shareable = memorial?.status === 'published' &&
+    (memorial.visibility === 'public' || memorial.visibility === 'unlisted');
+  if (!memorial || !shareable) {
+    return {
+      title: 'Private memorial | Soulbridge',
+      robots: { index: false, follow: false },
+      openGraph: { images: [] },
+      twitter: { images: [] },
+    };
+  }
+
+  const name = `${memorial.first_name} ${memorial.last_name}`;
+  const imageUrl = `/api/og/memorial/${encodeURIComponent(id)}?style=elegant`;
+  const description = `Remembering ${name} — a memorial lovingly shared by family.`;
+  return {
+    title: `Remembering ${name}`,
+    description,
+    robots: isDiscoverableMemorial(memorial)
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+    openGraph: {
+      type: 'article',
+      url: `/memorials/${id}`,
+      title: `Remembering ${name}`,
+      description,
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: `Memorial tribute to ${name}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Remembering ${name}`,
+      description,
+      images: [imageUrl],
+    },
+  };
+}
+
 export default async function MemorialPage({
   params,
 }: {
@@ -188,23 +233,25 @@ export default async function MemorialPage({
     notFound();
   }
 
-  const tributes = await getTributes(id);
-  const candles = await getCandles(id);
-  const gallery = await getGallery(id);
-  const videos = await getVideos(id);
-  const audios = await getAudios(id);
-  const timeline = await getTimeline(id);
-  const guestbook = await getGuestbook(id);
-
-  const memorialUrl = `${process.env.NEXT_PUBLIC_APP_URL}/memorials/${id}`;
-
-  // Check if current user is the owner
+  // Authorization MUST precede fetching tributes, private images or analytics.
   const { userId } = await auth();
-  let isOwner = false;
-  if (userId) {
-    const profile = await getProfileByClerkId(userId);
-    isOwner = profile?.id === memorial.profile_id;
+  const profile = userId ? await getProfileByClerkId(userId) : null;
+  const isOwner = profile?.id === memorial.profile_id;
+  if (!canViewMemorial(memorial, profile?.id)) {
+    notFound();
   }
+
+  const [tributes, candles, gallery, videos, audios, timeline, guestbook] = await Promise.all([
+    getTributes(id),
+    getCandles(id),
+    getGallery(id),
+    getVideos(id),
+    getAudios(id),
+    getTimeline(id),
+    getGuestbook(id),
+  ]);
+
+  const memorialUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.soulbridge.co.za'}/memorials/${id}`;
 
   // Check if service is upcoming or recent (within 7 days)
   const isServiceRelevant = memorial.funeral_date ?
@@ -214,7 +261,15 @@ export default async function MemorialPage({
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Analytics Tracking */}
-      <AnalyticsTracker memorialId={id} trackView={true} />
+      {memorial.status === 'published' && memorial.visibility !== 'private' && (
+        <AnalyticsTracker memorialId={id} trackView={true} />
+      )}
+      {isOwner && memorial.status !== 'published' && (
+        <div className="border-b border-[#d4ddd2] bg-[#f5f7f5] px-4 py-4 text-center text-sm text-[#2B3E50]">
+          This memorial is a private draft. Review it before sharing.
+          <Link className="ml-2 font-semibold underline underline-offset-2" href={`/memorials/${id}/publish`}>Review &amp; publish</Link>
+        </div>
+      )}
 
       {/* 1. Hero / Identity Section */}
       <div className="relative bg-gradient-to-r from-indigo-900 to-purple-900 text-white">
@@ -233,6 +288,14 @@ export default async function MemorialPage({
           {/* Owner Actions (Owner Only) */}
           {isOwner && (
             <div className="absolute top-4 right-4 flex flex-wrap gap-2">
+              <Link
+                href={`/memorials/${id}/tributes-review`}
+                className="inline-flex items-center rounded-lg bg-[#f5f7f5] px-3 py-2 text-sm font-medium text-[#2B3E50] hover:bg-white"
+              >Review tributes</Link>
+              <Link
+                href={`/memorials/${id}/publish`}
+                className="inline-flex items-center rounded-lg bg-[#f5f7f5] px-3 py-2 text-sm font-medium text-[#2B3E50] hover:bg-white"
+              >{memorial.status === 'published' ? 'Visibility' : 'Publish'}</Link>
               <Link
                 href={`/memorials/${id}/order-of-service`}
                 className="inline-flex items-center px-3 py-2 bg-white text-[#9FB89D] rounded-lg hover:bg-gray-100 transition-colors text-sm"
@@ -304,6 +367,7 @@ export default async function MemorialPage({
 
       {/* 2. Primary Action Bar (Sticky on Mobile) */}
       <StickyActionBar
+        allowSharing={memorial.status === 'published' && memorial.visibility !== 'private'}
         memorial={memorial}
         dateRange={`${formatDate(memorial.date_of_birth)} - ${formatDate(memorial.date_of_death)}`}
       />
@@ -585,14 +649,16 @@ export default async function MemorialPage({
         )}
 
         {/* 11. Share & Stats Section */}
-        <div id="share" className="scroll-mt-20">
-          <ShareButtons
-            memorialId={id}
-            memorialName={memorial.full_name}
-            memorialUrl={memorialUrl}
-            dates={`${formatDate(memorial.date_of_birth)} - ${formatDate(memorial.date_of_death)}`}
-          />
-        </div>
+        {memorial.status === 'published' && memorial.visibility !== 'private' && (
+          <div id="share" className="scroll-mt-20">
+            <ShareButtons
+              memorialId={id}
+              memorialName={memorial.full_name}
+              memorialUrl={memorialUrl}
+              dates={`${formatDate(memorial.date_of_birth)} - ${formatDate(memorial.date_of_death)}`}
+            />
+          </div>
+        )}
 
         {/* Stats Bar */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mt-8 mb-8">

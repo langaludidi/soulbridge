@@ -6,19 +6,25 @@ export const runtime = 'edge';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params;
     const supabase = getSupabaseAdmin();
 
     const { data: memorial, error } = await supabase
       .from('memorials')
       .select('*')
-      .eq('slug', params.slug)
+      .eq('slug', slug)
       .single();
 
     if (error || !memorial) {
       return new Response('Memorial not found', { status: 404 });
+    }
+
+    // Check access BEFORE returning any cached family portrait.
+    if (memorial.status !== 'published' || memorial.visibility === 'private') {
+      return new Response('Image unavailable', { status: 404, headers: { 'Cache-Control': 'no-store' } });
     }
 
     // Check for pre-generated OG image (fast path!)
@@ -30,7 +36,7 @@ export async function GET(
           return new Response(imageBuffer, {
             headers: {
               'Content-Type': 'image/png',
-              'Cache-Control': 'public, max-age=31536000, immutable',
+              'Cache-Control': 'no-store',
             },
           });
         }
@@ -41,7 +47,7 @@ export async function GET(
     }
 
     // Privacy check - return neutral image for non-public memorials
-    if (memorial.visibility !== 'public') {
+    if (memorial.visibility !== 'public' && memorial.visibility !== 'unlisted') {
       return new ImageResponse(
         (
           <div
@@ -248,7 +254,7 @@ export async function GET(
         width: 1200,
         height: 630,
         headers: {
-          'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+          'Cache-Control': 'no-store',
         },
       }
     );
