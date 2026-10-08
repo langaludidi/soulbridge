@@ -183,12 +183,41 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const memorial = await getMemorial(id);
-  if (!memorial || !isDiscoverableMemorial(memorial)) {
-    return { robots: { index: false, follow: false }, openGraph: { images: [] }, twitter: { images: [] } };
+
+  // Never disclose a draft/private name, date or portrait in the metadata.
+  const shareable = memorial?.status === 'published' &&
+    (memorial.visibility === 'public' || memorial.visibility === 'unlisted');
+  if (!memorial || !shareable) {
+    return {
+      title: 'Private memorial | Soulbridge',
+      robots: { index: false, follow: false },
+      openGraph: { images: [] },
+      twitter: { images: [] },
+    };
   }
+
+  const name = `${memorial.first_name} ${memorial.last_name}`;
+  const imageUrl = `/api/og/memorial/${encodeURIComponent(id)}?style=elegant`;
+  const description = `Remembering ${name} — a memorial lovingly shared by family.`;
   return {
-    title: `Remembering ${memorial.first_name} ${memorial.last_name}`,
-    robots: { index: true, follow: true },
+    title: `Remembering ${name}`,
+    description,
+    robots: isDiscoverableMemorial(memorial)
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+    openGraph: {
+      type: 'article',
+      url: `/memorials/${id}`,
+      title: `Remembering ${name}`,
+      description,
+      images: [{ url: imageUrl, width: 1200, height: 630, alt: `Memorial tribute to ${name}` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Remembering ${name}`,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
