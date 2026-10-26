@@ -26,7 +26,7 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {userId ? (
               <Link
-                href="/dashboard"
+                href="https://app.soulbridge.co.za/family"
                 className="bg-[#2B3E50] text-white hover:bg-[#243342] px-8 py-3 rounded-lg text-lg font-medium transition-colors shadow-lg hover:shadow-xl"
               >
                 Go to Dashboard
@@ -34,13 +34,13 @@ export default async function Home() {
             ) : (
               <>
                 <Link
-                  href="/sign-up"
+                  href="https://app.soulbridge.co.za/auth/sign-up"
                   className="bg-[#2B3E50] text-white hover:bg-[#243342] px-8 py-3 rounded-lg text-lg font-medium transition-colors shadow-lg hover:shadow-xl"
                 >
                   Create Free Account
                 </Link>
                 <Link
-                  href="/sign-in"
+                  href="https://app.soulbridge.co.za/auth/sign-in"
                   className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 px-8 py-3 rounded-lg text-lg font-medium transition-colors border border-gray-300 dark:border-gray-600"
                 >
                   Sign In

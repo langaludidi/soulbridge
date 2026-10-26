@@ -61,7 +61,7 @@ export default function Navigation({ userId }: NavigationProps) {
           <div className="hidden md:flex items-center space-x-4">
             {userId ? (
               <Link
-                href="/dashboard"
+                href="https://app.soulbridge.co.za/family"
                 className="bg-[#2B3E50] text-white hover:bg-[#243342] px-4 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Dashboard
@@ -69,13 +69,13 @@ export default function Navigation({ userId }: NavigationProps) {
             ) : (
               <>
                 <Link
-                  href="/sign-in"
+                  href="https://app.soulbridge.co.za/auth/sign-in"
                   className="text-gray-700 dark:text-gray-300 hover:text-[#2B3E50] dark:hover:text-[#9FB89D] px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
-                  href="/sign-up"
+                  href="https://app.soulbridge.co.za/auth/sign-up"
                   className="bg-[#2B3E50] text-white hover:bg-[#243342] px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Get Started
@@ -151,7 +151,7 @@ export default function Navigation({ userId }: NavigationProps) {
               <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
                 {userId ? (
                   <Link
-                    href="/dashboard"
+                    href="https://app.soulbridge.co.za/family"
                     className="block bg-[#2B3E50] text-white hover:bg-[#243342] px-3 py-2 rounded-md text-sm font-medium transition-colors text-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -160,14 +160,14 @@ export default function Navigation({ userId }: NavigationProps) {
                 ) : (
                   <>
                     <Link
-                      href="/sign-in"
+                      href="https://app.soulbridge.co.za/auth/sign-in"
                       className="block text-gray-700 dark:text-gray-300 hover:text-[#2B3E50] dark:hover:text-[#9FB89D] px-3 py-2 rounded-md text-sm font-medium transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
-                      href="/sign-up"
+                      href="https://app.soulbridge.co.za/auth/sign-up"
                       className="block bg-[#2B3E50] text-white hover:bg-[#243342] px-3 py-2 rounded-md text-sm font-medium transition-colors mt-2 text-center"
                       onClick={() => setMobileMenuOpen(false)}
                     >
